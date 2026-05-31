@@ -980,6 +980,7 @@
   <button class="btn btn-success" onclick="logManualCheck()">✅ Зафиксировать проверку</button>
   <button class="btn btn-warning" onclick="generateReport()">📋 Отчёт за день</button>
   <button class="btn btn-outline" onclick="exportCSV()">⬇️ Экспорт CSV</button>
+  <button class="btn btn-outline" onclick="exportJSON()" title="Обновить data.json для Telegram-бота">📤 Экспорт JSON (бот)</button>
   <button class="btn btn-outline" onclick="scrollToAnalysis()">🔍 Анализ отзывов</button>
   <button class="btn btn-outline" onclick="document.getElementById('addpointsSection').scrollIntoView({behavior:'smooth'})">📍 Добавить в 2ГИС</button>
   <button class="btn btn-outline" onclick="document.getElementById('strategySection').scrollIntoView({behavior:'smooth'})">🎯 Стратегия 4.8★</button>
@@ -2902,6 +2903,36 @@ function generateReport() {
   el.scrollIntoView({ behavior: 'smooth' });
   addLog('blue', '📋 Сформирован дневной отчёт', `${data.length} точек · Критичных: ${critical.length}`);
   renderLog();
+}
+
+function exportJSON() {
+  const data = load();
+  const exportData = data.map(p => ({
+    id:         p.id,
+    city:       p.city,
+    address:    p.address,
+    rating:     p.rating,
+    reviews:    p.reviews || 0,
+    prevRating: p.prevRating,
+    notes:      p.notes || '',
+    checked:    p.checked || null,
+    link:       p.link || ''
+  }));
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'data.json';
+  a.click();
+  addLog('blue', '📤 Экспорт JSON для Telegram-бота', `${data.length} точек → data.json`);
+  renderLog();
+  // Показать подсказку
+  setTimeout(() => alert(
+    '✅ Файл data.json скачан!\n\n' +
+    'Следующий шаг:\n' +
+    '1. Положите data.json в папку bot/ репозитория\n' +
+    '2. Сделайте commit и push на GitHub\n' +
+    '3. Бот будет использовать актуальные данные'
+  ), 300);
 }
 
 function exportCSV() {

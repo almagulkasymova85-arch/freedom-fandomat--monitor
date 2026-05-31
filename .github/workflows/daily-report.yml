@@ -1,0 +1,32 @@
+name: 📊 Ежедневный отчёт в Telegram
+
+on:
+  schedule:
+    # 05:00 UTC = 10:00 Алматы (UTC+5)
+    - cron: '0 5 * * *'
+  # Ручной запуск для теста
+  workflow_dispatch:
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+    name: Отправить отчёт по критичным точкам
+
+    steps:
+      - name: 📥 Получить код репозитория
+        uses: actions/checkout@v4
+
+      - name: 🐍 Установить Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📊 Запустить отчёт
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python bot/report.py
+
+      - name: ✅ Готово
+        run: echo "Отчёт успешно отправлен в Telegram"
