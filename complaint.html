@@ -314,9 +314,7 @@
   <a class="alt-link" href="https://wa.me/77717655999" target="_blank">
     <span class="al-icon">💬</span>WhatsApp поддержка
   </a>
-  <a class="alt-link" id="gisLink" href="#" target="_blank">
-    <span class="al-icon">🗺️</span>Отзыв в 2ГИС
-  </a>
+
   <a class="alt-link" href="https://t.me/FandomatyMonitorBot" target="_blank">
     <span class="al-icon">🤖</span>Telegram бот
   </a>
@@ -454,9 +452,6 @@ function init() {
     document.getElementById('machineAddr').textContent = currentMachine.addr;
     document.getElementById('machineRvm').textContent  = `RVM ${rvm} · ${currentMachine.city}`;
 
-    const gisCity = currentMachine.city === 'Астана' ? 'astana' : 'almaty';
-    document.getElementById('gisLink').href =
-      `https://2gis.kz/${gisCity}/search/${encodeURIComponent(currentMachine.loc + ' ' + currentMachine.addr)}`;
   } else {
     // Без rvm — показываем дропдаун выбора
     document.getElementById('machineName').textContent = 'Выберите фандомат ниже';
