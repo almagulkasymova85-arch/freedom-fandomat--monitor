@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Freedom Фандоматы — Сообщить о проблеме</title>
+<style>
+  :root {
+    --green:  #1db954;
+    --red:    #e63946;
+    --blue:   #1d3557;
+    --yellow: #f4a261;
+    --bg:     #f0f4f8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0 40px;
+  }
+
+  /* ── ШАПКА ── */
+  .header {
+    width: 100%;
+    background: linear-gradient(135deg, #1d3557 0%, #457b9d 100%);
+    color: #fff;
+    padding: 24px 20px 20px;
+    text-align: center;
+  }
+  .header-logo { font-size: 2.5rem; margin-bottom: 6px; }
+  .header h1   { font-size: 1.25rem; margin-bottom: 4px; }
+  .header p    { font-size: .85rem; opacity: .85; }
+
+  /* ── КАРТОЧКА ФАНДОМАТА ── */
+  .machine-card {
+    width: 100%;
+    max-width: 480px;
+    margin: 16px 16px 0;
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.1);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .machine-icon { font-size: 2rem; flex-shrink: 0; }
+  .machine-info { flex: 1; }
+  .machine-name { font-weight: 700; font-size: 1rem; color: var(--blue); }
+  .machine-addr { font-size: .82rem; color: #666; margin-top: 2px; }
+  .machine-rvm  {
+    font-size: .7rem; font-weight: 700;
+    background: #e8f0fe; color: #1a73e8;
+    padding: 2px 8px; border-radius: 20px;
+    display: inline-block; margin-top: 4px;
+  }
+  .city-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  /* ── ФОРМА ── */
+  .form-card {
+    width: 100%;
+    max-width: 480px;
+    margin: 12px 16px 0;
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 18px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.1);
+  }
+  .form-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Кнопки проблем */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .prob-btn {
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 12px 10px;
+    text-align: center;
+    cursor: pointer;
+    background: #fafafa;
+    transition: all .2s;
+    font-size: .82rem;
+    color: #333;
+    user-select: none;
+  }
+  .prob-btn .pb-icon { font-size: 1.6rem; display: block; margin-bottom: 4px; }
+  .prob-btn:active   { transform: scale(.97); }
+  .prob-btn.selected { border-color: var(--red); background: #fde8e8; color: var(--red); font-weight: 700; }
+
+  /* Оценка */
+  .rating-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+  .star-btn {
+    font-size: 2rem; cursor: pointer; color: #ddd;
+    transition: color .15s; line-height: 1;
+    user-select: none;
+  }
+  .star-btn.lit { color: #f4a261; }
+
+  /* Текст */
+  label { display: block; font-size: .82rem; font-weight: 600; color: #555; margin-bottom: 5px; }
+  textarea {
+    width: 100%; border: 1.5px solid #e0e0e0; border-radius: 10px;
+    padding: 10px 12px; font-size: .9rem; resize: vertical;
+    min-height: 90px; outline: none; font-family: inherit;
+    transition: border-color .2s;
+  }
+  textarea:focus { border-color: var(--blue); }
+
+  /* Контакт */
+  .contact-row { margin-top: 12px; }
+  input[type=text], input[type=tel] {
+    width: 100%; border: 1.5px solid #e0e0e0; border-radius: 10px;
+    padding: 10px 12px; font-size: .9rem; outline: none;
+    font-family: inherit; transition: border-color .2s;
+  }
+  input:focus { border-color: var(--blue); }
+
+  /* Кнопка отправки */
+  .submit-btn {
+    width: 100%; margin-top: 16px;
+    background: var(--red);
+    color: #fff; border: none; border-radius: 12px;
+    padding: 15px; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: opacity .2s, transform .1s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .submit-btn:active  { transform: scale(.98); }
+  .submit-btn:hover   { opacity: .92; }
+  .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .submit-btn.sending { background: #888; }
+
+  /* Успех */
+  .success-screen {
+    display: none;
+    width: 100%; max-width: 480px;
+    margin: 20px 16px 0;
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.1);
+    text-align: center;
+  }
+  .success-icon { font-size: 4rem; margin-bottom: 12px; }
+  .success-title { font-size: 1.3rem; font-weight: 700; color: var(--green); margin-bottom: 8px; }
+  .success-msg   { font-size: .88rem; color: #555; line-height: 1.6; }
+  .success-sub   { font-size: .78rem; color: #aaa; margin-top: 12px; }
+  .back-btn {
+    margin-top: 20px; display: inline-block;
+    background: var(--blue); color: #fff;
+    border-radius: 10px; padding: 10px 24px;
+    font-size: .9rem; font-weight: 700;
+    text-decoration: none; cursor: pointer; border: none;
+  }
+
+  /* Ошибка */
+  .error-msg {
+    background: #fde8e8; color: var(--red);
+    border-radius: 10px; padding: 10px 14px;
+    font-size: .82rem; margin-top: 10px;
+    display: none;
+  }
+
+  /* Прогресс */
+  .progress-dots { display: flex; gap: 5px; justify-content: center; margin: 10px 0 0; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #ddd; }
+  .dot.active { background: var(--blue); }
+
+  /* Альтернативы */
+  .alt-links {
+    width: 100%; max-width: 480px;
+    margin: 12px 16px 0;
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .alt-link {
+    flex: 1; min-width: 120px;
+    background: #fff; border-radius: 12px;
+    padding: 12px 14px; text-align: center;
+    text-decoration: none; color: var(--blue);
+    box-shadow: 0 1px 6px rgba(0,0,0,.08);
+    font-size: .78rem; font-weight: 600;
+    transition: box-shadow .2s;
+  }
+  .alt-link .al-icon { font-size: 1.3rem; display: block; margin-bottom: 4px; }
+  .alt-link:hover { box-shadow: 0 3px 12px rgba(0,0,0,.15); }
+
+  .footer {
+    margin-top: 24px;
+    font-size: .72rem;
+    color: #aaa;
+    text-align: center;
+    padding: 0 20px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ШАПКА -->
+<div class="header">
+  <div class="header-logo">♻️</div>
+  <h1>Сообщить о проблеме</h1>
+  <p>Freedom Фандоматы — мы исправим в течение 24 часов</p>
+</div>
+
+<!-- КАРТОЧКА ФАНДОМАТА -->
+<div class="machine-card" id="machineCard">
+  <div class="machine-icon">🤖</div>
+  <div class="machine-info">
+    <div class="machine-name" id="machineName">Загрузка...</div>
+    <div class="machine-addr" id="machineAddr"></div>
+    <span class="machine-rvm" id="machineRvm"></span>
+  </div>
+</div>
+
+<!-- ФОРМА -->
+<div class="form-card" id="formCard">
+  <!-- Шаг 1: Проблема -->
+  <div id="step1">
+    <div class="form-title">❗ Что случилось?</div>
+    <div class="problem-grid">
+      <div class="prob-btn" onclick="toggleProb(this,'Аппарат не работает')">
+        <span class="pb-icon">💀</span>Аппарат не работает
+      </div>
+      <div class="prob-btn" onclick="toggleProb(this,'Белый экран / завис')">
+        <span class="pb-icon">📺</span>Белый экран / завис
+      </div>
+      <div class="prob-btn" onclick="toggleProb(this,'Не принимает бутылки')">
+        <span class="pb-icon">🚫</span>Не принимает бутылки
+      </div>
+      <div class="prob-btn" onclick="toggleProb(this,'Аппарат переполнен')">
+        <span class="pb-icon">🗑️</span>Аппарат переполнен
+      </div>
+      <div class="prob-btn" onclick="toggleProb(this,'Бонусы не начислились')">
+        <span class="pb-icon">💳</span>Бонусы не начислились
+      </div>
+      <div class="prob-btn" onclick="toggleProb(this,'Грязно / неприятный запах')">
+        <span class="pb-icon">🧹</span>Грязно / неприятный запах
+      </div>
+      <div class="prob-btn" onclick="toggleProb(this,'Аппарат сломан / повреждён')">
+        <span class="pb-icon">🔧</span>Аппарат сломан
+      </div>
+      <div class="prob-btn" onclick="toggleProb(this,'Другая проблема')">
+        <span class="pb-icon">💬</span>Другое
+      </div>
+    </div>
+
+    <!-- Оценка -->
+    <label>Ваша оценка фандомата:</label>
+    <div class="rating-row" id="ratingRow">
+      <span class="star-btn" onclick="setRating(1)">★</span>
+      <span class="star-btn" onclick="setRating(2)">★</span>
+      <span class="star-btn" onclick="setRating(3)">★</span>
+      <span class="star-btn" onclick="setRating(4)">★</span>
+      <span class="star-btn" onclick="setRating(5)">★</span>
+    </div>
+
+    <!-- Комментарий -->
+    <div style="margin-top:4px">
+      <label>Описание (необязательно):</label>
+      <textarea id="comment" placeholder="Опишите подробнее что произошло..."></textarea>
+    </div>
+
+    <!-- Контакт -->
+    <div class="contact-row">
+      <label>Ваш телефон или Telegram (необязательно):</label>
+      <input type="tel" id="contact" placeholder="+7 777 123 4567 или @username">
+    </div>
+
+    <div class="error-msg" id="errorMsg">⚠️ Выберите хотя бы одну проблему</div>
+
+    <button class="submit-btn" id="submitBtn" onclick="sendComplaint()">
+      🚨 Отправить жалобу
+    </button>
+
+    <div class="progress-dots">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ЭКРАН УСПЕХА -->
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">✅</div>
+  <div class="success-title">Жалоба принята!</div>
+  <div class="success-msg">
+    Мы получили ваше сообщение и постараемся устранить проблему<br>
+    в течение <b>24 часов</b>.<br><br>
+    Спасибо, что помогаете нам стать лучше! ♻️
+  </div>
+  <div class="success-sub">Команда Freedom Фандоматы</div>
+  <button class="back-btn" onclick="resetForm()">← Отправить ещё одну</button>
+</div>
+
+<!-- АЛЬТЕРНАТИВЫ -->
+<div class="alt-links" id="altLinks">
+  <a class="alt-link" href="https://wa.me/77717655999" target="_blank">
+    <span class="al-icon">💬</span>WhatsApp поддержка
+  </a>
+  <a class="alt-link" id="gisLink" href="#" target="_blank">
+    <span class="al-icon">🗺️</span>Отзыв в 2ГИС
+  </a>
+  <a class="alt-link" href="https://t.me/FandomatyMonitorBot" target="_blank">
+    <span class="al-icon">🤖</span>Telegram бот
+  </a>
+</div>
+
+<div class="footer">
+  Freedom Holding Corp. × ECO Network<br>
+  Жалобы обрабатываются ежедневно с 09:00 до 18:00
+</div>
+
+<script>
+// ── ДАННЫЕ ──────────────────────────────────────────
+const MACHINES = {
+  201:{city:"Алматы",loc:"БЦ Нурикон",addr:"Ауэзова 175/1"},
+  202:{city:"Каскелен",loc:"ТЦ Замза",addr:"Абылай хана, 177а"},
+  203:{city:"Алматы",loc:"Спорт комплекс Балуана Шолака",addr:"Абая 44"},
+  204:{city:"Астана",loc:"Республиканский диагностический центр",addr:"Сыганак, 46"},
+  205:{city:"Алматы",loc:"Алмалинский комьюнити центр",addr:"Байтурсынова, 22 к1"},
+  206:{city:"Астана",loc:"Astana Hub",addr:"Мангилик Ел, 55/7"},
+  207:{city:"Астана",loc:"iKomek",addr:"Бейбитшилик, 9"},
+  208:{city:"Каскелен",loc:"ТЦ Алатау",addr:"Абылай Хана 90"},
+  209:{city:"Алматы",loc:"Зал Джуи Джитсу",addr:"Досмухамедова 68б"},
+  210:{city:"Алматы",loc:"Наурызбайский комьюнити центр",addr:"Шугыла, 343/7"},
+  211:{city:"Алматы",loc:"Панфилова",addr:"Панфилова"},
+  212:{city:"Алматы",loc:"Halyk Arena",addr:"Кульджинский тракт, 2"},
+  213:{city:"Алматы",loc:"Наурызбайское комьюнити центр",addr:"Жунисова 4/2"},
+  214:{city:"Алматы",loc:"Университет КазГАСА",addr:"Рыскулбекова, 28"},
+  215:{city:"Алматы",loc:"Avatariya 2",addr:"Халиуллина 194"},
+  216:{city:"Алматы",loc:"Казахстанско-Немецкий Университет",addr:"Назарбаева 173"},
+  217:{city:"Алматы",loc:"ЖК Athletic Village",addr:"Нуркент мкрн, 5 к20-22"},
+  218:{city:"Алматы",loc:"КБТУ",addr:"Толе би, 59"},
+  219:{city:"Алматы",loc:"Университет Нархоз",addr:"Жандосова, 55"},
+  220:{city:"Алматы",loc:"Жетысуйский Комьюнити Центр",addr:"Серикова 6а"},
+  221:{city:"Алматы",loc:"Кайсар Плаза",addr:"Богенбай батыра, 129"},
+  222:{city:"Алматы",loc:"Медеуский комьюнити центр",addr:"Халиуллина 140/5"},
+  223:{city:"Алматы",loc:"Almaty Management University",addr:"Розыбакиева 227"},
+  224:{city:"Алматы",loc:"Жетысуский комьюнити центр",addr:"Боткина, 18/1 к1"},
+  225:{city:"Алматы",loc:"Ледовый дворец",addr:"Абая 44"},
+  226:{city:"Алматы",loc:"КазНУ",addr:"Аль-Фараби 71"},
+  227:{city:"Алматы",loc:"Университет КИМЭП",addr:"Абая 4"},
+  228:{city:"Алматы",loc:"Казпочта",addr:"Богенбай батыра 134"},
+  229:{city:"Алматы",loc:"Арбат",addr:"Арбат"},
+  230:{city:"Алматы",loc:"Алатауский комьюнити центр",addr:"Мкрн. Саялы, 73"},
+  231:{city:"Алматы",loc:"Аэропорт",addr:"Майлина 2"},
+  232:{city:"Каскелен",loc:"SDU",addr:"Абылай хана, 1/1"},
+  233:{city:"Алматы",loc:"Теннисный центр Zhan Dosym",addr:"Аль-Фараби 71/20а"},
+  234:{city:"Алматы",loc:"Satbayev University",addr:"Каныша Сатпаева, 22"},
+  235:{city:"Алматы",loc:"Invictus Go",addr:"Каракулова, 39"},
+  236:{city:"Алматы",loc:"Кинотеатр Арман",addr:"Достык 104"},
+  237:{city:"Алматы",loc:"Теннисный центр",addr:"Санаторная, 14"},
+  238:{city:"Алматы",loc:"Фортис бизнес центр",addr:"Ходжанова 2/2"},
+  239:{city:"Алматы",loc:"Уличный Наурызбайский р-н",addr:"Магазин Алмалы"},
+  240:{city:"Алматы",loc:"Частная школа им. Шокана Уалиханова",addr:"Самал 3 мкрн 37/1"},
+  241:{city:"Алматы",loc:"ТК МЕРЕЙ",addr:"Суюнбая, 2 к9"},
+  242:{city:"Алматы",loc:"БЦ Esentai Tower",addr:"Аль-Фараби, 77/7"},
+  243:{city:"Алматы",loc:"КазНПУ им. Абая",addr:"Казыбек би 30"},
+  244:{city:"Астана",loc:"МФЦА",addr:"Мангилик ел С3.1"},
+  245:{city:"Алматы",loc:"Abylai Khan Plaza",addr:"Абылай хана 53"},
+  246:{city:"Алматы",loc:"ALT University",addr:"Шевченко 97"},
+  247:{city:"Алматы",loc:"Ауэзовский комьюнити центр",addr:"Мамыр 1, 26/1 блок 1"},
+  248:{city:"Астана",loc:"Евразийский гуманитарный институт",addr:"Жумабаева, 4"},
+  249:{city:"Астана",loc:"Центр Сердца",addr:"Туран, 38"},
+  250:{city:"Астана",loc:"Coventry University",addr:"Коргалжын, 13а"},
+  251:{city:"Астана",loc:"Ботанический сад 1",addr:"Ботанический сад"},
+  252:{city:"Астана",loc:"Nazarbayev University D3",addr:"Кабанбай батыр, 53 D3"},
+  253:{city:"Астана",loc:"ЕНУ",addr:"Кажымукан, 13"},
+  254:{city:"Астана",loc:"ТРЦ Madis",addr:"Коргалжын, 13д"},
+  255:{city:"Алматы",loc:"Алматинский технологический университет",addr:"Толе би, 100"},
+  256:{city:"Алматы",loc:"Центральный стадион",addr:"Центральный стадион"},
+  257:{city:"Алматы",loc:"BIRGE MART",addr:"Макатаева 68"},
+  258:{city:"Алматы",loc:"МУИТ Манаса",addr:"Манаса 34/1"},
+  259:{city:"Астана",loc:"Экохаб Астана",addr:"Косшыгулулы 8/1"},
+  260:{city:"Астана",loc:"Ботанический сад 2",addr:"Ботанический сад"},
+  261:{city:"Астана",loc:"Asia Park",addr:"Кабанбай батыр, 21"},
+  262:{city:"Астана",loc:"Центр материнства и детства",addr:"Туран, 32"},
+  263:{city:"Астана",loc:"Urban College",addr:"Даулеткерей 1"},
+  264:{city:"Астана",loc:"Haileybury",addr:"Ивана Панфилова, 4"},
+  265:{city:"Астана",loc:"Aspan спортивная школа",addr:"Е-697, 5"},
+  266:{city:"Алматы",loc:"ЭкоХаб Маркова",addr:"Маркова 44"},
+  267:{city:"Астана",loc:"TAU University",addr:"Дукенулы 29а"},
+  268:{city:"Астана",loc:"Средняя школа 101",addr:"Толе би, 57а"},
+  269:{city:"Астана",loc:"КТЖ",addr:"Кунаева 6"},
+  270:{city:"Астана",loc:"ТД Тумар",addr:"Сыганак, 1Б"},
+  271:{city:"Астана",loc:"Дворец школьников",addr:"Дворец Школьников"},
+  272:{city:"Астана",loc:"Ледовый дворец Алау",addr:"Кабанбай батыр, 47"},
+  273:{city:"Астана",loc:"Barys Arena",addr:"Туран, 57"},
+  274:{city:"Астана",loc:"Fitnation",addr:"Туран, 4/1"},
+  275:{city:"Астана",loc:"КазУТБ",addr:"Кайым Мухамедханов, 37а"},
+  276:{city:"Астана",loc:"Астана Арена",addr:"Туран, 48"},
+  277:{city:"Астана",loc:"КазАТУ им. Сейфуллина",addr:"Женис, 62"},
+  278:{city:"Астана",loc:"Теннисный центр Даулет",addr:"Кордай 6"},
+  279:{city:"Алматы",loc:"Парк Первого Президента",addr:"Парк Первого Президента"},
+  280:{city:"Алматы",loc:"КазНУ Аль-Фараби 71/19",addr:"Аль-Фараби 71/19"},
+  281:{city:"Алматы",loc:"Акимат Наурызбайского района",addr:"Акимат"},
+  282:{city:"Алматы",loc:"Ботанический сад",addr:"Тимирязева, 36д к2"},
+  283:{city:"Алматы",loc:"Айнабулак-2 уличный",addr:"Айнабулак-2"},
+  284:{city:"Алматы",loc:"Satbayev University 2",addr:"Каныша Сатпаева, 22"},
+  285:{city:"Алматы",loc:"Турксибский комьюнити центр",addr:"Жас Канат, 49а"},
+  286:{city:"Алматы",loc:"MEGA Park",addr:"Макатаева, 127/1"},
+  287:{city:"Астана",loc:"Astana Hub 2",addr:"Мангилик ел С4.5"},
+  288:{city:"Алматы",loc:"Avatariya",addr:"Халиуллина 194"},
+  289:{city:"Алматы",loc:"МУИТ Абая",addr:"Абая 52в"},
+  290:{city:"Алматы",loc:"Сайран",addr:"Сайран"},
+  291:{city:"Алматы",loc:"Спорт Комплекс Абая",addr:"Абая 159"},
+  292:{city:"Алматы",loc:"Pyramid Pride",addr:"Жибек Жолы, 131"},
+  293:{city:"Алматы",loc:"Almaty Towers",addr:"Байзакова, 280"},
+  294:{city:"Алматы",loc:"Invictus Go 2",addr:"Каракулова, 39"},
+  295:{city:"Алматы",loc:"Трамплин Сункар",addr:"Каппарова 167"},
+  296:{city:"Алматы",loc:"Бостандыкский комьюнити центр",addr:"Абая, 164/6 к6"},
+  297:{city:"Алматы",loc:"Медеуский комьюнити центр",addr:"Назарбаева, 36"},
+  298:{city:"Алматы",loc:"Зоопарк",addr:"Зоопарк"},
+  299:{city:"Алматы",loc:"Halyk Arena 2",addr:"Кульджинский тракт, 2"},
+  300:{city:"Алматы",loc:"ЖК Шугыла Zarina",addr:"мкр. Шугыла 341/2"},
+};
+
+const BOT_TOKEN = '8851634181:AAHYeWOm9yyPu44IbSTOS_TPdkjCTe6ZOJ8';
+const CHAT_ID   = '202527540';
+
+// ── СОСТОЯНИЕ ──────────────────────────────────────
+let selectedProblems = [];
+let selectedRating   = 0;
+let currentRvm       = null;
+let currentMachine   = null;
+
+// ── ИНИЦИАЛИЗАЦИЯ ──────────────────────────────────
+function init() {
+  const params = new URLSearchParams(window.location.search);
+  const rvm    = parseInt(params.get('rvm'));
+
+  if (rvm && MACHINES[rvm]) {
+    currentRvm     = rvm;
+    currentMachine = MACHINES[rvm];
+
+    document.getElementById('machineName').textContent = currentMachine.loc;
+    document.getElementById('machineAddr').textContent = currentMachine.addr;
+    document.getElementById('machineRvm').textContent  = `RVM ${rvm} · ${currentMachine.city}`;
+
+    const gisCity = currentMachine.city === 'Астана' ? 'astana' : 'almaty';
+    document.getElementById('gisLink').href =
+      `https://2gis.kz/${gisCity}/search/${encodeURIComponent(currentMachine.loc + ' ' + currentMachine.addr)}`;
+  } else {
+    // Без rvm — показываем дропдаун выбора
+    document.getElementById('machineName').textContent = 'Выберите фандомат ниже';
+    document.getElementById('machineAddr').textContent = '';
+    document.getElementById('machineRvm').textContent  = '';
+    addMachineSelector();
+  }
+}
+
+function addMachineSelector() {
+  const sel = document.createElement('select');
+  sel.style.cssText = 'width:100%;padding:8px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:.9rem;margin-top:6px;outline:none';
+  sel.innerHTML = '<option value="">-- Выберите фандомат --</option>';
+  Object.entries(MACHINES).forEach(([rvm, m]) => {
+    const opt = document.createElement('option');
+    opt.value = rvm;
+    opt.textContent = `RVM ${rvm} | ${m.city} — ${m.loc}`;
+    sel.appendChild(opt);
+  });
+  sel.onchange = () => {
+    const rvm = parseInt(sel.value);
+    if (rvm && MACHINES[rvm]) {
+      currentRvm     = rvm;
+      currentMachine = MACHINES[rvm];
+      document.getElementById('machineName').textContent = currentMachine.loc;
+      document.getElementById('machineAddr').textContent = currentMachine.addr;
+      document.getElementById('machineRvm').textContent  = `RVM ${rvm} · ${currentMachine.city}`;
+    }
+  };
+  document.getElementById('machineCard').appendChild(sel);
+}
+
+// ── ВЫБОР ПРОБЛЕМЫ ─────────────────────────────────
+function toggleProb(el, prob) {
+  const idx = selectedProblems.indexOf(prob);
+  if (idx >= 0) {
+    selectedProblems.splice(idx, 1);
+    el.classList.remove('selected');
+  } else {
+    selectedProblems.push(prob);
+    el.classList.add('selected');
+  }
+  document.getElementById('errorMsg').style.display = 'none';
+}
+
+// ── РЕЙТИНГ ────────────────────────────────────────
+function setRating(n) {
+  selectedRating = n;
+  document.querySelectorAll('.star-btn').forEach((s, i) => {
+    s.classList.toggle('lit', i < n);
+  });
+}
+
+// ── ОТПРАВКА ───────────────────────────────────────
+async function sendComplaint() {
+  if (!selectedProblems.length) {
+    document.getElementById('errorMsg').style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.classList.add('sending');
+  btn.innerHTML = '⏳ Отправляем...';
+
+  const comment = document.getElementById('comment').value.trim();
+  const contact = document.getElementById('contact').value.trim();
+  const now     = new Date().toLocaleString('ru-RU', {timeZone:'Asia/Almaty'});
+  const stars   = selectedRating ? '⭐'.repeat(selectedRating) + '☆'.repeat(5 - selectedRating) : 'не указана';
+
+  const machine = currentMachine
+    ? `${currentMachine.loc} — ${currentMachine.addr}\nГород: ${currentMachine.city}\nRVM: ${currentRvm}`
+    : 'Фандомат не выбран';
+
+  const text = [
+    '🚨 <b>ЖАЛОБА — Freedom Фандоматы</b>',
+    '',
+    `📍 <b>Точка:</b> ${machine}`,
+    `🕐 <b>Время:</b> ${now}`,
+    '',
+    `❗ <b>Проблемы:</b>`,
+    ...selectedProblems.map(p => `  • ${p}`),
+    '',
+    `⭐ <b>Оценка пользователя:</b> ${stars}`,
+    comment ? `💬 <b>Комментарий:</b> ${comment}` : '',
+    contact ? `📞 <b>Контакт:</b> ${contact}` : '',
+    '',
+    '─────────────────────────',
+    `⚡ <b>Требуется реакция в течение 24 часов!</b>`,
+  ].filter(Boolean).join('\n');
+
+  try {
+    const resp = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id:    CHAT_ID,
+        text:       text,
+        parse_mode: 'HTML',
+      })
+    });
+    const result = await resp.json();
+
+    if (result.ok) {
+      document.getElementById('formCard').style.display    = 'none';
+      document.getElementById('altLinks').style.display    = 'none';
+      document.getElementById('successScreen').style.display = 'block';
+    } else {
+      throw new Error(result.description);
+    }
+  } catch (e) {
+    btn.disabled  = false;
+    btn.classList.remove('sending');
+    btn.innerHTML = '🚨 Отправить жалобу';
+    document.getElementById('errorMsg').textContent = `⚠️ Ошибка отправки. Напишите нам в WhatsApp: +7 771 765 5999`;
+    document.getElementById('errorMsg').style.display = 'block';
+  }
+}
+
+// ── СБРОС ──────────────────────────────────────────
+function resetForm() {
+  selectedProblems = [];
+  selectedRating   = 0;
+  document.querySelectorAll('.prob-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.star-btn').forEach(s => s.classList.remove('lit'));
+  document.getElementById('comment').value  = '';
+  document.getElementById('contact').value  = '';
+  document.getElementById('errorMsg').style.display = 'none';
+  const btn = document.getElementById('submitBtn');
+  btn.disabled  = false;
+  btn.classList.remove('sending');
+  btn.innerHTML = '🚨 Отправить жалобу';
+  document.getElementById('formCard').style.display    = 'block';
+  document.getElementById('altLinks').style.display    = 'flex';
+  document.getElementById('successScreen').style.display = 'none';
+}
+
+init();
+</script>
+</body>
+</html>

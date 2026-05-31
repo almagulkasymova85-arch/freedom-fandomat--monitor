@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -210,6 +210,11 @@
     <option value="10000">Топ (принято > 10 000)</option>
     <option value="5000">Активные (> 5 000)</option>
   </select>
+  <select id="stickerType" onchange="render()">
+    <option value="review">⭐ Наклейка: Отзыв в 2ГИС</option>
+    <option value="complaint">🚨 Наклейка: Жалоба</option>
+    <option value="both">📋 Обе наклейки</option>
+  </select>
   <div class="count-label" id="countLabel"></div>
 </div>
 
@@ -217,6 +222,8 @@
 <div class="sticker-grid" id="grid"></div>
 
 <script>
+const BASE = 'https://almagulkasymova85-arch.github.io/freedom-fandomat--monitor';
+
 // ── ДАННЫЕ ──────────────────────────────────────────
 const POINTS = [
   {rvm:201,city:"Алматы",loc:"БЦ Нурикон",addr:"Ауэзова 175/1",total:24568},
@@ -321,10 +328,12 @@ const POINTS = [
   {rvm:300,city:"Алматы",loc:"ЖК Шугыла Zarina",addr:"мкр. Шугыла 341/2",total:2730},
 ];
 
-// Уникальная ссылка на 2ГИС для каждого фандомата
 function get2gisUrl(p) {
   const city = p.city === 'Астана' ? 'astana' : 'almaty';
-  return `https://2gis.kz/${city}/search/${encodeURIComponent(p.loc + ' ' + p.addr)}`;
+  return 'https://2gis.kz/' + city + '/search/' + encodeURIComponent(p.loc + ' ' + p.addr);
+}
+function getComplaintUrl(p) {
+  return BASE + '/complaint.html?rvm=' + p.rvm;
 }
 
 function cityClass(city) {
@@ -363,12 +372,35 @@ function render() {
 
   document.getElementById('countLabel').textContent = `Показано: ${filtered.length} наклеек`;
 
+  const stickerType = document.getElementById('stickerType').value;
   const grid = document.getElementById('grid');
   grid.innerHTML = filtered.map(p => {
-    const url = get2gisUrl(p);
     const sizeClass = isLarge ? 'large' : '';
-    return `
-    <div class="sticker ${sizeClass}">
+    const showReview    = stickerType === 'review'    || stickerType === 'both';
+    const showComplaint = stickerType === 'complaint' || stickerType === 'both';
+    const divider = (stickerType === 'both') ? '<div style="border-top:2px dashed #eee;margin:10px 0"></div>' : '';
+
+    const reviewBlock = showReview ? `
+      <div style="margin-bottom:4px">
+        ${stickerType==='both' ? '<div style="font-size:.68rem;font-weight:700;color:#1d3557;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">⭐ Отзыв в 2ГИС</div>' : ''}
+        <div class="sticker-msg">Вам понравилось?<br><b>Оставьте отзыв в 2ГИС</b> —<br>это помогает нам развиваться!</div>
+        <div class="qr-wrap" id="qr-rev-${p.rvm}"></div>
+        <div class="sticker-arrow">↑ Наведите камеру телефона ↑</div>
+        <div class="sticker-cta">⭐ Оставить отзыв в 2ГИС</div>
+        <div class="sticker-bonus">🎁 Спасибо за каждый отзыв!</div>
+      </div>` : '';
+
+    const complaintBlock = showComplaint ? `
+      <div>
+        ${stickerType==='both' ? '<div style="font-size:.68rem;font-weight:700;color:#e63946;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">🚨 Есть проблема?</div>' : ''}
+        <div class="sticker-msg">${stickerType==='complaint'?'<b>Есть проблема?</b><br>':''}Сообщите нам прямо сейчас —<br>исправим за <b>24 часа</b>!</div>
+        <div class="qr-wrap" id="qr-cmp-${p.rvm}"></div>
+        <div class="sticker-arrow">↑ Наведите камеру телефона ↑</div>
+        <div style="background:#e63946;color:#fff;border-radius:20px;padding:6px 16px;font-size:.78rem;font-weight:700;display:inline-block;margin:6px 0">🚨 Сообщить о проблеме</div>
+        <div style="font-size:.66rem;color:#888;margin-top:2px">Реакция в течение 24 часов ⚡</div>
+      </div>` : '';
+
+    return `<div class="sticker ${sizeClass}">
       <div class="sticker-top">
         <div class="sticker-logo">♻️</div>
         <div>
@@ -376,17 +408,7 @@ function render() {
           <div class="sticker-eco">Сдавай пластик — береги планету</div>
         </div>
       </div>
-      <div class="sticker-body">
-        <div class="sticker-msg">
-          Вам понравилось?<br>
-          <b>Оставьте отзыв в 2ГИС</b> —<br>
-          это помогает нам развиваться!
-        </div>
-        <div class="qr-wrap" id="qr-${p.rvm}"></div>
-        <div class="sticker-arrow">↑ Наведите камеру телефона ↑</div>
-        <div class="sticker-cta">⭐ Оставить отзыв в 2ГИС</div>
-        <div class="sticker-bonus">🎁 Спасибо за каждый отзыв!</div>
-      </div>
+      <div class="sticker-body">${reviewBlock}${divider}${complaintBlock}</div>
       <div class="sticker-bottom">
         <div class="sticker-addr">
           <div style="font-weight:700">${p.loc}</div>
@@ -401,19 +423,18 @@ function render() {
   }).join('');
 
   // Генерируем QR-коды
+  const sz = isLarge ? 170 : 130;
   filtered.forEach(p => {
-    const url = get2gisUrl(p);
-    const el  = document.getElementById(`qr-${p.rvm}`);
-    if (!el) return;
-    el.innerHTML = '';
-    new QRCode(el, {
-      text:          url,
-      width:         isLarge ? 170 : 130,
-      height:        isLarge ? 170 : 130,
-      colorDark:     '#1d3557',
-      colorLight:    '#ffffff',
-      correctLevel:  QRCode.CorrectLevel.M
-    });
+    const showRev = stickerType === 'review'    || stickerType === 'both';
+    const showCmp = stickerType === 'complaint' || stickerType === 'both';
+    if (showRev) {
+      const el = document.getElementById('qr-rev-' + p.rvm);
+      if (el) { el.innerHTML = ''; new QRCode(el, { text: get2gisUrl(p), width:sz, height:sz, colorDark:'#1d3557', colorLight:'#ffffff', correctLevel: QRCode.CorrectLevel.M }); }
+    }
+    if (showCmp) {
+      const el = document.getElementById('qr-cmp-' + p.rvm);
+      if (el) { el.innerHTML = ''; new QRCode(el, { text: getComplaintUrl(p), width:sz, height:sz, colorDark:'#e63946', colorLight:'#ffffff', correctLevel: QRCode.CorrectLevel.M }); }
+    }
   });
 }
 
@@ -422,3 +443,4 @@ render();
 </script>
 </body>
 </html>
+
