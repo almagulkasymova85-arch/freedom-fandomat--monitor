@@ -510,6 +510,139 @@
     flex-shrink: 0;
   }
 
+  /* ── STRATEGY ── */
+  .strategy-wrap {
+    margin: 0 28px 20px;
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.08);
+    overflow: hidden;
+  }
+  .strategy-header {
+    background: linear-gradient(135deg, #1d3557 0%, #457b9d 100%);
+    color: #fff;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .strategy-header h2 { font-size: 1.1rem; color: #fff; }
+  .strategy-subtitle { font-size: .8rem; opacity: .8; margin-top: 2px; }
+  .strategy-target { display: flex; align-items: center; gap: 8px; }
+  .st-from { font-size: 1.4rem; font-weight: 700; color: #e63946; background: rgba(255,255,255,.15); padding: 6px 14px; border-radius: 8px; }
+  .st-arrow { font-size: 1.4rem; opacity: .7; }
+  .st-to   { font-size: 1.4rem; font-weight: 700; color: #1db954; background: rgba(255,255,255,.15); padding: 6px 14px; border-radius: 8px; }
+
+  .strategy-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    background: #f8f9fa;
+  }
+  .stab {
+    padding: 12px 18px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: .83rem;
+    font-weight: 600;
+    color: var(--muted);
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    transition: all .2s;
+  }
+  .stab:hover { color: var(--blue); background: #fff; }
+  .stab.active { color: var(--blue); border-bottom-color: var(--blue); background: #fff; }
+
+  .st-panel { display: none; padding: 20px; }
+  .st-panel.active { display: block; }
+
+  /* Algo */
+  .algo-intro { background: #f0f4ff; border-radius: 10px; padding: 12px 16px; font-size: .85rem; margin-bottom: 16px; border-left: 4px solid var(--blue); }
+  .algo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .algo-card { border-radius: 12px; padding: 14px 16px; background: #fafafa; border-left: 5px solid; position: relative; }
+  .algo-weight { position: absolute; top: 10px; right: 10px; color: #fff; font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+  .algo-icon { font-size: 1.5rem; margin-bottom: 6px; }
+  .algo-title { font-weight: 700; font-size: .9rem; margin-bottom: 6px; }
+  .algo-desc { font-size: .8rem; color: var(--text); line-height: 1.5; margin-bottom: 8px; }
+  .algo-action { font-size: .75rem; color: var(--muted); font-style: italic; border-top: 1px dashed #e0e0e0; padding-top: 6px; }
+
+  .algo-formula { background: #f0f4ff; border-radius: 12px; padding: 16px 18px; }
+  .formula-title { font-weight: 700; font-size: .9rem; color: var(--blue); margin-bottom: 12px; }
+  .formula-body { display: flex; flex-direction: column; gap: 8px; }
+  .formula-row { display: flex; align-items: flex-start; gap: 12px; font-size: .83rem; }
+  .formula-step { padding: 3px 12px; border-radius: 20px; color: #fff; font-size: .72rem; font-weight: 700; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+  .formula-step.red    { background: var(--red); }
+  .formula-step.yellow { background: var(--yellow); }
+  .formula-step.green  { background: var(--green); }
+
+  /* Phases */
+  .phases-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px,1fr)); gap: 14px; margin-bottom: 20px; }
+  .phase-card { border-radius: 12px; padding: 16px; border: 2px solid; }
+  .phase-card.red    { border-color: var(--red);    background: #fff8f8; }
+  .phase-card.yellow { border-color: var(--yellow); background: #fffaf5; }
+  .phase-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .phase-num { width: 36px; height: 36px; border-radius: 50%; background: var(--red); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; flex-shrink: 0; }
+  .phase-title { font-weight: 700; font-size: .92rem; }
+  .phase-period { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+  .phase-target { margin-left: auto; padding: 4px 12px; border-radius: 20px; background: #fde8e8; color: #c0392b; font-weight: 700; font-size: .85rem; white-space: nowrap; }
+  .phase-tasks { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .phase-task { display: flex; gap: 8px; font-size: .82rem; align-items: flex-start; }
+  .ptask-icon { font-size: 1rem; flex-shrink: 0; width: 20px; }
+  .phase-result { font-size: .78rem; font-style: italic; color: var(--muted); border-top: 1px dashed #ddd; padding-top: 8px; }
+
+  .timeline-summary { background: #f4f6f9; border-radius: 12px; padding: 16px; }
+  .ts-title { font-weight: 700; font-size: .9rem; margin-bottom: 12px; }
+  .ts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 8px; }
+  .ts-item { border-radius: 8px; padding: 10px 12px; background: #fff; border-top: 3px solid; }
+  .ts-item.red    { border-color: var(--red); }
+  .ts-item.yellow { border-color: var(--yellow); }
+  .ts-item.green  { border-color: var(--green); }
+  .ts-week { font-weight: 700; font-size: .78rem; margin-bottom: 4px; }
+  .ts-desc { font-size: .75rem; color: var(--muted); margin-bottom: 6px; line-height: 1.4; }
+  .ts-star { font-weight: 700; font-size: .85rem; color: var(--blue); }
+
+  /* Methods */
+  .methods-cols { display: flex; flex-direction: column; gap: 16px; }
+  .method-block { border-radius: 12px; padding: 16px; }
+  .method-block.green { background: #f5fff8; border: 1px solid #b7e4c7; }
+  .method-block.red   { background: #fff8f8; border: 1px solid #f5c6cb; }
+  .method-block-title { font-weight: 700; font-size: .9rem; margin-bottom: 14px; }
+  .method-list { display: flex; flex-direction: column; gap: 12px; }
+  .method-item { background: #fff; border-radius: 8px; padding: 12px 14px; border-left: 3px solid #1db954; }
+  .method-item.danger { border-color: var(--red); background: #fff8f8; }
+  .method-name { font-weight: 700; font-size: .88rem; margin-bottom: 4px; }
+  .method-detail { font-size: .8rem; color: var(--text); line-height: 1.5; margin-bottom: 6px; }
+  .method-metrics { display: flex; gap: 12px; flex-wrap: wrap; }
+  .method-metrics span { font-size: .72rem; color: var(--muted); background: #f4f6f9; padding: 2px 8px; border-radius: 20px; }
+
+  /* Content */
+  .content-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap: 12px; }
+  .content-card { background: #fafafa; border-radius: 10px; padding: 14px 16px; border: 1px solid var(--border); }
+  .content-card-title { font-weight: 700; font-size: .88rem; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+  .content-checklist { display: flex; flex-direction: column; gap: 6px; }
+  .content-check { font-size: .8rem; color: var(--text); cursor: pointer; padding: 2px 0; user-select: none; }
+  .content-check.checked { text-decoration: line-through; color: var(--muted); }
+  .content-check.checked::before { content: '✅ '; }
+  .content-check:not(.checked)::before { content: '☐ '; }
+
+  /* Calc */
+  .calc-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:600px){ .calc-wrap{grid-template-columns:1fr;} .algo-grid{grid-template-columns:1fr;} .phases-grid{grid-template-columns:1fr;} }
+  .calc-card { background: #f0f4ff; border-radius: 12px; padding: 18px; }
+  .calc-title { font-weight: 700; font-size: .95rem; margin-bottom: 14px; color: var(--blue); }
+  .calc-form { display: flex; flex-direction: column; gap: 10px; }
+  .calc-row { display: flex; flex-direction: column; gap: 4px; }
+  .calc-row label { font-size: .78rem; font-weight: 600; color: var(--muted); }
+  .calc-row input { border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: .9rem; width: 100%; outline: none; }
+  .calc-row input:focus { border-color: var(--blue); }
+  .calc-result { margin-top: 14px; background: #fff; border-radius: 10px; padding: 14px; font-size: .85rem; line-height: 1.8; border-left: 4px solid var(--blue); }
+  .calc-tips { background: #fafafa; border-radius: 12px; padding: 18px; border: 1px solid var(--border); }
+  .calc-tip-title { font-weight: 700; font-size: .9rem; margin-bottom: 12px; }
+  .calc-tip { font-size: .82rem; color: var(--text); margin-bottom: 8px; line-height: 1.5; }
+
   /* ── WORKPLAN ── */
   .workplan-wrap {
     margin: 0 28px 20px;
@@ -737,6 +870,7 @@
   <button class="btn btn-warning" onclick="generateReport()">📋 Отчёт за день</button>
   <button class="btn btn-outline" onclick="exportCSV()">⬇️ Экспорт CSV</button>
   <button class="btn btn-outline" onclick="scrollToAnalysis()">🔍 Анализ отзывов</button>
+  <button class="btn btn-outline" onclick="document.getElementById('strategySection').scrollIntoView({behavior:'smooth'})">🎯 Стратегия 4.8★</button>
   <button class="btn btn-outline" onclick="document.getElementById('workplanSection').scrollIntoView({behavior:'smooth'})">📅 План работы</button>
   <button class="btn btn-danger"  onclick="clearAll()" style="margin-left:auto">🗑️ Сбросить всё</button>
   <input class="search-box" id="searchInput" placeholder="🔍 Поиск по адресу..." oninput="renderTable()">
@@ -1012,6 +1146,359 @@
       <div class="action-step"><div class="step-num" style="background:var(--green)">2</div><span>Активно просить довольных клиентов оставить отзыв — через QR-код, бонусы, сообщение на экране аппарата</span></div>
       <div class="action-step"><div class="step-num" style="background:var(--green)">3</div><span>Снять видео о лучших точках для соцсетей — покажите как это работает в реальности</span></div>
       <div class="action-step"><div class="step-num" style="background:var(--green)">4</div><span>Разместить истории успеха в Instagram: «Жители района Х сдали 1000 бутылок за месяц»</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- STRATEGY -->
+<div class="strategy-wrap" id="strategySection">
+  <div class="strategy-header">
+    <div>
+      <h2>🎯 Стратегия роста рейтинга до 4.8 ★</h2>
+      <div class="strategy-subtitle">Пошаговый план: от текущих ~1.7 до 4.8 за 3 месяца</div>
+    </div>
+    <div class="strategy-target">
+      <div class="st-from">~1.7★</div>
+      <div class="st-arrow">→</div>
+      <div class="st-to">4.8★</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="strategy-tabs">
+    <button class="stab active" onclick="switchST('algo')">🔬 Алгоритм 2ГИС</button>
+    <button class="stab"        onclick="switchST('phases')">📅 Фазы роста</button>
+    <button class="stab"        onclick="switchST('methods')">⚙️ Методы</button>
+    <button class="stab"        onclick="switchST('content')">📸 Контент</button>
+    <button class="stab"        onclick="switchST('calc')">🧮 Калькулятор</button>
+  </div>
+
+  <!-- ════ АЛГОРИТМ ════ -->
+  <div class="st-panel active" id="st-algo">
+    <div class="algo-intro">
+      Рейтинг в 2ГИС — <b>не простое среднее</b>. Алгоритм учитывает 6 факторов с разным весом. Понимание этого — ключ к быстрому росту.
+    </div>
+    <div class="algo-grid">
+      <div class="algo-card" style="border-color:#e63946">
+        <div class="algo-weight" style="background:#e63946">35%</div>
+        <div class="algo-icon">⭐</div>
+        <div class="algo-title">Свежесть отзывов</div>
+        <div class="algo-desc">Новые отзывы влияют сильнее старых. Отзыв 2-недельной давности весит в 3× больше, чем годичный. <b>Главный рычаг роста.</b></div>
+        <div class="algo-action">→ Получать 3–7 новых отзывов в неделю равномерно</div>
+      </div>
+      <div class="algo-card" style="border-color:#f4a261">
+        <div class="algo-weight" style="background:#f4a261">25%</div>
+        <div class="algo-icon">📊</div>
+        <div class="algo-title">Количество отзывов</div>
+        <div class="algo-desc">4.7★ при 200 отзывах > 5.0★ при 10 отзывах. Объём валидирует рейтинг и поднимает позицию в поиске.</div>
+        <div class="algo-action">→ Цель: 50+ отзывов на точку в течение 3 месяцев</div>
+      </div>
+      <div class="algo-card" style="border-color:#1d3557">
+        <div class="algo-weight" style="background:#1d3557">20%</div>
+        <div class="algo-icon">💬</div>
+        <div class="algo-title">Ответы на отзывы</div>
+        <div class="algo-desc">Активность компании прямо влияет на ранжирование. Карточки с ответами получают приоритет в выдаче 2ГИС.</div>
+        <div class="algo-action">→ Отвечать на 100% отзывов в течение 24 ч</div>
+      </div>
+      <div class="algo-card" style="border-color:#1db954">
+        <div class="algo-weight" style="background:#1db954">12%</div>
+        <div class="algo-icon">🗂️</div>
+        <div class="algo-title">Полнота карточки</div>
+        <div class="algo-desc">Фото, описание, часы работы, телефон, сайт, соцсети. Карточки с заполненностью 80%+ получают приоритет.</div>
+        <div class="algo-action">→ Заполнить карточку каждой точки на 100%</div>
+      </div>
+      <div class="algo-card" style="border-color:#9c27b0">
+        <div class="algo-weight" style="background:#9c27b0">5%</div>
+        <div class="algo-icon">📸</div>
+        <div class="algo-title">Фото от пользователей</div>
+        <div class="algo-desc">Фото в отзывах повышают доверие и вес отзыва. Компании с фото получают запросов в 3× больше.</div>
+        <div class="algo-action">→ Просить клиентов прикладывать фото при отзыве</div>
+      </div>
+      <div class="algo-card" style="border-color:#6c757d">
+        <div class="algo-weight" style="background:#6c757d">3%</div>
+        <div class="algo-icon">📍</div>
+        <div class="algo-title">Верификация пользователей</div>
+        <div class="algo-desc">Отзывы от верифицированных пользователей (с геоисторией) весят больше, чем от новых аккаунтов.</div>
+        <div class="algo-action">→ Стимулировать активных пользователей 2ГИС</div>
+      </div>
+    </div>
+
+    <div class="algo-formula">
+      <div class="formula-title">📐 Как быстро вырасти с 1.7 до 4.8</div>
+      <div class="formula-body">
+        <div class="formula-row">
+          <div class="formula-step red">Шаг 1</div>
+          <div class="formula-text"><b>Нейтрализация негатива:</b> ответить на все плохие отзывы → алгоритм видит активность → старые отзывы теряют вес</div>
+        </div>
+        <div class="formula-row">
+          <div class="formula-step yellow">Шаг 2</div>
+          <div class="formula-text"><b>Поток свежего позитива:</b> 5–7 новых 5★ отзывов в неделю → они перевешивают старые негативные</div>
+        </div>
+        <div class="formula-row">
+          <div class="formula-step green">Шаг 3</div>
+          <div class="formula-text"><b>Объём:</b> при 50+ отзывах алгоритм стабилизирует рейтинг → выход на 4.5+ и удержание</div>
+        </div>
+        <div class="formula-row">
+          <div class="formula-step" style="background:var(--blue)">Шаг 4</div>
+          <div class="formula-text"><b>Поддержание:</b> 3–5 новых отзывов в неделю бессрочно → рейтинг 4.8 устойчив</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ ФАЗЫ РОСТА ════ -->
+  <div class="st-panel" id="st-phases">
+    <div class="phases-grid">
+
+      <div class="phase-card red">
+        <div class="phase-header">
+          <div class="phase-num">01</div>
+          <div>
+            <div class="phase-title">🚨 Фаза 1 — Стабилизация</div>
+            <div class="phase-period">Недели 1–2 · Цель: остановить падение</div>
+          </div>
+          <div class="phase-target">1.7 → 2.5★</div>
+        </div>
+        <div class="phase-tasks">
+          <div class="phase-task"><span class="ptask-icon">💬</span><div><b>Ответить на ВСЕ негативные отзывы</b> — вежливо, с решением. Алгоритм фиксирует активность.</div></div>
+          <div class="phase-task"><span class="ptask-icon">🔧</span><div><b>Починить аппараты</b> на всех критичных точках — без этого отзывы будут плохими</div></div>
+          <div class="phase-task"><span class="ptask-icon">📋</span><div><b>Заполнить карточки 2ГИС</b> — фото, описание, часы, телефон, сайт, соцсети на 100%</div></div>
+          <div class="phase-task"><span class="ptask-icon">📍</span><div><b>Добавить фото</b> каждой точки — минимум 5 фото (аппарат, место, инструкция, QR)</div></div>
+          <div class="phase-task"><span class="ptask-icon">🎯</span><div><b>Первые 5 новых отзывов</b> от лояльных клиентов на каждую точку</div></div>
+        </div>
+        <div class="phase-result">📌 Итог: рейтинг стабилизируется, критичные точки выходят из красной зоны</div>
+      </div>
+
+      <div class="phase-card yellow">
+        <div class="phase-header">
+          <div class="phase-num">02</div>
+          <div>
+            <div class="phase-title">📈 Фаза 2 — Рост</div>
+            <div class="phase-period">Недели 3–6 · Цель: уверенный набор</div>
+          </div>
+          <div class="phase-target">2.5 → 3.8★</div>
+        </div>
+        <div class="phase-tasks">
+          <div class="phase-task"><span class="ptask-icon">📱</span><div><b>QR-код на каждом аппарате</b> — «Оставьте отзыв → получите бонус» → прямая ссылка на 2ГИС</div></div>
+          <div class="phase-task"><span class="ptask-icon">🎁</span><div><b>Акция «5★ = двойные бонусы»</b> — за скриншот отзыва начислять +20 тенге на следующий визит</div></div>
+          <div class="phase-task"><span class="ptask-icon">📣</span><div><b>Посты в Instagram/Telegram</b> с призывом: «Оставь отзыв — помоги проекту развиваться»</div></div>
+          <div class="phase-task"><span class="ptask-icon">🤝</span><div><b>Партнёрство с ТРЦ и ЖК</b> где стоят аппараты — попросить упомянуть в их соцсетях</div></div>
+          <div class="phase-task"><span class="ptask-icon">💬</span><div><b>Отвечать на все отзывы ≤24 ч</b> — позитивные благодарить, негативные решать публично</div></div>
+        </div>
+        <div class="phase-result">📌 Итог: 15–20 новых отзывов в неделю, рейтинг стабильно растёт</div>
+      </div>
+
+      <div class="phase-card" style="border-color:#1db954;background:#f5fff8">
+        <div class="phase-header">
+          <div class="phase-num" style="background:#1db954">03</div>
+          <div>
+            <div class="phase-title">🚀 Фаза 3 — Ускорение</div>
+            <div class="phase-period">Недели 7–10 · Цель: пробить 4.5</div>
+          </div>
+          <div class="phase-target" style="background:#e8f8ee;color:#1e8449">3.8 → 4.5★</div>
+        </div>
+        <div class="phase-tasks">
+          <div class="phase-task"><span class="ptask-icon">🏆</span><div><b>Конкурс «Лучший отзыв месяца»</b> — приз 5 000 тенге на Freedom-карту за самый развёрнутый отзыв с фото</div></div>
+          <div class="phase-task"><span class="ptask-icon">📲</span><div><b>Push-уведомление через приложение</b> — после сдачи бутылок: «Понравилось? Оставьте отзыв!»</div></div>
+          <div class="phase-task"><span class="ptask-icon">🌿</span><div><b>Эко-блогеры Казахстана</b> — попросить 5–10 блогеров посетить фандомат и оставить честный отзыв</div></div>
+          <div class="phase-task"><span class="ptask-icon">🏫</span><div><b>Университеты и школы</b> — экологические акции с классами → массовые отзывы от молодёжи</div></div>
+          <div class="phase-task"><span class="ptask-icon">📊</span><div><b>Еженедельный мониторинг динамики</b> — отслеживать каждую точку в этом мониторе</div></div>
+        </div>
+        <div class="phase-result">📌 Итог: 25–30 отзывов в неделю, выход на 4.5+ по лучшим точкам</div>
+      </div>
+
+      <div class="phase-card" style="border-color:var(--blue);background:#f0f4ff">
+        <div class="phase-header">
+          <div class="phase-num" style="background:var(--blue)">04</div>
+          <div>
+            <div class="phase-title">🏅 Фаза 4 — Удержание 4.8</div>
+            <div class="phase-period">Месяц 3+ · Цель: стабилизировать</div>
+          </div>
+          <div class="phase-target" style="background:#e8f0fe;color:#1a73e8">4.5 → 4.8★</div>
+        </div>
+        <div class="phase-tasks">
+          <div class="phase-task"><span class="ptask-icon">🔁</span><div><b>Поддерживать 5–7 отзывов в неделю</b> равномерно — алгоритм ценит стабильность потока</div></div>
+          <div class="phase-task"><span class="ptask-icon">⚡</span><div><b>Реакция на негатив ≤4 ч</b> — один непроработанный плохой отзыв без ответа снижает рейтинг</div></div>
+          <div class="phase-task"><span class="ptask-icon">🗓️</span><div><b>Ежемесячное обновление фото</b> в карточках 2ГИС — алгоритм учитывает свежесть контента</div></div>
+          <div class="phase-task"><span class="ptask-icon">📈</span><div><b>Ежеквартальный аудит</b> — сравнить рейтинги с конкурентами, скорректировать стратегию</div></div>
+          <div class="phase-task"><span class="ptask-icon">🎯</span><div><b>Цель поддержания: 4.8★</b> при 200+ отзывах — это топ-рейтинг в категории фандоматов Казахстана</div></div>
+        </div>
+        <div class="phase-result">📌 Итог: устойчивый рейтинг 4.8★ — лидер категории в 2ГИС</div>
+      </div>
+
+    </div>
+
+    <div class="timeline-summary">
+      <div class="ts-title">📅 Сводный план по неделям</div>
+      <div class="ts-grid">
+        <div class="ts-item red"><div class="ts-week">Нед. 1–2</div><div class="ts-desc">Ответы на отзывы + ремонт + заполнение карточек</div><div class="ts-star">→ 2.5★</div></div>
+        <div class="ts-item red"><div class="ts-week">Нед. 3–4</div><div class="ts-desc">QR-коды + акция «бонус за отзыв» + Instagram</div><div class="ts-star">→ 3.0★</div></div>
+        <div class="ts-item yellow"><div class="ts-week">Нед. 5–6</div><div class="ts-desc">Партнёрства + ТРЦ + 15+ отзывов в неделю</div><div class="ts-star">→ 3.5★</div></div>
+        <div class="ts-item yellow"><div class="ts-week">Нед. 7–8</div><div class="ts-desc">Конкурс отзывов + эко-блогеры</div><div class="ts-star">→ 4.0★</div></div>
+        <div class="ts-item green"><div class="ts-week">Нед. 9–10</div><div class="ts-desc">Push-уведомления + университеты + 25+ в неделю</div><div class="ts-star">→ 4.5★</div></div>
+        <div class="ts-item green"><div class="ts-week">Нед. 11–12</div><div class="ts-desc">Удержание + стабилизация + аудит</div><div class="ts-star">→ 4.8★</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ МЕТОДЫ ════ -->
+  <div class="st-panel" id="st-methods">
+    <div class="methods-cols">
+
+      <div class="method-block green">
+        <div class="method-block-title">✅ Белые методы — безопасно и эффективно</div>
+        <div class="method-list">
+          <div class="method-item">
+            <div class="method-name">📱 QR-код на аппарате</div>
+            <div class="method-detail">Наклейка рядом с экраном → прямая ссылка на страницу отзывов 2ГИС конкретной точки. Конверсия: 5–15% от тех кто сдал бутылки.</div>
+            <div class="method-metrics"><span>⏱ Запуск: 1 день</span><span>💰 Стоимость: ~500 тг/точка</span><span>📈 Эффект: высокий</span></div>
+          </div>
+          <div class="method-item">
+            <div class="method-name">🎁 Бонус за отзыв</div>
+            <div class="method-detail">+20 тенге на Freedom-карту за скриншот отзыва с оценкой 4–5★. Важно: не требовать 5★ — только честный отзыв. Инструмент: проверка через WhatsApp.</div>
+            <div class="method-metrics"><span>⏱ Запуск: 3 дня</span><span>💰 Стоимость: 20 тг × N отзывов</span><span>📈 Эффект: очень высокий</span></div>
+          </div>
+          <div class="method-item">
+            <div class="method-name">📲 Push после использования</div>
+            <div class="method-detail">Через приложение Freedom — через 10 мин после сдачи бутылок: «Как вам фандомат? Оцените в 2ГИС →» + ссылка. Лучший момент — пользователь доволен.</div>
+            <div class="method-metrics"><span>⏱ Запуск: 2 недели (IT)</span><span>💰 Стоимость: разработка</span><span>📈 Эффект: очень высокий</span></div>
+          </div>
+          <div class="method-item">
+            <div class="method-name">🤝 Работа с лояльными клиентами</div>
+            <div class="method-detail">Выявить постоянных пользователей через историю транзакций → персональная просьба оставить отзыв. Конверсия 30–50% от лояльной базы.</div>
+            <div class="method-metrics"><span>⏱ Запуск: 1 неделя</span><span>💰 Стоимость: ~0</span><span>📈 Эффект: высокий</span></div>
+          </div>
+          <div class="method-item">
+            <div class="method-name">🌿 Эко-блогеры и инфлюенсеры</div>
+            <div class="method-detail">10 микроблогеров (5–50к подписчиков) в теме экологии → посетить фандомат, снять reels, оставить отзыв в 2ГИС. Охват + доверие аудитории.</div>
+            <div class="method-metrics"><span>⏱ Запуск: 2 недели</span><span>💰 Стоимость: бартер/5–20к тг</span><span>📈 Эффект: высокий</span></div>
+          </div>
+          <div class="method-item">
+            <div class="method-name">🏫 Партнёрство с вузами</div>
+            <div class="method-detail">ЕНУ, КазНУ, Нархоз — студенческие эко-клубы. Совместные акции «Сдай бутылки — спаси планету» → 50–100 отзывов за один event.</div>
+            <div class="method-metrics"><span>⏱ Запуск: 3 недели</span><span>💰 Стоимость: организация</span><span>📈 Эффект: высокий</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="method-block red">
+        <div class="method-block-title">🚫 Запрещённые методы — риск бана карточки</div>
+        <div class="method-list">
+          <div class="method-item danger">
+            <div class="method-name">💸 Покупка отзывов</div>
+            <div class="method-detail">2ГИС блокирует фейковые аккаунты. Без геоистории и реальных check-in — отзыв удаляется автоматически. Риск: понижение видимости карточки.</div>
+          </div>
+          <div class="method-item danger">
+            <div class="method-name">🤖 Накрутка ботами</div>
+            <div class="method-detail">Алгоритм 2ГИС анализирует поведенческие паттерны. Массовые однотипные отзывы в короткий срок = флаг + скрытое понижение рейтинга.</div>
+          </div>
+          <div class="method-item danger">
+            <div class="method-name">👥 Отзывы сотрудников</div>
+            <div class="method-detail">Одна геолокация (офис) + множество отзывов — лёгкий паттерн для алгоритма. Сотрудники могут оставить отзыв, но только со своего реального аккаунта и геолокации точки.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════ КОНТЕНТ ════ -->
+  <div class="st-panel" id="st-content">
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:16px">Правильное оформление карточки 2ГИС напрямую влияет на ранжирование и доверие пользователей</div>
+
+    <div class="content-grid">
+      <div class="content-card">
+        <div class="content-card-title">📸 Фото для карточки 2ГИС</div>
+        <div class="content-checklist">
+          <div class="content-check">☐ Фото аппарата спереди (яркое, чёткое)</div>
+          <div class="content-check">☐ Фото аппарата сбоку с окружением (ТРЦ/ЖК)</div>
+          <div class="content-check">☐ Фото инструкции на аппарате</div>
+          <div class="content-check">☐ Фото процесса — рука вставляет бутылку</div>
+          <div class="content-check">☐ Фото QR-кода для отзывов</div>
+          <div class="content-check">☐ Фото экрана аппарата (работающего)</div>
+          <div class="content-check">☐ Минимум 5 фото на каждую точку</div>
+        </div>
+      </div>
+      <div class="content-card">
+        <div class="content-card-title">📝 Описание карточки</div>
+        <div class="content-checklist">
+          <div class="content-check">☐ Название: «Freedom — Фандомат по приёму пластика»</div>
+          <div class="content-check">☐ Описание: что принимает, как работает, вознаграждение</div>
+          <div class="content-check">☐ Телефон поддержки: +7 771 765 5999</div>
+          <div class="content-check">☐ Режим работы: круглосуточно</div>
+          <div class="content-check">☐ Ссылка на сайт / Instagram</div>
+          <div class="content-check">☐ Ключевые слова: фандомат, пластик, переработка, экология</div>
+          <div class="content-check">☐ Точный адрес и этаж/ориентир</div>
+        </div>
+      </div>
+      <div class="content-card">
+        <div class="content-card-title">💬 Правила ответов на отзывы</div>
+        <div class="content-checklist">
+          <div class="content-check">☐ Отвечать на ВСЕ отзывы — позитивные и негативные</div>
+          <div class="content-check">☐ Время ответа: ≤24 ч (цель: ≤4 ч)</div>
+          <div class="content-check">☐ Начинать с имени: «Здравствуйте, [Имя]!»</div>
+          <div class="content-check">☐ На негатив: признать + объяснить + предложить решение</div>
+          <div class="content-check">☐ На позитив: поблагодарить + упомянуть ценность экологии</div>
+          <div class="content-check">☐ Не использовать шаблонные ответы — они снижают вес</div>
+          <div class="content-check">☐ Предлагать WhatsApp для решения сложных случаев</div>
+        </div>
+      </div>
+      <div class="content-card">
+        <div class="content-card-title">📣 Контент для соцсетей (в поддержку 2ГИС)</div>
+        <div class="content-checklist">
+          <div class="content-check">☐ Instagram Reels: «Как работает фандомат за 60 секунд»</div>
+          <div class="content-check">☐ Stories с ссылкой на 2ГИС — каждые 2 недели</div>
+          <div class="content-check">☐ Пост: «Куда идёт ваш пластик» — повышает лояльность</div>
+          <div class="content-check">☐ Репост лучших отзывов в Stories</div>
+          <div class="content-check">☐ Telegram: список адресов точек + ссылки 2ГИС</div>
+          <div class="content-check">☐ Конкурс: «Лучший отзыв недели» → приз на Freedom-карту</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ КАЛЬКУЛЯТОР ════ -->
+  <div class="st-panel" id="st-calc">
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:16px">Рассчитайте, сколько новых отзывов нужно для достижения целевого рейтинга</div>
+
+    <div class="calc-wrap">
+      <div class="calc-card">
+        <div class="calc-title">🧮 Калькулятор рейтинга</div>
+        <div class="calc-form">
+          <div class="calc-row">
+            <label>Текущий рейтинг (★)</label>
+            <input type="number" id="cCurRating" value="1.7" min="1" max="5" step="0.1" oninput="calcRating()">
+          </div>
+          <div class="calc-row">
+            <label>Текущее кол-во отзывов</label>
+            <input type="number" id="cCurReviews" value="13" min="0" oninput="calcRating()">
+          </div>
+          <div class="calc-row">
+            <label>Целевой рейтинг (★)</label>
+            <input type="number" id="cTargetRating" value="4.8" min="1" max="5" step="0.1" oninput="calcRating()">
+          </div>
+          <div class="calc-row">
+            <label>Средняя оценка новых отзывов</label>
+            <input type="number" id="cNewRating" value="5" min="1" max="5" step="0.1" oninput="calcRating()">
+          </div>
+          <div class="calc-row">
+            <label>Отзывов в неделю</label>
+            <input type="number" id="cPerWeek" value="5" min="1" oninput="calcRating()">
+          </div>
+        </div>
+        <div class="calc-result" id="calcResult"></div>
+      </div>
+
+      <div class="calc-tips">
+        <div class="calc-tip-title">💡 Рекомендации 2ГИС</div>
+        <div class="calc-tip">📊 <b>Оптимальный темп:</b> 3–7 новых отзывов в неделю равномерно</div>
+        <div class="calc-tip">⚡ <b>Свежесть важна:</b> 10 отзывов за 1 день хуже, чем 10 за 10 дней</div>
+        <div class="calc-tip">📸 <b>С фото вес выше:</b> просите прикладывать фото аппарата</div>
+        <div class="calc-tip">💬 <b>Текст важен:</b> отзывы от 50 символов весят больше «Отлично»</div>
+        <div class="calc-tip">🏆 <b>4.5+ = приоритет:</b> 2ГИС даёт приоритет в выдаче при рейтинге ≥4.5</div>
+        <div class="calc-tip">🔄 <b>Стабильность:</b> даже после достижения цели — 3–5 отзывов в неделю</div>
+      </div>
     </div>
   </div>
 
@@ -2099,6 +2586,69 @@ function switchTab(tab) {
 function scrollToAnalysis() {
   document.getElementById('analysisSection').scrollIntoView({ behavior: 'smooth' });
 }
+
+// ══════════════════════════════════════════════
+//  STRATEGY TABS
+// ══════════════════════════════════════════════
+function switchST(tab) {
+  document.querySelectorAll('.st-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('st-' + tab).classList.add('active');
+  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+  const idx = { algo:0, phases:1, methods:2, content:3, calc:4 };
+  document.querySelectorAll('.stab')[idx[tab]].classList.add('active');
+}
+
+// Content checklist
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('content-check')) {
+    e.target.classList.toggle('checked');
+  }
+});
+
+// ══════════════════════════════════════════════
+//  RATING CALCULATOR
+// ══════════════════════════════════════════════
+function calcRating() {
+  const curR   = parseFloat(document.getElementById('cCurRating').value)  || 0;
+  const curN   = parseInt(document.getElementById('cCurReviews').value)   || 0;
+  const target = parseFloat(document.getElementById('cTargetRating').value)|| 4.8;
+  const newR   = parseFloat(document.getElementById('cNewRating').value)  || 5;
+  const perW   = parseInt(document.getElementById('cPerWeek').value)      || 5;
+
+  // Сколько новых отзывов нужно: (curR*curN + newR*X) / (curN+X) = target
+  // newR*X - target*X = target*curN - curR*curN
+  // X*(newR - target) = curN*(target - curR)
+  // X = curN*(target - curR) / (newR - target)
+
+  const el = document.getElementById('calcResult');
+  if (newR <= target) {
+    el.innerHTML = '<span style="color:#e63946">⚠️ Средняя оценка новых отзывов должна быть выше целевого рейтинга!</span>';
+    return;
+  }
+
+  const needed = Math.ceil(curN * (target - curR) / (newR - target));
+  const weeks  = Math.ceil(needed / perW);
+  const months = (weeks / 4.3).toFixed(1);
+
+  const milestones = [
+    { r: 2.5, n: Math.ceil(curN * (2.5 - curR) / (newR - 2.5)) },
+    { r: 3.5, n: Math.ceil(curN * (3.5 - curR) / (newR - 3.5)) },
+    { r: 4.0, n: Math.ceil(curN * (4.0 - curR) / (newR - 4.0)) },
+    { r: 4.5, n: Math.ceil(curN * (4.5 - curR) / (newR - 4.5)) },
+  ].filter(m => m.r > curR && m.r < target && m.n > 0);
+
+  el.innerHTML = `
+    <div style="font-weight:700;margin-bottom:8px;color:var(--blue)">Результат расчёта:</div>
+    <div>📊 Текущий рейтинг: <b>${curR}★</b> (${curN} отзывов)</div>
+    <div>🎯 Целевой рейтинг: <b>${target}★</b></div>
+    <div>✏️ Новых отзывов нужно: <b>${needed > 0 ? needed : '0 (цель уже достигнута!)'}</b></div>
+    <div>⏱️ При темпе ${perW}/нед: <b>${weeks} недель (~${months} мес.)</b></div>
+    <hr style="margin:8px 0;border:none;border-top:1px dashed #ddd">
+    ${milestones.map(m=>`<div>▶ До ${m.r}★ нужно <b>${m.n - curN > 0 ? m.n - curN : m.n}</b> новых отзывов (~${Math.ceil((m.n - curN > 0 ? m.n - curN : m.n)/perW)} нед.)</div>`).join('')}
+    <div style="margin-top:8px;font-size:.75rem;color:var(--muted)">* Расчёт приблизительный. Алгоритм 2ГИС взвешивает свежесть отзывов.</div>
+  `;
+}
+setTimeout(calcRating, 200);
 
 // ══════════════════════════════════════════════
 //  WORKPLAN TABS
