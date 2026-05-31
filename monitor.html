@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Freedom Фандоматы — Монитор отзывов 2ГИС</title>
+<style>
+  :root {
+    --green:  #1db954;
+    --red:    #e63946;
+    --yellow: #f4a261;
+    --blue:   #1d3557;
+    --light:  #f8f9fa;
+    --card:   #ffffff;
+    --border: #e0e0e0;
+    --text:   #212529;
+    --muted:  #6c757d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: var(--text); }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--blue);
+    color: #fff;
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+  }
+  header h1 { font-size: 1.25rem; display: flex; align-items: center; gap: 10px; }
+  header h1 span { font-size: 1.5rem; }
+  .header-meta { font-size: .85rem; opacity: .8; }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  .btn {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: .88rem;
+    font-weight: 600;
+    transition: opacity .2s, transform .1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary  { background: var(--blue);  color: #fff; }
+  .btn-success  { background: var(--green); color: #fff; }
+  .btn-danger   { background: var(--red);   color: #fff; }
+  .btn-warning  { background: var(--yellow);color: #fff; }
+  .btn-outline  { background: #fff; color: var(--blue); border: 2px solid var(--blue); }
+  .btn:hover { opacity: .88; }
+  .search-box {
+    flex: 1; min-width: 200px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: .9rem;
+    outline: none;
+  }
+  .search-box:focus { border-color: var(--blue); }
+  select.filter {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: .88rem;
+    outline: none;
+    cursor: pointer;
+  }
+
+  /* ── KPI CARDS ── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 16px;
+    padding: 20px 28px 0;
+  }
+  .kpi {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    border-left: 5px solid var(--blue);
+  }
+  .kpi.red    { border-color: var(--red); }
+  .kpi.yellow { border-color: var(--yellow); }
+  .kpi.green  { border-color: var(--green); }
+  .kpi-label { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .kpi-value { font-size: 2rem; font-weight: 700; margin: 4px 0; line-height: 1; }
+  .kpi-sub   { font-size: .78rem; color: var(--muted); }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    margin: 20px 28px;
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.08);
+    overflow: hidden;
+  }
+  .table-wrap h2 {
+    padding: 16px 20px 14px;
+    font-size: 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  thead th {
+    background: #f4f6f9;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid #f0f0f0; transition: background .15s; }
+  tbody tr:hover { background: #f9fbff; }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 11px 14px; vertical-align: middle; }
+
+  .stars { color: #f4a261; font-size: 1rem; letter-spacing: 1px; }
+  .rating-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .r-red    { background: #fde8e8; color: #c0392b; }
+  .r-yellow { background: #fff3e0; color: #d35400; }
+  .r-green  { background: #e8f8ee; color: #1e8449; }
+
+  .status-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: .75rem;
+    font-weight: 600;
+  }
+  .s-critical { background: #fde8e8; color: #c0392b; }
+  .s-warning  { background: #fff3e0; color: #d35400; }
+  .s-good     { background: #e8f8ee; color: #1e8449; }
+  .s-new      { background: #e8f0fe; color: #1a73e8; }
+
+  .city-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: .73rem;
+    font-weight: 600;
+  }
+  .city-almaty { background: #e3f2fd; color: #1565c0; }
+  .city-astana { background: #f3e5f5; color: #6a1b9a; }
+
+  .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mini-btn {
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: .75rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: opacity .2s;
+  }
+  .mini-btn:hover { opacity: .8; }
+  .mb-2gis   { background: #1a9e71; color: #fff; }
+  .mb-add    { background: var(--blue); color: #fff; }
+  .mb-edit   { background: #6c757d; color: #fff; }
+  .mb-del    { background: #e63946; color: #fff; }
+
+  .trend { font-size: .8rem; font-weight: 600; }
+  .trend.up   { color: var(--green); }
+  .trend.down { color: var(--red); }
+  .trend.same { color: var(--muted); }
+
+  /* ── MODAL ── */
+  .overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .overlay.active { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px 32px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(0,0,0,.25);
+    position: relative;
+  }
+  .modal h3 { font-size: 1.15rem; margin-bottom: 18px; display: flex; gap: 8px; align-items: center; }
+  .modal-close {
+    position: absolute; top: 14px; right: 16px;
+    background: none; border: none; font-size: 1.4rem;
+    cursor: pointer; color: var(--muted);
+  }
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: .83rem; font-weight: 600; margin-bottom: 5px; color: var(--muted); }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: .9rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--blue); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  /* ── HISTORY LOG ── */
+  .log-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: .85rem;
+  }
+  .log-entry:last-child { border-bottom: none; }
+  .log-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+  .log-dot.red    { background: var(--red); }
+  .log-dot.yellow { background: var(--yellow); }
+  .log-dot.green  { background: var(--green); }
+  .log-dot.blue   { background: var(--blue); }
+
+  /* ── REPORT ── */
+  #reportArea {
+    display: none;
+    margin: 0 28px 20px;
+  }
+  .report-card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.08);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .report-card-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .report-card-header h3 { font-size: .95rem; display: flex; align-items: center; gap: 8px; }
+  .report-section-badge {
+    font-size: .75rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .report-table-wrap { overflow-x: auto; }
+  .report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .83rem;
+  }
+  .report-table thead th {
+    background: #f4f6f9;
+    padding: 9px 14px;
+    text-align: left;
+    font-weight: 700;
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .report-table tbody tr { border-bottom: 1px solid #f0f0f0; }
+  .report-table tbody tr:last-child { border-bottom: none; }
+  .report-table tbody tr:hover { background: #f9fbff; }
+  .report-table td { padding: 10px 14px; vertical-align: middle; }
+  .report-table td.num { text-align: center; font-weight: 700; }
+
+  .report-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0;
+    padding: 0;
+  }
+  .report-kpi-cell {
+    padding: 16px 20px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+  .report-kpi-cell:last-child { border-right: none; }
+  .report-kpi-val { font-size: 1.8rem; font-weight: 700; line-height: 1; }
+  .report-kpi-lbl { font-size: .72rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .4px; }
+
+  .report-actions { padding: 14px 20px; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+  .report-reco-list { padding: 14px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .report-reco-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: .83rem;
+  }
+  .report-reco-item.red    { background: #fff8f8; border-left: 3px solid var(--red); }
+  .report-reco-item.yellow { background: #fffaf5; border-left: 3px solid var(--yellow); }
+  .report-reco-item.green  { background: #f5fff8; border-left: 3px solid var(--green); }
+  .report-reco-icon { font-size: 1rem; flex-shrink: 0; }
+  .report-date-row {
+    padding: 10px 20px;
+    font-size: .75rem;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty { text-align: center; padding: 40px; color: var(--muted); }
+  .empty-icon { font-size: 3rem; }
+
+  /* ── ALERTS ── */
+  .alert-box {
+    margin: 16px 28px 0;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: .88rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .alert-danger  { background: #fde8e8; color: #c0392b; border-left: 4px solid var(--red); }
+  .alert-warning { background: #fff3e0; color: #d35400; border-left: 4px solid var(--yellow); }
+  .alert-success { background: #e8f8ee; color: #1e8449; border-left: 4px solid var(--green); }
+
+  /* ── CHART ── */
+  .chart-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 0 28px 20px;
+  }
+  @media (max-width: 700px) { .chart-row { grid-template-columns: 1fr; } .kpi-row { padding: 14px 14px 0; } .table-wrap,.alert-box,.chart-row,#reportArea,.analysis-wrap,.workplan-wrap { margin-left: 14px; margin-right: 14px; } .toolbar { padding: 10px 14px; } header { padding: 14px; } .report-kpi-grid { grid-template-columns: repeat(2,1fr); } }
+
+  /* ── ANALYSIS SECTION ── */
+  .analysis-wrap {
+    margin: 0 28px 20px;
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.08);
+    overflow: hidden;
+  }
+  .analysis-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .analysis-header h2 { font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+  .analysis-tabs {
+    display: flex;
+    gap: 6px;
+  }
+  .atab {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-size: .82rem;
+    font-weight: 700;
+    transition: all .2s;
+  }
+  .atab.red    { background: #fde8e8; color: #c0392b; }
+  .atab.yellow { background: #fff3e0; color: #d35400; }
+  .atab.green  { background: #e8f8ee; color: #1e8449; }
+  .atab.active.red    { background: #e63946; color: #fff; border-color: #c0392b; }
+  .atab.active.yellow { background: #f4a261; color: #fff; border-color: #d35400; }
+  .atab.active.green  { background: #1db954; color: #fff; border-color: #1e8449; }
+  .analysis-panel { display: none; padding: 20px; }
+  .analysis-panel.active { display: block; }
+
+  .reason-list { display: flex; flex-direction: column; gap: 12px; }
+  .reason-card {
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    border-left: 5px solid transparent;
+    background: #fafafa;
+  }
+  .reason-card.red    { border-color: var(--red);    background: #fff8f8; }
+  .reason-card.yellow { border-color: var(--yellow); background: #fffaf5; }
+  .reason-card.green  { border-color: var(--green);  background: #f5fff8; }
+
+  .reason-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .85rem;
+    flex-shrink: 0;
+    color: #fff;
+  }
+  .reason-num.red    { background: var(--red); }
+  .reason-num.yellow { background: var(--yellow); }
+  .reason-num.green  { background: var(--green); }
+
+  .reason-body { flex: 1; }
+  .reason-title { font-weight: 700; font-size: .92rem; margin-bottom: 4px; }
+  .reason-quote {
+    font-size: .8rem;
+    color: var(--muted);
+    font-style: italic;
+    border-left: 3px solid #e0e0e0;
+    padding-left: 8px;
+    margin: 6px 0 4px;
+  }
+  .reason-action {
+    font-size: .78rem;
+    font-weight: 600;
+    margin-top: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .reason-action.red    { color: #c0392b; }
+  .reason-action.yellow { color: #d35400; }
+  .reason-action.green  { color: #1e8449; }
+
+  .freq-badge {
+    display: inline-block;
+    font-size: .7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .freq-high   { background: #fde8e8; color: #c0392b; }
+  .freq-medium { background: #fff3e0; color: #d35400; }
+  .freq-low    { background: #e8f0fe; color: #1a73e8; }
+
+  .action-plan {
+    margin-top: 20px;
+    background: #f0f4ff;
+    border-radius: 12px;
+    padding: 16px 18px;
+    border-left: 5px solid var(--blue);
+  }
+  .action-plan h4 { font-size: .88rem; color: var(--blue); margin-bottom: 10px; }
+  .action-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: .83rem;
+  }
+  .step-num {
+    width: 22px; height: 22px;
+    background: var(--blue);
+    color: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .72rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── WORKPLAN ── */
+  .workplan-wrap {
+    margin: 0 28px 20px;
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.08);
+    overflow: hidden;
+  }
+  .workplan-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .workplan-header h2 { font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+  .wp-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .wp-tab {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--muted);
+    transition: all .2s;
+  }
+  .wp-tab.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+  .wp-panel { display: none; padding: 20px; }
+  .wp-panel.active { display: block; }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 32px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #e63946, #f4a261, #1db954);
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-dot {
+    position: absolute;
+    left: -26px;
+    top: 4px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px currentColor;
+    flex-shrink: 0;
+  }
+  .tl-dot.red    { background: var(--red);    color: var(--red); }
+  .tl-dot.yellow { background: var(--yellow); color: var(--yellow); }
+  .tl-dot.green  { background: var(--green);  color: var(--green); }
+  .tl-dot.blue   { background: var(--blue);   color: var(--blue); }
+
+  .tl-card {
+    background: #fafafa;
+    border-radius: 10px;
+    padding: 12px 16px;
+    border-left: 4px solid transparent;
+  }
+  .tl-card.red    { border-color: var(--red);    background: #fff8f8; }
+  .tl-card.yellow { border-color: var(--yellow); background: #fffaf5; }
+  .tl-card.green  { border-color: var(--green);  background: #f5fff8; }
+  .tl-card.blue   { border-color: var(--blue);   background: #f0f4ff; }
+
+  .tl-period {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 4px;
+  }
+  .tl-period.red    { color: var(--red); }
+  .tl-period.yellow { color: #d35400; }
+  .tl-period.green  { color: #1e8449; }
+  .tl-period.blue   { color: var(--blue); }
+
+  .tl-title { font-weight: 700; font-size: .92rem; margin-bottom: 8px; }
+  .tl-tasks { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .tl-tasks li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: .83rem;
+    color: var(--text);
+  }
+  .tl-tasks li .chk {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .7rem;
+    transition: all .2s;
+    margin-top: 1px;
+    background: #fff;
+  }
+  .tl-tasks li .chk.done { background: var(--green); border-color: var(--green); color: #fff; }
+  .tl-tasks li span { flex: 1; line-height: 1.4; }
+  .tl-tasks li span.done-text { text-decoration: line-through; color: var(--muted); }
+
+  .tl-result {
+    margin-top: 10px;
+    font-size: .78rem;
+    font-style: italic;
+    color: var(--muted);
+    border-top: 1px dashed var(--border);
+    padding-top: 8px;
+  }
+
+  /* Responsible grid */
+  .resp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .resp-card {
+    background: #fafafa;
+    border-radius: 10px;
+    padding: 14px 16px;
+    border-top: 4px solid var(--blue);
+  }
+  .resp-card.red    { border-color: var(--red); }
+  .resp-card.yellow { border-color: var(--yellow); }
+  .resp-card.green  { border-color: var(--green); }
+  .resp-role { font-weight: 700; font-size: .88rem; margin-bottom: 8px; }
+  .resp-tasks-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .resp-tasks-list li { font-size: .8rem; display: flex; gap: 6px; align-items: flex-start; color: var(--text); }
+  .resp-tasks-list li::before { content: '→'; color: var(--muted); flex-shrink: 0; }
+
+  /* Templates */
+  .tpl-list { display: flex; flex-direction: column; gap: 14px; }
+  .tpl-card { background: #fafafa; border-radius: 10px; padding: 14px 16px; border-left: 4px solid var(--blue); }
+  .tpl-card.red { border-color: var(--red); }
+  .tpl-card.green { border-color: var(--green); }
+  .tpl-label { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 6px; }
+  .tpl-text {
+    font-size: .83rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 6px 0;
+  }
+  .copy-btn {
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--blue);
+    transition: all .2s;
+  }
+  .copy-btn:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); }
+
+  /* KPI table */
+  .kpi-table { width: 100%; border-collapse: collapse; font-size: .83rem; margin-top: 4px; }
+  .kpi-table th { background: #f4f6f9; padding: 8px 12px; text-align: left; font-size: .75rem; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .kpi-table td { padding: 9px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+  .kpi-table tr:last-child td { border-bottom: none; }
+  .target-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: .72rem; font-weight: 700; }
+  .target-red    { background: #fde8e8; color: #c0392b; }
+  .target-yellow { background: #fff3e0; color: #d35400; }
+  .target-green  { background: #e8f8ee; color: #1e8449; }
+
+  /* Progress bar */
+  .progress-wrap { margin-top: 6px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: .75rem; color: var(--muted); margin-bottom: 3px; }
+  .progress-track { height: 8px; background: #f0f0f0; border-radius: 20px; overflow: hidden; }
+  .progress-fill  { height: 100%; border-radius: 20px; background: var(--blue); transition: width .5s; }
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .chart-card { background: #fff; border-radius: 14px; padding: 18px 20px; box-shadow: 0 1px 6px rgba(0,0,0,.08); }
+  .chart-card h3 { font-size: .9rem; margin-bottom: 14px; color: var(--muted); }
+  .bar-chart { display: flex; flex-direction: column; gap: 8px; }
+  .bar-item { display: flex; align-items: center; gap: 8px; font-size: .78rem; }
+  .bar-label { width: 140px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+  .bar-track { flex: 1; background: #f0f0f0; border-radius: 20px; height: 14px; overflow: hidden; }
+  .bar-fill  { height: 100%; border-radius: 20px; transition: width .5s; }
+  .bar-val   { width: 30px; text-align: right; font-weight: 700; }
+
+  .pie-legend { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .pie-item { display: flex; align-items: center; gap: 8px; font-size: .82rem; }
+  .pie-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+  footer { text-align: center; padding: 18px; color: var(--muted); font-size: .78rem; }
+
+  @media print {
+    .toolbar, header .btn, .action-btns, .btn { display: none !important; }
+    body { background: #fff; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <h1><span>♻️</span> Freedom Фандоматы — Монитор отзывов 2ГИС</h1>
+  <div class="header-meta" id="lastUpdate">Последнее обновление: —</div>
+</header>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <button class="btn btn-primary" onclick="openAddModal()">➕ Добавить точку</button>
+  <button class="btn btn-success" onclick="logManualCheck()">✅ Зафиксировать проверку</button>
+  <button class="btn btn-warning" onclick="generateReport()">📋 Отчёт за день</button>
+  <button class="btn btn-outline" onclick="exportCSV()">⬇️ Экспорт CSV</button>
+  <button class="btn btn-outline" onclick="scrollToAnalysis()">🔍 Анализ отзывов</button>
+  <button class="btn btn-outline" onclick="document.getElementById('workplanSection').scrollIntoView({behavior:'smooth'})">📅 План работы</button>
+  <button class="btn btn-danger"  onclick="clearAll()" style="margin-left:auto">🗑️ Сбросить всё</button>
+  <input class="search-box" id="searchInput" placeholder="🔍 Поиск по адресу..." oninput="renderTable()">
+  <select class="filter" id="cityFilter" onchange="renderTable()">
+    <option value="">🌍 Все города</option>
+    <option value="Алматы">Алматы</option>
+    <option value="Астана">Астана</option>
+  </select>
+  <select class="filter" id="statusFilter" onchange="renderTable()">
+    <option value="">📊 Все статусы</option>
+    <option value="critical">🔴 Критично</option>
+    <option value="warning">🟡 Слабо</option>
+    <option value="good">🟢 Хорошо</option>
+  </select>
+</div>
+
+<!-- ALERTS -->
+<div id="alertsArea"></div>
+
+<!-- KPI -->
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- CHARTS -->
+<div class="chart-row" id="chartRow">
+  <div class="chart-card">
+    <h3>📊 Рейтинг по точкам</h3>
+    <div class="bar-chart" id="barChart"></div>
+  </div>
+  <div class="chart-card">
+    <h3>🗂️ Распределение статусов</h3>
+    <div class="pie-legend" id="pieLegend"></div>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap">
+  <h2>📍 Все точки фандоматов <span id="countLabel" style="font-size:.8rem;color:var(--muted);font-weight:400"></span></h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Город</th>
+        <th>Адрес / Локация</th>
+        <th>Рейтинг</th>
+        <th>Отзывов</th>
+        <th>Статус</th>
+        <th>Тренд</th>
+        <th>Последняя проверка</th>
+        <th>Действия</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<!-- ANALYSIS -->
+<div class="analysis-wrap" id="analysisSection">
+  <div class="analysis-header">
+    <h2>🔍 Анализ причин отзывов</h2>
+    <div class="analysis-tabs">
+      <button class="atab red active"    onclick="switchTab('critical')">🔴 Критично</button>
+      <button class="atab yellow"        onclick="switchTab('warning')">🟡 Слабо</button>
+      <button class="atab green"         onclick="switchTab('good')">🟢 Хорошо</button>
+    </div>
+  </div>
+
+  <!-- КРИТИЧНО -->
+  <div class="analysis-panel active" id="panel-critical">
+    <div class="reason-list">
+
+      <div class="reason-card red">
+        <div class="reason-num red">1</div>
+        <div class="reason-body">
+          <div class="reason-title">Аппарат не работает / белый экран <span class="freq-badge freq-high">⚡ Очень часто</span></div>
+          <div class="reason-quote">«Прихожу уже третий день подряд — просто белый экран, аппарат не реагирует»</div>
+          <div class="reason-action red">🔧 Действие: Ежедневный технический обход всех точек, SLA на реакцию — max 2 часа</div>
+        </div>
+      </div>
+
+      <div class="reason-card red">
+        <div class="reason-num red">2</div>
+        <div class="reason-body">
+          <div class="reason-title">Не распознаёт бутылки и банки <span class="freq-badge freq-high">⚡ Очень часто</span></div>
+          <div class="reason-quote">«Ошибка по весу даже на маленькие бутылки. Встал в очередь, потратил время — зря»</div>
+          <div class="reason-action red">🔧 Действие: Калибровка сенсора. Добавить инструкцию на аппарат: «Толкните бутылку до конца»</div>
+        </div>
+      </div>
+
+      <div class="reason-card red">
+        <div class="reason-num red">3</div>
+        <div class="reason-body">
+          <div class="reason-title">Аппарат переполнен — не принимает тару <span class="freq-badge freq-high">⚡ Очень часто</span></div>
+          <div class="reason-quote">«Фандомат переполнен, освобождать не спешат. Ждала три дня»</div>
+          <div class="reason-action red">📋 Действие: Ввести расписание очистки 2 раза в день для высоконагруженных точек (Сыганак, Панфилова)</div>
+        </div>
+      </div>
+
+      <div class="reason-card red">
+        <div class="reason-num red">4</div>
+        <div class="reason-body">
+          <div class="reason-title">Бонусы не начисляются на карту <span class="freq-badge freq-medium">🔁 Регулярно</span></div>
+          <div class="reason-quote">«Сдала бутылки — деньги так и не пришли на карту Freedom»</div>
+          <div class="reason-action red">💻 Действие: Проверить интеграцию с Freedom Bank, добавить push-уведомление о зачислении</div>
+        </div>
+      </div>
+
+      <div class="reason-card red">
+        <div class="reason-num red">5</div>
+        <div class="reason-body">
+          <div class="reason-title">Нет реакции от поддержки <span class="freq-badge freq-medium">🔁 Регулярно</span></div>
+          <div class="reason-quote">«Если взялись за такую инициативу — поддерживайте должным образом!»</div>
+          <div class="reason-action red">📞 Действие: Отвечать на отзывы в 2ГИС в течение 24 ч. Разместить QR на аппарате для жалоб</div>
+        </div>
+      </div>
+
+      <div class="reason-card red">
+        <div class="reason-num red">6</div>
+        <div class="reason-body">
+          <div class="reason-title">Люди уходят и выбрасывают бутылки в мусор <span class="freq-badge freq-high">⚠️ Критично для экологии</span></div>
+          <div class="reason-quote">«Простоял час — выбросил всё в обычный мусор. Смысл тогда вообще?»</div>
+          <div class="reason-action red">🚨 Действие: Мониторинг загруженности аппаратов в реальном времени — ключевой KPI</div>
+        </div>
+      </div>
+
+      <div class="reason-card red">
+        <div class="reason-num red">7</div>
+        <div class="reason-body">
+          <div class="reason-title">Пользователи рекомендуют конкурента Sparklo <span class="freq-badge freq-high">⚠️ Репутационный риск</span></div>
+          <div class="reason-quote">«Идите в Sparklo — там фандоматы всегда работают по всему городу»</div>
+          <div class="reason-action red">🎯 Действие: Повысить надёжность работы — это главное конкурентное преимущество</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="action-plan">
+      <h4>⚡ План быстрых действий для критичных точек (ул. Сыганак 1Б · ТРЦ Asia Park · ул. Панфилова)</h4>
+      <div class="action-step"><div class="step-num">1</div><span>Ответить на все негативные отзывы в 2ГИС сегодня — шаблон ответа вежливый + решение</span></div>
+      <div class="action-step"><div class="step-num">2</div><span>Выехать на точки и проверить физическое состояние аппаратов (переполнен / не включён)</span></div>
+      <div class="action-step"><div class="step-num">3</div><span>Наклеить инструкцию на аппарат: «Как правильно сдать бутылку» + номер поддержки</span></div>
+      <div class="action-step"><div class="step-num">4</div><span>После устранения — попросить лояльных клиентов обновить отзыв / оставить новый</span></div>
+    </div>
+  </div>
+
+  <!-- СЛАБО -->
+  <div class="analysis-panel" id="panel-warning">
+    <div class="reason-list">
+
+      <div class="reason-card yellow">
+        <div class="reason-num yellow">1</div>
+        <div class="reason-body">
+          <div class="reason-title">Медленная работа аппарата <span class="freq-badge freq-medium">🔁 Регулярно</span></div>
+          <div class="reason-quote">«Принимает очень долго — створка то открывается, то закрывается, процесс затягивается»</div>
+          <div class="reason-action yellow">🔧 Действие: Техническое обновление прошивки / механизма подачи на слабых точках</div>
+        </div>
+      </div>
+
+      <div class="reason-card yellow">
+        <div class="reason-num yellow">2</div>
+        <div class="reason-body">
+          <div class="reason-title">Неудобное расположение / далеко ехать <span class="freq-badge freq-medium">🔁 Регулярно</span></div>
+          <div class="reason-quote">«Специально поехал через весь город — оказалось не работает. Зря потратил время»</div>
+          <div class="reason-action yellow">📲 Действие: Добавить онлайн-статус «Работает / Не работает» в приложение или на сайт</div>
+        </div>
+      </div>
+
+      <div class="reason-card yellow">
+        <div class="reason-num yellow">3</div>
+        <div class="reason-body">
+          <div class="reason-title">Нельзя сдать смятые / деформированные бутылки <span class="freq-badge freq-medium">📌 Часто</span></div>
+          <div class="reason-quote">«Пришлось тащить два огромных пакета — бутылки нельзя смять, аппарат не берёт»</div>
+          <div class="reason-action yellow">📋 Действие: Указать на аппарате / в соцсетях: принимаются только целые бутылки, объяснить почему</div>
+        </div>
+      </div>
+
+      <div class="reason-card yellow">
+        <div class="reason-num yellow">4</div>
+        <div class="reason-body">
+          <div class="reason-title">Маленькое вознаграждение — 4 тенге за бутылку <span class="freq-badge freq-medium">📌 Часто</span></div>
+          <div class="reason-quote">«За столько усилий получаю копейки — не стоит потраченного времени»</div>
+          <div class="reason-action yellow">💡 Действие: Добавить бонусные акции (×2 в выходные, розыгрыши), сделать акцент на экологической ценности</div>
+        </div>
+      </div>
+
+      <div class="reason-card yellow">
+        <div class="reason-num yellow">5</div>
+        <div class="reason-body">
+          <div class="reason-title">Нет информации о статусе аппарата онлайн <span class="freq-badge freq-medium">📌 Часто</span></div>
+          <div class="reason-quote">«Не знаешь заранее — работает или нет. Хотелось бы проверить до поездки»</div>
+          <div class="reason-action yellow">💻 Действие: Карта точек с онлайн-статусом в мобильном приложении / 2ГИС</div>
+        </div>
+      </div>
+
+      <div class="reason-card yellow">
+        <div class="reason-num yellow">6</div>
+        <div class="reason-body">
+          <div class="reason-title">Не принимает бутылки из-под молока и нестандартную тару <span class="freq-badge freq-low">📌 Иногда</span></div>
+          <div class="reason-quote">«Всё хорошо, но бутылку от молока не распознал»</div>
+          <div class="reason-action yellow">📋 Действие: Разместить список принимаемой тары на аппарате. Рассмотреть расширение типов</div>
+        </div>
+      </div>
+
+      <div class="reason-card yellow">
+        <div class="reason-num yellow">7</div>
+        <div class="reason-body">
+          <div class="reason-title">Компания не отвечает на отзывы в 2ГИС <span class="freq-badge freq-high">⚠️ Репутация</span></div>
+          <div class="reason-quote">— (отсутствие ответов само по себе сигнал для новых пользователей)</div>
+          <div class="reason-action yellow">✅ Действие: Назначить ответственного за мониторинг 2ГИС, отвечать в течение 24 ч на каждый отзыв</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="action-plan">
+      <h4>🟡 План улучшений для точек со слабым рейтингом (пр. Абая · ЕНУ · Esentai Tower)</h4>
+      <div class="action-step"><div class="step-num">1</div><span>Повесить информационную табличку на аппарат: что принимается, как правильно сдавать</span></div>
+      <div class="action-step"><div class="step-num">2</div><span>Запустить акцию «Двойные бонусы по выходным» — стимулирует повторные визиты и отзывы</span></div>
+      <div class="action-step"><div class="step-num">3</div><span>Добавить QR-код на аппарат: «Оставьте отзыв в 2ГИС — получите +10 бонусных тенге»</span></div>
+    </div>
+  </div>
+
+  <!-- ХОРОШО -->
+  <div class="analysis-panel" id="panel-good">
+    <div class="reason-list">
+
+      <div class="reason-card green">
+        <div class="reason-num green">1</div>
+        <div class="reason-body">
+          <div class="reason-title">Аппарат работает исправно <span class="freq-badge freq-low">✅ При хорошем обслуживании</span></div>
+          <div class="reason-quote">«Всё отлично, сдала большой пакет тары без проблем — быстро и удобно»</div>
+          <div class="reason-action green">💡 Используй: Мотивировать таких клиентов оставлять отзывы — QR-код на аппарате</div>
+        </div>
+      </div>
+
+      <div class="reason-card green">
+        <div class="reason-num green">2</div>
+        <div class="reason-body">
+          <div class="reason-title">Экологическая идея вызывает симпатию <span class="freq-badge freq-medium">💚 Постоянно</span></div>
+          <div class="reason-quote">«Отличная инициатива! Наконец-то можно сдать пластик и помочь природе»</div>
+          <div class="reason-action green">📣 Используй: Делать контент о том, куда идёт пластик — повышает лояльность и охват</div>
+        </div>
+      </div>
+
+      <div class="reason-card green">
+        <div class="reason-num green">3</div>
+        <div class="reason-body">
+          <div class="reason-title">Удобство начисления бонусов на карту Freedom <span class="freq-badge freq-medium">💳 Часто</span></div>
+          <div class="reason-quote">«Деньги сразу пришли на карту Freedom — приятно получать вознаграждение за экологию»</div>
+          <div class="reason-action green">💡 Используй: Продвигать механику «сдал → получил деньги» как ключевое УТП в соцсетях</div>
+        </div>
+      </div>
+
+      <div class="reason-card green">
+        <div class="reason-num green">4</div>
+        <div class="reason-body">
+          <div class="reason-title">Удобное расположение рядом с домом или работой <span class="freq-badge freq-low">📍 Иногда</span></div>
+          <div class="reason-quote">«Зашла по дороге домой — быстро, не надо специально ехать. Очень удобно»</div>
+          <div class="reason-action green">📍 Используй: При выборе новых точек ставить приоритет на «по дороге» — жилые кварталы, метро</div>
+        </div>
+      </div>
+
+      <div class="reason-card green">
+        <div class="reason-num green">5</div>
+        <div class="reason-body">
+          <div class="reason-title">Лайфхак: бутылку нужно толкать до конца <span class="freq-badge freq-low">💡 Полезно знать</span></div>
+          <div class="reason-quote">«Сенсор находится сзади — если толкнуть бутылку до упора, всё срабатывает нормально»</div>
+          <div class="reason-action green">📋 Используй: Напечатать инструкцию прямо на корпусе аппарата — снизит число жалоб на «не распознаёт»</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="action-plan" style="background:#f0fff5;border-color:var(--green)">
+      <h4 style="color:#1e8449">🟢 Как масштабировать успех хороших точек (ул. Маркова · ул. Бейбитшилик)</h4>
+      <div class="action-step"><div class="step-num" style="background:var(--green)">1</div><span>Изучить операционные процессы лучших точек и применить их на всей сети</span></div>
+      <div class="action-step"><div class="step-num" style="background:var(--green)">2</div><span>Активно просить довольных клиентов оставить отзыв — через QR-код, бонусы, сообщение на экране аппарата</span></div>
+      <div class="action-step"><div class="step-num" style="background:var(--green)">3</div><span>Снять видео о лучших точках для соцсетей — покажите как это работает в реальности</span></div>
+      <div class="action-step"><div class="step-num" style="background:var(--green)">4</div><span>Разместить истории успеха в Instagram: «Жители района Х сдали 1000 бутылок за месяц»</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- WORKPLAN -->
+<div class="workplan-wrap" id="workplanSection">
+  <div class="workplan-header">
+    <h2>📅 План работы над проблемами</h2>
+    <div class="wp-tabs">
+      <button class="wp-tab active" onclick="switchWP('timeline')">🗓️ По срокам</button>
+      <button class="wp-tab"        onclick="switchWP('roles')">👥 По ролям</button>
+      <button class="wp-tab"        onclick="switchWP('templates')">💬 Шаблоны ответов</button>
+      <button class="wp-tab"        onclick="switchWP('kpi')">🎯 KPI и цели</button>
+    </div>
+  </div>
+
+  <!-- ════ ПО СРОКАМ ════ -->
+  <div class="wp-panel active" id="wp-timeline">
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:18px">
+      Отмечайте выполненные задачи — прогресс сохраняется в браузере
+    </div>
+    <div class="timeline">
+
+      <div class="tl-item">
+        <div class="tl-dot red"></div>
+        <div class="tl-card red">
+          <div class="tl-period red">⚡ День 1 — Сегодня (срочно)</div>
+          <div class="tl-title">Реакция на критичные точки</div>
+          <ul class="tl-tasks">
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Открыть 2ГИС и ответить на ВСЕ отзывы без ответа (ул. Сыганак, ТРЦ Asia Park, ул. Панфилова)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Позвонить/написать техслужбе: выехать и проверить аппараты на критичных точках</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Сфотографировать состояние аппаратов — зафиксировать для отчёта</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Проверить начисление бонусов — отправить тестовую бутылку на каждой проблемной точке</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Обновить рейтинги в мониторе (кнопка 🔄 у каждой точки)</span></li>
+          </ul>
+          <div class="tl-result">📌 Результат: зафиксированы проблемы, начат диалог с пользователями</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot red"></div>
+        <div class="tl-card red">
+          <div class="tl-period red">📅 Дни 2–3</div>
+          <div class="tl-title">Устранение технических сбоев</div>
+          <ul class="tl-tasks">
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Техобслуживание: очистка, перезагрузка, калибровка сенсора на всех критичных точках</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Напечатать и наклеить инструкцию на корпус: «Как правильно сдать бутылку»</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Установить расписание очистки для переполненных точек (минимум 2 раза в день)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Проверить и исправить проблемы с начислением бонусов — связаться с IT/Freedom Bank</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Повторно проверить работу аппаратов после ремонта, внести данные в монитор</span></li>
+          </ul>
+          <div class="tl-result">📌 Результат: аппараты работают, технические сбои устранены</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot yellow"></div>
+        <div class="tl-card yellow">
+          <div class="tl-period yellow">📅 Неделя 1 (дни 4–7)</div>
+          <div class="tl-title">Операционные улучшения</div>
+          <ul class="tl-tasks">
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Разработать и внедрить регламент ежедневного обхода точек (утро + вечер)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Наклеить QR-код «Оставьте отзыв в 2ГИС» на каждый аппарат</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Разместить список принимаемой тары рядом с аппаратом (что берёт, что нет)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Запустить Telegram/WhatsApp-группу для быстрых жалоб от пользователей</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Попросить 3–5 лояльных клиентов обновить или оставить новый отзыв на улучшенных точках</span></li>
+          </ul>
+          <div class="tl-result">📌 Результат: системный контроль запущен, начинается рост отзывов</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot yellow"></div>
+        <div class="tl-card yellow">
+          <div class="tl-period yellow">📅 Неделя 2 (дни 8–14)</div>
+          <div class="tl-title">Работа с репутацией и контентом</div>
+          <ul class="tl-tasks">
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Запустить акцию «Двойные бонусы по выходным» — анонс в соцсетях</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Снять видео/reels о работе аппарата на лучшей точке (ул. Бейбитшилик, Алматы — Маркова)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Публикация в Instagram: «Как правильно сдать бутылку + лайфхак» с отметкой адресов</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Ответить на все новые отзывы за прошедшую неделю (контроль в мониторе)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Провести первый еженедельный отчёт — сравнить рейтинги до и после</span></li>
+          </ul>
+          <div class="tl-result">📌 Результат: рост вовлечённости, первые позитивные отзывы от акции</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot green"></div>
+        <div class="tl-card green">
+          <div class="tl-period green">📅 Месяц 1 (дни 15–30)</div>
+          <div class="tl-title">Системная работа и масштабирование</div>
+          <ul class="tl-tasks">
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Внедрить онлайн-статус аппаратов «Работает / Не работает» (сайт, приложение или Telegram-бот)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Применить операционные процессы лучших точек на всей сети</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Провести опрос среди пользователей: что улучшить, где поставить новый фандомат</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Подготовить итоговый отчёт: рейтинги до и после, динамика отзывов, выполненные задачи</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Поставить цели на следующий месяц — целевой рейтинг для каждой точки</span></li>
+          </ul>
+          <div class="tl-result">📌 Цель: средний рейтинг сети ≥ 3.5 ★, критичных точек = 0</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot green"></div>
+        <div class="tl-card blue">
+          <div class="tl-period blue">🔁 Постоянно (ежедневно)</div>
+          <div class="tl-title">Ежедневный контрольный чеклист</div>
+          <ul class="tl-tasks">
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>09:00 — Открыть монитор, проверить новые отзывы в 2ГИС по каждой точке</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>09:30 — Обновить рейтинги в программе (кнопка 🔄 Обновить)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>10:00 — Ответить на все новые отзывы (шаблоны во вкладке «Шаблоны ответов»)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>10:30 — Передать сигналы о технических проблемах в службу обслуживания</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>18:00 — Нажать «✅ Зафиксировать проверку», сформировать «📋 Отчёт за день»</span></li>
+          </ul>
+          <div class="tl-result">⏱️ Время на ежедневный контроль: ~45–60 минут</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════ ПО РОЛЯМ ════ -->
+  <div class="wp-panel" id="wp-roles">
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:16px">Распределение задач по ответственным сотрудникам</div>
+    <div class="resp-grid">
+
+      <div class="resp-card red">
+        <div class="resp-role">🔧 Технический специалист</div>
+        <ul class="resp-tasks-list">
+          <li>Ежедневный обход всех точек (утро)</li>
+          <li>Очистка переполненных аппаратов</li>
+          <li>Перезагрузка и калибровка сенсоров</li>
+          <li>Фиксация неисправностей с фото</li>
+          <li>Замена / ремонт оборудования</li>
+          <li>Отчёт о состоянии аппаратов</li>
+        </ul>
+      </div>
+
+      <div class="resp-card yellow">
+        <div class="resp-role">💬 Менеджер по репутации</div>
+        <ul class="resp-tasks-list">
+          <li>Мониторинг отзывов в 2ГИС ежедневно</li>
+          <li>Ответы на все отзывы (≤24 ч)</li>
+          <li>Обновление рейтингов в мониторе</li>
+          <li>Формирование ежедневного отчёта</li>
+          <li>Стимулирование позитивных отзывов</li>
+          <li>Коммуникация с недовольными клиентами</li>
+        </ul>
+      </div>
+
+      <div class="resp-card green">
+        <div class="resp-role">📣 SMM / Маркетолог</div>
+        <ul class="resp-tasks-list">
+          <li>Публикации в Instagram, Telegram</li>
+          <li>Съёмка контента на точках</li>
+          <li>Запуск акций и розыгрышей</li>
+          <li>QR-коды и наклейки на аппараты</li>
+          <li>Работа с инфлюенсерами (эко-блогеры)</li>
+          <li>Продвижение страницы в 2ГИС</li>
+        </ul>
+      </div>
+
+      <div class="resp-card" style="border-color:var(--blue)">
+        <div class="resp-role">💻 IT / Разработчик</div>
+        <ul class="resp-tasks-list">
+          <li>Онлайн-статус аппаратов (работает / нет)</li>
+          <li>Исправление ошибок начисления бонусов</li>
+          <li>Интеграция с приложением Freedom</li>
+          <li>Telegram-бот для жалоб пользователей</li>
+          <li>API мониторинг загруженности</li>
+          <li>Push-уведомления о зачислении</li>
+        </ul>
+      </div>
+
+      <div class="resp-card" style="border-color:#9c27b0">
+        <div class="resp-role">📊 Руководитель проекта</div>
+        <ul class="resp-tasks-list">
+          <li>Контроль выполнения плана (этот монитор)</li>
+          <li>Еженедельные совещания по динамике</li>
+          <li>Приоритизация проблемных точек</li>
+          <li>Решение о повышении вознаграждений</li>
+          <li>Утверждение бюджета на акции</li>
+          <li>Итоговый отчёт раз в месяц</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div style="background:#f4f6f9;border-radius:10px;padding:14px 16px;font-size:.83rem;">
+      <div style="font-weight:700;margin-bottom:8px">📆 Ритм совещаний</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div>🕘 <b>Ежедневно 09:00</b> — Менеджер по репутации проверяет монитор и отправляет сигналы технику</div>
+        <div>📋 <b>Пятница 17:00</b> — Еженедельный отчёт руководителю: рейтинги, динамика, выполненные задачи</div>
+        <div>📊 <b>1-е число месяца</b> — Итоги месяца, постановка целей на следующий период</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ ШАБЛОНЫ ОТВЕТОВ ════ -->
+  <div class="wp-panel" id="wp-templates">
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:16px">Готовые шаблоны для ответов на отзывы в 2ГИС. Нажмите «Копировать» и вставьте в 2ГИС.</div>
+    <div class="tpl-list">
+
+      <div class="tpl-card red">
+        <div class="tpl-label">🔴 На отзыв: «Аппарат не работает / белый экран»</div>
+        <div class="tpl-text" id="tpl1">Здравствуйте! Приносим искренние извинения за доставленные неудобства. Мы уже передали информацию нашей технической службе — специалист выедет на точку в ближайшие часы. Благодарим вас за то, что сообщили об этом! Если проблема повторится, пишите нам в WhatsApp: +7 771 765 5999 — ответим быстро. Ваша обратная связь помогает нам становиться лучше 🙏</div>
+        <button class="copy-btn" onclick="copyTpl('tpl1', this)">📋 Копировать</button>
+      </div>
+
+      <div class="tpl-card red">
+        <div class="tpl-label">🔴 На отзыв: «Аппарат переполнен, не принимает»</div>
+        <div class="tpl-text" id="tpl2">Здравствуйте! Очень жаль, что вы столкнулись с этой ситуацией. Мы вводим усиленный график очистки аппаратов — теперь каждая точка проверяется минимум дважды в день. Ваш адрес взяли в приоритет. Следите за обновлениями в нашем Instagram — там публикуем статус точек. Спасибо, что помогаете нам развиваться ♻️</div>
+        <button class="copy-btn" onclick="copyTpl('tpl2', this)">📋 Копировать</button>
+      </div>
+
+      <div class="tpl-card red">
+        <div class="tpl-label">🔴 На отзыв: «Бонусы не пришли на карту»</div>
+        <div class="tpl-text" id="tpl3">Здравствуйте! Приносим извинения за задержку начисления. Напишите нам в WhatsApp +7 771 765 5999 с указанием даты визита и суммой — разберёмся и зачислим бонусы вручную. Мы уже работаем над устранением технической ошибки. Ценим ваше терпение и доверие к нашему проекту 💳</div>
+        <button class="copy-btn" onclick="copyTpl('tpl3', this)">📋 Копировать</button>
+      </div>
+
+      <div class="tpl-card red">
+        <div class="tpl-label">🔴 На отзыв: «Не распознаёт бутылки»</div>
+        <div class="tpl-text" id="tpl4">Здравствуйте! Спасибо, что рассказали об этом. Небольшой лайфхак: бутылку нужно вставить и аккуратно толкнуть до конца — сенсор расположен в дальней части приёмника. Также аппарат принимает только целые (несмятые) ПЭТ-бутылки и алюминиевые банки от напитков. Если это не помогло — наш техник уже осмотрит точку. Спасибо за вашу экологичность! ♻️</div>
+        <button class="copy-btn" onclick="copyTpl('tpl4', this)">📋 Копировать</button>
+      </div>
+
+      <div class="tpl-card" style="border-color:var(--yellow)">
+        <div class="tpl-label">🟡 На отзыв: «Маленькое вознаграждение»</div>
+        <div class="tpl-text" id="tpl5">Здравствуйте! Понимаем ваше мнение. Помимо денежного вознаграждения, каждая сданная бутылка — это вклад в экологию: из них делают бушлаты, постельные принадлежности, спортивную одежду. Также следите за нашими акциями — периодически запускаем «двойные бонусы» и розыгрыши среди участников. Спасибо, что заботитесь о природе вместе с нами 🌿</div>
+        <button class="copy-btn" onclick="copyTpl('tpl5', this)">📋 Копировать</button>
+      </div>
+
+      <div class="tpl-card green">
+        <div class="tpl-label">🟢 На позитивный отзыв (благодарность)</div>
+        <div class="tpl-text" id="tpl6">Большое спасибо за ваш отзыв! 🙏 Очень приятно слышать, что всё прошло хорошо. Именно такие неравнодушные люди, как вы, делают наш город чище. Ждём вас снова — и не забывайте рассказывать друзьям о фандоматах Freedom! ♻️🌿</div>
+        <button class="copy-btn" onclick="copyTpl('tpl6', this)">📋 Копировать</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════ KPI и ЦЕЛИ ════ -->
+  <div class="wp-panel" id="wp-kpi">
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:16px">Целевые показатели для оценки прогресса работы над отзывами</div>
+
+    <table class="kpi-table">
+      <thead>
+        <tr>
+          <th>Метрика</th>
+          <th>Сейчас</th>
+          <th>Цель — 1 месяц</th>
+          <th>Цель — 3 месяца</th>
+          <th>Статус</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>Средний рейтинг сети</b></td>
+          <td>⭐ ~2.4</td>
+          <td><span class="target-badge target-yellow">≥ 3.0 ★</span></td>
+          <td><span class="target-badge target-green">≥ 4.0 ★</span></td>
+          <td><span class="target-badge target-red">🔴 Ниже цели</span></td>
+        </tr>
+        <tr>
+          <td><b>Критичных точек (&lt;2.5 ★)</b></td>
+          <td>3 точки</td>
+          <td><span class="target-badge target-yellow">≤ 1</span></td>
+          <td><span class="target-badge target-green">0</span></td>
+          <td><span class="target-badge target-red">🔴 Требует действий</span></td>
+        </tr>
+        <tr>
+          <td><b>Процент отвеченных отзывов</b></td>
+          <td>~0%</td>
+          <td><span class="target-badge target-yellow">≥ 80%</span></td>
+          <td><span class="target-badge target-green">100%</span></td>
+          <td><span class="target-badge target-red">🔴 Не начато</span></td>
+        </tr>
+        <tr>
+          <td><b>Время реакции на отзыв</b></td>
+          <td>Нет</td>
+          <td><span class="target-badge target-yellow">≤ 24 ч</span></td>
+          <td><span class="target-badge target-green">≤ 4 ч</span></td>
+          <td><span class="target-badge target-red">🔴 Не настроено</span></td>
+        </tr>
+        <tr>
+          <td><b>Новых позитивных отзывов</b></td>
+          <td>0</td>
+          <td><span class="target-badge target-yellow">+15</span></td>
+          <td><span class="target-badge target-green">+50</span></td>
+          <td><span class="target-badge target-red">🔴 Не начато</span></td>
+        </tr>
+        <tr>
+          <td><b>Аппараты работают без сбоев</b></td>
+          <td>~40%</td>
+          <td><span class="target-badge target-yellow">≥ 80%</span></td>
+          <td><span class="target-badge target-green">≥ 95%</span></td>
+          <td><span class="target-badge target-red">🔴 Критично</span></td>
+        </tr>
+        <tr>
+          <td><b>Время очистки переполненных</b></td>
+          <td>3+ дня</td>
+          <td><span class="target-badge target-yellow">≤ 4 часа</span></td>
+          <td><span class="target-badge target-green">≤ 2 часа</span></td>
+          <td><span class="target-badge target-red">🔴 Критично</span></td>
+        </tr>
+        <tr>
+          <td><b>Рейтинг ул. Сыганак (Астана)</b></td>
+          <td>⭐ 1.3</td>
+          <td><span class="target-badge target-yellow">≥ 2.5 ★</span></td>
+          <td><span class="target-badge target-green">≥ 4.0 ★</span></td>
+          <td><span class="target-badge target-red">🔴 Приоритет #1</span></td>
+        </tr>
+        <tr>
+          <td><b>Рейтинг ул. Панфилова (Алматы)</b></td>
+          <td>⭐ 1.7</td>
+          <td><span class="target-badge target-yellow">≥ 2.5 ★</span></td>
+          <td><span class="target-badge target-green">≥ 4.0 ★</span></td>
+          <td><span class="target-badge target-red">🔴 Приоритет #2</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:20px">
+      <div style="font-weight:700;font-size:.9rem;margin-bottom:12px">📈 Прогресс по ключевым метрикам</div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div>
+          <div class="progress-label"><span>Средний рейтинг сети</span><span>2.4 / 4.0 ★ (цель)</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:30%;background:#e63946"></div></div>
+        </div>
+        <div>
+          <div class="progress-label"><span>Процент отвеченных отзывов</span><span>0% / 100% (цель)</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:0%;background:#f4a261"></div></div>
+        </div>
+        <div>
+          <div class="progress-label"><span>Надёжность аппаратов</span><span>40% / 95% (цель)</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:40%;background:#f4a261"></div></div>
+        </div>
+        <div>
+          <div class="progress-label"><span>Новые позитивные отзывы</span><span>0 / 50 (цель)</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:0%;background:#1db954"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fff8f8;border-radius:10px;padding:14px 16px;margin-top:16px;border-left:4px solid var(--red);font-size:.83rem;">
+      <div style="font-weight:700;margin-bottom:6px">🚨 Главный приоритет на ближайшие 30 дней</div>
+      <div>Поднять рейтинги трёх критичных точек выше 2.5 ★ — это даст наибольший эффект для общей репутации сети. Без технической надёжности аппаратов рост рейтинга невозможен.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- HISTORY -->
+<div class="table-wrap">
+  <h2>📜 Журнал проверок</h2>
+  <div id="historyLog" style="padding:6px 16px 10px">
+    <div class="empty"><div class="empty-icon">📭</div><p>Журнал пуст. Добавьте точки и зафиксируйте проверку.</p></div>
+  </div>
+</div>
+
+<!-- REPORT -->
+<div id="reportArea"></div>
+
+<!-- ═══ ADD/EDIT MODAL ═══ -->
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3 id="modalTitle">➕ Новая точка фандомата</h3>
+    <input type="hidden" id="editId">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Город *</label>
+        <select id="fCity">
+          <option value="Алматы">Алматы</option>
+          <option value="Астана">Астана</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Рейтинг (0–5) *</label>
+        <input type="number" id="fRating" min="0" max="5" step="0.1" placeholder="напр. 3.7">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Адрес / Локация *</label>
+      <input type="text" id="fAddress" placeholder="напр. ул. Панфилова, выше Толе би">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Кол-во отзывов</label>
+        <input type="number" id="fReviews" min="0" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Ссылка 2ГИС</label>
+        <input type="url" id="fLink" placeholder="https://2gis.kz/...">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Заметки / Проблемы</label>
+      <textarea id="fNotes" rows="3" placeholder="Опишите проблемы или особенности точки..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="savePoint()">💾 Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ UPDATE RATING MODAL ═══ -->
+<div class="overlay" id="updateOverlay">
+  <div class="modal" style="max-width:400px">
+    <button class="modal-close" onclick="closeUpdate()">✕</button>
+    <h3>🔄 Обновить данные</h3>
+    <div id="updateAddr" style="font-size:.85rem;color:var(--muted);margin-bottom:14px"></div>
+    <input type="hidden" id="updateId">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Новый рейтинг (0–5)</label>
+        <input type="number" id="uRating" min="0" max="5" step="0.1">
+      </div>
+      <div class="form-group">
+        <label>Кол-во отзывов</label>
+        <input type="number" id="uReviews" min="0">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Новый отзыв (текст)</label>
+      <textarea id="uReviewText" rows="3" placeholder="Вставьте текст нового отзыва..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeUpdate()">Отмена</button>
+      <button class="btn btn-success" onclick="applyUpdate()">✅ Обновить</button>
+    </div>
+  </div>
+</div>
+
+<footer>Freedom Фандоматы Monitor v1.0 · Данные хранятся в браузере (localStorage) · Обновляйте рейтинги ежедневно вручную из 2ГИС</footer>
+
+<script>
+// ══════════════════════════════════════════════
+//  DATA LAYER  (localStorage)
+// ══════════════════════════════════════════════
+const STORE_KEY = 'freedom_fandomatы';
+const LOG_KEY   = 'freedom_log';
+
+function load()    { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch { return []; } }
+function save(d)   { localStorage.setItem(STORE_KEY, JSON.stringify(d)); }
+function loadLog() { try { return JSON.parse(localStorage.getItem(LOG_KEY)) || []; } catch { return []; } }
+function saveLog(l){ localStorage.setItem(LOG_KEY, JSON.stringify(l)); }
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+// Default dataset
+const DEFAULTS = [
+  // АЛМАТЫ
+  { id:'a1', city:'Алматы', address:'ул. Панфилова, выше Толе би',        rating:1.7, reviews:13, prevRating:null, link:'https://2gis.kz/almaty/firm/70000001090502323', notes:'Частые жалобы: аппарат не работает, пустой экран', checked:null },
+  { id:'a2', city:'Алматы', address:'ул. Маркова, 44',                    rating:5.0, reviews:2,  prevRating:null, link:'https://2gis.kz/almaty/search/Фандомат',          notes:'', checked:null },
+  { id:'a3', city:'Алматы', address:'пр. Абая, 90',                       rating:2.3, reviews:3,  prevRating:null, link:'https://2gis.kz/almaty/search/Фандомат',          notes:'', checked:null },
+  { id:'a4', city:'Алматы', address:'ЖК Megapolis',                       rating:5.0, reviews:1,  prevRating:null, link:'https://2gis.kz/almaty/search/Фандомат',          notes:'Мало отзывов — нужна активация', checked:null },
+  { id:'a5', city:'Алматы', address:'Esentai Tower, пр. Аль-Фараби, 77/7',rating:3.6, reviews:3,  prevRating:null, link:'https://2gis.kz/almaty/search/Фандомат',          notes:'Работает с 08:00', checked:null },
+  // АСТАНА
+  { id:'s1', city:'Астана', address:'ул. Бейбитшилик, 9',                 rating:4.1, reviews:7,  prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'Лучшая точка', checked:null },
+  { id:'s2', city:'Астана', address:'ул. Кажымукан, 13 (ЕНУ)',            rating:3.7, reviews:4,  prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'', checked:null },
+  { id:'s3', city:'Астана', address:'ТРЦ Asia Park, пр. Кабанбай батыра, 21', rating:1.0, reviews:5,  prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'Оценка 1.0 — срочно требует внимания', checked:null },
+  { id:'s4', city:'Астана', address:'ул. Сыганак, 1Б',                    rating:1.3, reviews:16, prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'Наибольшее кол-во отзывов, самый низкий рейтинг', checked:null },
+  { id:'s5', city:'Астана', address:'пр. Республики, 8',                  rating:null,reviews:0,  prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'Рейтинг не подтверждён — требует проверки', checked:null },
+  { id:'s6', city:'Астана', address:'Шоссе Коргалжын, 13д',               rating:null,reviews:0,  prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'Рейтинг не подтверждён — требует проверки', checked:null },
+];
+
+function initData() {
+  if (!load().length) { save(DEFAULTS); }
+}
+
+// ══════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════
+function getStatus(r) {
+  if (r === null || r === undefined) return 'new';
+  if (r < 2.5) return 'critical';
+  if (r < 3.5) return 'warning';
+  return 'good';
+}
+function statusLabel(s) {
+  return { critical:'🔴 Критично', warning:'🟡 Слабо', good:'🟢 Хорошо', new:'🔵 Не проверено' }[s] || '—';
+}
+function statusClass(s) {
+  return { critical:'s-critical', warning:'s-warning', good:'s-good', new:'s-new' }[s] || '';
+}
+function ratingClass(r) {
+  if (r === null) return '';
+  if (r < 2.5) return 'r-red';
+  if (r < 3.5) return 'r-yellow';
+  return 'r-green';
+}
+function stars(r) {
+  if (r === null) return '—';
+  const full = Math.round(r);
+  return '★'.repeat(full) + '☆'.repeat(5 - full);
+}
+function fmt(r) { return r !== null && r !== undefined ? r.toFixed(1) : '—'; }
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
+}
+function today() { return new Date().toISOString(); }
+
+function trendIcon(cur, prev) {
+  if (prev === null || prev === undefined || cur === null) return '<span class="trend same">—</span>';
+  const d = (cur - prev).toFixed(1);
+  if (d > 0) return `<span class="trend up">▲ +${d}</span>`;
+  if (d < 0) return `<span class="trend down">▼ ${d}</span>`;
+  return '<span class="trend same">→ 0</span>';
+}
+
+function barColor(r) {
+  if (r === null) return '#ccc';
+  if (r < 2.5) return '#e63946';
+  if (r < 3.5) return '#f4a261';
+  return '#1db954';
+}
+
+// ══════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════
+function renderAll() {
+  renderAlerts();
+  renderKPI();
+  renderCharts();
+  renderTable();
+  renderLog();
+  document.getElementById('lastUpdate').textContent =
+    'Последнее обновление: ' + new Date().toLocaleString('ru-RU');
+}
+
+function renderAlerts() {
+  const data = load();
+  const box  = document.getElementById('alertsArea');
+  const critical = data.filter(p => getStatus(p.rating) === 'critical');
+  const unchecked = data.filter(p => {
+    if (!p.checked) return true;
+    const diff = (Date.now() - new Date(p.checked).getTime()) / 36e5;
+    return diff > 24;
+  });
+  let html = '';
+  if (critical.length)
+    html += `<div class="alert-box alert-danger">🚨 <b>${critical.length} точки</b> с критическим рейтингом (&lt;2.5) требуют срочного внимания!</div>`;
+  if (unchecked.length)
+    html += `<div class="alert-box alert-warning">⏰ <b>${unchecked.length} точек</b> не проверялись более 24 часов.</div>`;
+  if (!critical.length && !unchecked.length)
+    html += `<div class="alert-box alert-success">✅ Все точки проверены сегодня. Критических проблем нет.</div>`;
+  box.innerHTML = html;
+}
+
+function renderKPI() {
+  const data = load();
+  const rated = data.filter(p => p.rating !== null);
+  const avg = rated.length ? (rated.reduce((s,p) => s + p.rating, 0) / rated.length).toFixed(2) : '—';
+  const crit = data.filter(p => getStatus(p.rating) === 'critical').length;
+  const total = data.reduce((s,p) => s + (p.reviews||0), 0);
+  const good  = data.filter(p => getStatus(p.rating) === 'good').length;
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi"><div class="kpi-label">Всего точек</div><div class="kpi-value">${data.length}</div><div class="kpi-sub">Алматы: ${data.filter(p=>p.city==='Алматы').length} · Астана: ${data.filter(p=>p.city==='Астана').length}</div></div>
+    <div class="kpi ${crit ? 'red':'green'}"><div class="kpi-label">Критичных точек</div><div class="kpi-value">${crit}</div><div class="kpi-sub">Рейтинг &lt; 2.5 ⭐</div></div>
+    <div class="kpi yellow"><div class="kpi-label">Средний рейтинг</div><div class="kpi-value">${avg}</div><div class="kpi-sub">из 5.0 ★</div></div>
+    <div class="kpi"><div class="kpi-label">Всего отзывов</div><div class="kpi-value">${total}</div><div class="kpi-sub">суммарно по всем точкам</div></div>
+    <div class="kpi green"><div class="kpi-label">Хороших точек</div><div class="kpi-value">${good}</div><div class="kpi-sub">Рейтинг ≥ 3.5 ⭐</div></div>
+  `;
+}
+
+function renderCharts() {
+  const data = load();
+  // Bar chart — рейтинг по точкам
+  const sorted = [...data].filter(p=>p.rating!==null).sort((a,b)=>a.rating-b.rating);
+  document.getElementById('barChart').innerHTML = sorted.map(p => `
+    <div class="bar-item">
+      <div class="bar-label" title="${p.address}">${p.address.substring(0,22)}${p.address.length>22?'…':''}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(p.rating/5)*100}%;background:${barColor(p.rating)}"></div></div>
+      <div class="bar-val" style="color:${barColor(p.rating)}">${fmt(p.rating)}</div>
+    </div>
+  `).join('');
+
+  // Pie legend
+  const counts = { critical:0, warning:0, good:0, new:0 };
+  data.forEach(p => counts[getStatus(p.rating)]++);
+  const colors = { critical:'#e63946', warning:'#f4a261', good:'#1db954', new:'#1a73e8' };
+  const labels = { critical:'🔴 Критично', warning:'🟡 Слабо', good:'🟢 Хорошо', new:'🔵 Не проверено' };
+  document.getElementById('pieLegend').innerHTML = Object.entries(counts).map(([k,v]) => `
+    <div class="pie-item">
+      <div class="pie-dot" style="background:${colors[k]}"></div>
+      <span>${labels[k]}</span>
+      <span style="margin-left:auto;font-weight:700">${v} точек</span>
+    </div>
+  `).join('');
+}
+
+function renderTable() {
+  const data   = load();
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const city   = document.getElementById('cityFilter').value;
+  const status = document.getElementById('statusFilter').value;
+
+  const filtered = data.filter(p => {
+    if (city   && p.city !== city) return false;
+    if (status && getStatus(p.rating) !== status) return false;
+    if (search && !p.address.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  document.getElementById('countLabel').textContent = `(${filtered.length} из ${data.length})`;
+
+  if (!filtered.length) {
+    document.getElementById('tableBody').innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-icon">🔍</div><p>Ничего не найдено</p></div></td></tr>`;
+    return;
+  }
+
+  document.getElementById('tableBody').innerHTML = filtered.map((p, i) => {
+    const s = getStatus(p.rating);
+    const overdue = p.checked && (Date.now() - new Date(p.checked).getTime()) / 36e5 > 24;
+    return `
+    <tr>
+      <td>${i+1}</td>
+      <td><span class="city-tag city-${p.city==='Алматы'?'almaty':'astana'}">${p.city}</span></td>
+      <td>
+        <div style="font-weight:600">${p.address}</div>
+        ${p.notes ? `<div style="font-size:.75rem;color:var(--muted);margin-top:3px">${p.notes}</div>` : ''}
+        ${overdue ? '<div style="font-size:.72rem;color:#e63946;margin-top:2px">⚠️ Не проверялась 24+ ч.</div>' : ''}
+      </td>
+      <td>
+        <span class="rating-badge ${ratingClass(p.rating)}">
+          ${fmt(p.rating)} <span class="stars">${stars(p.rating)}</span>
+        </span>
+      </td>
+      <td style="text-align:center;font-weight:600">${p.reviews || 0}</td>
+      <td><span class="status-pill ${statusClass(s)}">${statusLabel(s)}</span></td>
+      <td>${trendIcon(p.rating, p.prevRating)}</td>
+      <td style="font-size:.78rem;color:var(--muted)">${fmtDate(p.checked)}</td>
+      <td>
+        <div class="action-btns">
+          ${p.link ? `<a class="mini-btn mb-2gis" href="${p.link}" target="_blank">🗺️ 2ГИС</a>` : ''}
+          <button class="mini-btn mb-add" onclick="openUpdate('${p.id}')">🔄 Обновить</button>
+          <button class="mini-btn mb-edit" onclick="openEdit('${p.id}')">✏️</button>
+          <button class="mini-btn mb-del"  onclick="deletePoint('${p.id}')">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderLog() {
+  const logs = loadLog().slice().reverse().slice(0, 50);
+  const el = document.getElementById('historyLog');
+  if (!logs.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><p>Журнал пуст. Добавьте точки и зафиксируйте проверку.</p></div>';
+    return;
+  }
+  el.innerHTML = logs.map(l => `
+    <div class="log-entry">
+      <div class="log-dot ${l.type}"></div>
+      <div>
+        <div style="font-weight:600">${l.action}</div>
+        <div style="color:var(--muted);font-size:.78rem">${l.detail}</div>
+      </div>
+      <div style="margin-left:auto;font-size:.75rem;color:var(--muted);white-space:nowrap">${fmtDate(l.ts)}</div>
+    </div>
+  `).join('');
+}
+
+function addLog(type, action, detail) {
+  const logs = loadLog();
+  logs.push({ type, action, detail, ts: today() });
+  saveLog(logs);
+}
+
+// ══════════════════════════════════════════════
+//  MODAL: ADD / EDIT
+// ══════════════════════════════════════════════
+function openAddModal() {
+  document.getElementById('modalTitle').textContent = '➕ Новая точка фандомата';
+  document.getElementById('editId').value = '';
+  document.getElementById('fCity').value = 'Алматы';
+  document.getElementById('fAddress').value = '';
+  document.getElementById('fRating').value = '';
+  document.getElementById('fReviews').value = '';
+  document.getElementById('fLink').value = '';
+  document.getElementById('fNotes').value = '';
+  document.getElementById('modalOverlay').classList.add('active');
+}
+function openEdit(id) {
+  const data = load();
+  const p = data.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('modalTitle').textContent = '✏️ Редактировать точку';
+  document.getElementById('editId').value = id;
+  document.getElementById('fCity').value = p.city;
+  document.getElementById('fAddress').value = p.address;
+  document.getElementById('fRating').value = p.rating !== null ? p.rating : '';
+  document.getElementById('fReviews').value = p.reviews || 0;
+  document.getElementById('fLink').value = p.link || '';
+  document.getElementById('fNotes').value = p.notes || '';
+  document.getElementById('modalOverlay').classList.add('active');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+
+function savePoint() {
+  const id      = document.getElementById('editId').value;
+  const city    = document.getElementById('fCity').value.trim();
+  const address = document.getElementById('fAddress').value.trim();
+  const ratingV = document.getElementById('fRating').value;
+  const rating  = ratingV !== '' ? parseFloat(ratingV) : null;
+  const reviews = parseInt(document.getElementById('fReviews').value) || 0;
+  const link    = document.getElementById('fLink').value.trim();
+  const notes   = document.getElementById('fNotes').value.trim();
+
+  if (!city || !address) { alert('Заполните город и адрес!'); return; }
+
+  const data = load();
+  if (id) {
+    const idx = data.findIndex(x => x.id === id);
+    if (idx >= 0) {
+      const old = data[idx];
+      data[idx] = { ...old, city, address, rating, reviews, link, notes };
+      addLog('blue', 'Точка обновлена', `${city} — ${address}`);
+    }
+  } else {
+    data.push({ id: uid(), city, address, rating, reviews, prevRating: null, link, notes, checked: null });
+    addLog('green', 'Добавлена новая точка', `${city} — ${address}`);
+  }
+  save(data);
+  closeModal();
+  renderAll();
+}
+
+// ══════════════════════════════════════════════
+//  MODAL: UPDATE RATING
+// ══════════════════════════════════════════════
+function openUpdate(id) {
+  const data = load();
+  const p = data.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('updateId').value = id;
+  document.getElementById('updateAddr').textContent = `${p.city} — ${p.address}`;
+  document.getElementById('uRating').value  = p.rating !== null ? p.rating : '';
+  document.getElementById('uReviews').value = p.reviews || 0;
+  document.getElementById('uReviewText').value = '';
+  document.getElementById('updateOverlay').classList.add('active');
+}
+function closeUpdate() { document.getElementById('updateOverlay').classList.remove('active'); }
+
+function applyUpdate() {
+  const id      = document.getElementById('updateId').value;
+  const newRate = parseFloat(document.getElementById('uRating').value);
+  const newRevs = parseInt(document.getElementById('uReviews').value) || 0;
+  const text    = document.getElementById('uReviewText').value.trim();
+
+  const data = load();
+  const idx  = data.findIndex(x => x.id === id);
+  if (idx < 0) return;
+
+  const old = data[idx];
+  const oldRating = old.rating;
+  data[idx] = {
+    ...old,
+    prevRating: oldRating,
+    rating:  isNaN(newRate) ? old.rating : newRate,
+    reviews: newRevs,
+    checked: today()
+  };
+  save(data);
+
+  const changed = !isNaN(newRate) && newRate !== oldRating;
+  const direction = changed ? (newRate > (oldRating||0) ? '▲ вырос' : '▼ упал') : 'без изменений';
+  addLog(
+    changed ? (newRate < 2.5 ? 'red' : newRate < 3.5 ? 'yellow' : 'green') : 'blue',
+    `Рейтинг обновлён: ${fmt(oldRating)} → ${fmt(isNaN(newRate)?oldRating:newRate)} (${direction})`,
+    `${old.city} — ${old.address}${text ? ' · Отзыв: «' + text.substring(0,60) + (text.length>60?'…':'') + '»' : ''}`
+  );
+  closeUpdate();
+  renderAll();
+}
+
+// ══════════════════════════════════════════════
+//  ACTIONS
+// ══════════════════════════════════════════════
+function deletePoint(id) {
+  const data = load();
+  const p = data.find(x => x.id === id);
+  if (!p || !confirm(`Удалить точку:\n${p.city} — ${p.address}?`)) return;
+  save(data.filter(x => x.id !== id));
+  addLog('red', 'Точка удалена', `${p.city} — ${p.address}`);
+  renderAll();
+}
+
+function logManualCheck() {
+  const data = load();
+  const now  = today();
+  data.forEach(p => { if (!p.checked || (Date.now() - new Date(p.checked).getTime()) / 36e5 > 23) p.checked = now; });
+  save(data);
+  addLog('green', '✅ Ежедневная проверка зафиксирована', `Проверено ${data.length} точек`);
+  renderAll();
+  alert('✅ Проверка зафиксирована! Не забудьте обновить рейтинги вручную из 2ГИС.');
+}
+
+function generateReport() {
+  const data     = load();
+  const now      = new Date();
+  const nowStr   = now.toLocaleString('ru-RU');
+  const dateStr  = now.toLocaleDateString('ru-RU', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+  const critical = data.filter(p => getStatus(p.rating) === 'critical');
+  const warning  = data.filter(p => getStatus(p.rating) === 'warning');
+  const good     = data.filter(p => getStatus(p.rating) === 'good');
+  const noData   = data.filter(p => p.rating === null);
+  const rated    = data.filter(p => p.rating !== null);
+  const avg      = rated.length ? (rated.reduce((s,p)=>s+p.rating,0)/rated.length).toFixed(2) : '—';
+  const total    = data.reduce((s,p)=>s+(p.reviews||0),0);
+  const improved = data.filter(p=>p.prevRating!==null&&p.rating!==null&&p.rating>p.prevRating).length;
+  const declined = data.filter(p=>p.prevRating!==null&&p.rating!==null&&p.rating<p.prevRating).length;
+
+  // ── build table rows helper
+  const tblRows = (arr, color) => arr.length
+    ? arr.map((p,i) => {
+        const s = getStatus(p.rating);
+        const trend = p.prevRating === null ? '—'
+          : p.rating > p.prevRating ? `▲ +${(p.rating-p.prevRating).toFixed(1)}`
+          : p.rating < p.prevRating ? `▼ ${(p.rating-p.prevRating).toFixed(1)}`
+          : '→ 0';
+        const trendColor = trend.startsWith('▲') ? '#1e8449' : trend.startsWith('▼') ? '#c0392b' : '#999';
+        const overdue = !p.checked || (Date.now()-new Date(p.checked).getTime())/36e5 > 24;
+        return `<tr>
+          <td class="num">${i+1}</td>
+          <td><span class="city-tag city-${p.city==='Алматы'?'almaty':'astana'}">${p.city}</span></td>
+          <td><b>${p.address}</b>${p.notes?`<br><span style="font-size:.72rem;color:var(--muted)">${p.notes}</span>`:''}</td>
+          <td><span class="rating-badge ${ratingClass(p.rating)}">${fmt(p.rating)} ${stars(p.rating)}</span></td>
+          <td class="num">${p.reviews||0}</td>
+          <td><span style="font-weight:700;color:${trendColor}">${trend}</span></td>
+          <td><span class="status-pill ${statusClass(s)}">${statusLabel(s)}</span></td>
+          <td style="font-size:.75rem;color:var(--muted)">${p.checked?fmtDate(p.checked):'<span style="color:#e63946">Не проверено</span>'}</td>
+          <td>${overdue?'<span style="color:#e63946;font-size:.75rem">⚠️ Просрочено</span>':'<span style="color:#1e8449;font-size:.75rem">✅ Актуально</span>'}</td>
+        </tr>`;
+      }).join('')
+    : `<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--muted)">Нет данных</td></tr>`;
+
+  const recos = [
+    ...critical.map(p=>`<div class="report-reco-item red"><div class="report-reco-icon">🚨</div><div><b>${p.city} — ${p.address}</b><br>Ответить на отзывы в 2ГИС · Выехать на точку · Проверить аппарат</div></div>`),
+    ...warning.map(p=>`<div class="report-reco-item yellow"><div class="report-reco-icon">⚠️</div><div><b>${p.city} — ${p.address}</b><br>Стимулировать позитивные отзывы · Проверить работу аппарата</div></div>`),
+    ...(critical.length===0&&warning.length===0?['<div class="report-reco-item green"><div class="report-reco-icon">✅</div><div>Все точки в норме. Продолжайте стимулировать отзывы на хороших точках.</div></div>']:[])
+  ].join('');
+
+  const allRows = [...critical,...warning,...good,...noData];
+
+  const html = `
+  <div class="report-card">
+    <div class="report-card-header">
+      <h3>📋 Ежедневный отчёт — Freedom Фандоматы</h3>
+      <span style="font-size:.8rem;color:var(--muted)">${dateStr}</span>
+    </div>
+    <div class="report-kpi-grid">
+      <div class="report-kpi-cell">
+        <div class="report-kpi-val">${data.length}</div>
+        <div class="report-kpi-lbl">Всего точек</div>
+      </div>
+      <div class="report-kpi-cell">
+        <div class="report-kpi-val" style="color:${avg<2.5?'#e63946':avg<3.5?'#f4a261':'#1db954'}">${avg}★</div>
+        <div class="report-kpi-lbl">Средний рейтинг</div>
+      </div>
+      <div class="report-kpi-cell">
+        <div class="report-kpi-val">${total}</div>
+        <div class="report-kpi-lbl">Всего отзывов</div>
+      </div>
+      <div class="report-kpi-cell">
+        <div class="report-kpi-val" style="color:#e63946">${critical.length}</div>
+        <div class="report-kpi-lbl">🔴 Критичных</div>
+      </div>
+      <div class="report-kpi-cell">
+        <div class="report-kpi-val" style="color:#f4a261">${warning.length}</div>
+        <div class="report-kpi-lbl">🟡 Слабых</div>
+      </div>
+      <div class="report-kpi-cell">
+        <div class="report-kpi-val" style="color:#1db954">${good.length}</div>
+        <div class="report-kpi-lbl">🟢 Хороших</div>
+      </div>
+      <div class="report-kpi-cell">
+        <div class="report-kpi-val" style="color:#1db954">▲${improved}</div>
+        <div class="report-kpi-lbl">Выросли</div>
+      </div>
+      <div class="report-kpi-cell" style="border-right:none">
+        <div class="report-kpi-val" style="color:#e63946">▼${declined}</div>
+        <div class="report-kpi-lbl">Упали</div>
+      </div>
+    </div>
+    <div class="report-date-row">
+      <span>Freedom Monitor v1.0</span><span>Сформирован: ${nowStr}</span>
+    </div>
+  </div>
+
+  <div class="report-card">
+    <div class="report-card-header">
+      <h3>🔴 Критичные точки <span class="report-section-badge" style="background:#fde8e8;color:#c0392b">${critical.length} точек</span></h3>
+      <span style="font-size:.78rem;color:#c0392b;font-weight:600">Требуют реакции сегодня!</span>
+    </div>
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead><tr><th>#</th><th>Город</th><th>Адрес / Локация</th><th>Рейтинг</th><th>Отзывов</th><th>Тренд</th><th>Статус</th><th>Проверено</th><th>Актуальность</th></tr></thead>
+        <tbody>${tblRows(critical,'red')}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="report-card">
+    <div class="report-card-header">
+      <h3>🟡 Слабые точки <span class="report-section-badge" style="background:#fff3e0;color:#d35400">${warning.length} точек</span></h3>
+    </div>
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead><tr><th>#</th><th>Город</th><th>Адрес / Локация</th><th>Рейтинг</th><th>Отзывов</th><th>Тренд</th><th>Статус</th><th>Проверено</th><th>Актуальность</th></tr></thead>
+        <tbody>${tblRows(warning,'yellow')}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="report-card">
+    <div class="report-card-header">
+      <h3>🟢 Хорошие точки <span class="report-section-badge" style="background:#e8f8ee;color:#1e8449">${good.length} точек</span></h3>
+    </div>
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead><tr><th>#</th><th>Город</th><th>Адрес / Локация</th><th>Рейтинг</th><th>Отзывов</th><th>Тренд</th><th>Статус</th><th>Проверено</th><th>Актуальность</th></tr></thead>
+        <tbody>${tblRows(good,'green')}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="report-card">
+    <div class="report-card-header">
+      <h3>📊 Сводная таблица — все точки <span class="report-section-badge" style="background:#e8f0fe;color:#1a73e8">${data.length} точек</span></h3>
+    </div>
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead><tr><th>#</th><th>Город</th><th>Адрес / Локация</th><th>Рейтинг</th><th>Отзывов</th><th>Тренд</th><th>Статус</th><th>Проверено</th><th>Актуальность</th></tr></thead>
+        <tbody>${tblRows(allRows,'')}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="report-card">
+    <div class="report-card-header">
+      <h3>💡 Рекомендации на сегодня</h3>
+    </div>
+    <div class="report-reco-list">${recos}</div>
+    <div class="report-actions">
+      <button class="btn btn-outline" onclick="window.print()">🖨️ Распечатать</button>
+      <button class="btn btn-success" onclick="exportCSV()">⬇️ Экспорт в CSV</button>
+      <button class="btn btn-primary" onclick="document.getElementById('reportArea').style.display='none'">✕ Закрыть отчёт</button>
+    </div>
+    <div class="report-date-row">
+      <span>Freedom Monitor v1.0</span><span>${nowStr}</span>
+    </div>
+  </div>`;
+
+  const el = document.getElementById('reportArea');
+  el.style.display = 'block';
+  el.innerHTML = html;
+  el.scrollIntoView({ behavior: 'smooth' });
+  addLog('blue', '📋 Сформирован дневной отчёт', `${data.length} точек · Критичных: ${critical.length}`);
+  renderLog();
+}
+
+function exportCSV() {
+  const data = load();
+  const now  = new Date().toLocaleDateString('ru-RU');
+
+  // Заголовок файла
+  const title   = [['ОТЧЁТ ПО ФАНДОМАТАМ FREEDOM', '', '', '', '', '', '', '', '']];
+  const dateLine = [[`Дата: ${now}`, '', '', '', '', '', '', '', '']];
+  const empty   = [['']];
+
+  // KPI сводка
+  const rated    = data.filter(p=>p.rating!==null);
+  const avg      = rated.length ? (rated.reduce((s,p)=>s+p.rating,0)/rated.length).toFixed(2) : '—';
+  const total    = data.reduce((s,p)=>s+(p.reviews||0),0);
+  const critical = data.filter(p=>getStatus(p.rating)==='critical').length;
+  const warning  = data.filter(p=>getStatus(p.rating)==='warning').length;
+  const good     = data.filter(p=>getStatus(p.rating)==='good').length;
+  const noData   = data.filter(p=>p.rating===null).length;
+
+  const kpiHeader = [['СВОДКА','','','','','','','','']];
+  const kpiRows   = [
+    ['Всего точек', data.length, '', 'Хорошие (≥3.5)', good, '', 'Средний рейтинг', avg+'★', ''],
+    ['Всего отзывов', total, '', 'Слабые (2.5-3.5)', warning, '', 'Критичных точек', critical, ''],
+    ['', '', '', 'Без данных', noData, '', '', '', ''],
+  ];
+
+  // Основная таблица
+  const mainHeader = [['#','Город','Адрес / Локация','Рейтинг','Звёзды','Отзывов','Тренд','Статус','Последняя проверка','Актуальность','Заметки']];
+  const mainRows   = data.map((p,i) => {
+    const trend = p.prevRating===null ? '—'
+      : p.rating>p.prevRating ? `▲ +${(p.rating-p.prevRating).toFixed(1)}`
+      : p.rating<p.prevRating ? `▼ ${(p.rating-p.prevRating).toFixed(1)}`
+      : '→ 0';
+    const overdue = !p.checked || (Date.now()-new Date(p.checked).getTime())/36e5>24;
+    return [
+      i+1, p.city, p.address,
+      p.rating!==null ? p.rating : '—',
+      stars(p.rating).replace(/[★☆]/g, s => s==='★'?'★':'☆'),
+      p.reviews||0,
+      trend,
+      statusLabel(getStatus(p.rating)).replace(/[🔴🟡🟢🔵]/g,'').trim(),
+      p.checked ? fmtDate(p.checked) : 'Не проверено',
+      overdue ? 'Просрочено' : 'Актуально',
+      p.notes||''
+    ];
+  });
+
+  // Критичные точки отдельным листом
+  const critHeader = [['КРИТИЧНЫЕ ТОЧКИ — ТРЕБУЮТ РЕАКЦИИ СЕГОДНЯ','','','','','','','','','','']];
+  const critRows   = data
+    .filter(p=>getStatus(p.rating)==='critical')
+    .map((p,i)=>[i+1, p.city, p.address, p.rating, p.reviews||0, 'Ответить на отзывы · Выехать на точку · Проверить аппарат','','','','','']);
+
+  // Собираем CSV
+  const allSections = [
+    ...title, ...dateLine, ...empty,
+    ...kpiHeader, ...kpiRows, ...empty,
+    ...critHeader, ...mainHeader.map(r=>r), ...critRows, ...empty,
+    [['ВСЕ ТОЧКИ','','','','','','','','','','']],
+    ...mainHeader, ...mainRows,
+  ];
+
+  const csvLines = allSections.map(row => {
+    if (Array.isArray(row[0])) return row[0].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',');
+    return row.map(v => {
+      const s = String(v===null||v===undefined?'':v);
+      return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g,'""')}"` : s;
+    }).join(',');
+  });
+
+  const csv  = csvLines.join('\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = `Freedom_Фандоматы_Отчёт_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  addLog('blue', '⬇️ Экспорт CSV', `${data.length} записей · ${new Date().toLocaleDateString('ru-RU')}`);
+  renderLog();
+}
+
+function clearAll() {
+  if (!confirm('Сбросить ВСЕ данные и журнал? Это действие необратимо!')) return;
+  localStorage.removeItem(STORE_KEY);
+  localStorage.removeItem(LOG_KEY);
+  initData();
+  document.getElementById('reportArea').style.display = 'none';
+  renderAll();
+}
+
+// Close modals on overlay click
+document.getElementById('modalOverlay').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+document.getElementById('updateOverlay').addEventListener('click', function(e){ if(e.target===this) closeUpdate(); });
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+initData();
+renderAll();
+
+// Auto-refresh KPI every 60s (for long tab sessions)
+setInterval(renderAll, 60000);
+
+// ══════════════════════════════════════════════
+//  ANALYSIS TABS
+// ══════════════════════════════════════════════
+function switchTab(tab) {
+  // panels
+  document.querySelectorAll('.analysis-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  // tabs
+  document.querySelectorAll('.atab').forEach(t => t.classList.remove('active'));
+  const map = { critical: 0, warning: 1, good: 2 };
+  document.querySelectorAll('.atab')[map[tab]].classList.add('active');
+}
+
+function scrollToAnalysis() {
+  document.getElementById('analysisSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ══════════════════════════════════════════════
+//  WORKPLAN TABS
+// ══════════════════════════════════════════════
+function switchWP(tab) {
+  document.querySelectorAll('.wp-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('wp-' + tab).classList.add('active');
+  document.querySelectorAll('.wp-tab').forEach(t => t.classList.remove('active'));
+  const idx = { timeline:0, roles:1, templates:2, kpi:3 };
+  document.querySelectorAll('.wp-tab')[idx[tab]].classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+//  TASK CHECKBOXES (localStorage)
+// ══════════════════════════════════════════════
+const TASKS_KEY = 'freedom_tasks';
+function loadTasks() { try { return JSON.parse(localStorage.getItem(TASKS_KEY)) || {}; } catch { return {}; } }
+function saveTasks(t) { localStorage.setItem(TASKS_KEY, JSON.stringify(t)); }
+
+function toggleTask(el) {
+  const isDone = el.classList.toggle('done');
+  el.textContent = isDone ? '✓' : '';
+  const span = el.nextElementSibling;
+  if (span) span.classList.toggle('done-text', isDone);
+  // persist by index
+  const allChk = document.querySelectorAll('.chk');
+  const tasks = loadTasks();
+  allChk.forEach((c, i) => { tasks[i] = c.classList.contains('done'); });
+  saveTasks(tasks);
+}
+
+function restoreTasks() {
+  const tasks = loadTasks();
+  const allChk = document.querySelectorAll('.chk');
+  allChk.forEach((c, i) => {
+    if (tasks[i]) {
+      c.classList.add('done');
+      c.textContent = '✓';
+      const span = c.nextElementSibling;
+      if (span) span.classList.add('done-text');
+    }
+  });
+}
+
+// ══════════════════════════════════════════════
+//  COPY TEMPLATE
+// ══════════════════════════════════════════════
+function copyTpl(id, btn) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✅ Скопировано!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 Копировать'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✅ Скопировано!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 Копировать'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// restore checkboxes after DOM ready
+setTimeout(restoreTasks, 100);
+</script>
+</body>
+</html>
