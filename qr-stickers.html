@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Freedom Фандоматы — QR-наклейки для 2ГИС</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #222; }
+
+  /* ── УПРАВЛЕНИЕ (не печатается) ── */
+  .controls {
+    background: #1d3557;
+    color: #fff;
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .controls h1 { font-size: 1.1rem; flex: 1; }
+  .btn {
+    padding: 9px 20px; border: none; border-radius: 8px;
+    cursor: pointer; font-size: .88rem; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-green  { background: #1db954; color: #fff; }
+  .btn-blue   { background: #457b9d; color: #fff; }
+  .btn-orange { background: #f4a261; color: #fff; }
+
+  .filter-bar {
+    background: #fff;
+    padding: 12px 28px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  select, input[type=text] {
+    padding: 7px 12px; border: 1px solid #ddd;
+    border-radius: 8px; font-size: .85rem; outline: none;
+  }
+  .count-label { font-size: .85rem; color: #666; margin-left: auto; }
+
+  /* ── СЕТКА НАКЛЕЕК ── */
+  .sticker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    padding: 20px 28px;
+  }
+
+  /* ── ОДНА НАКЛЕЙКА ── */
+  .sticker {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,.1);
+    border: 2px solid #e0e0e0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .sticker-top {
+    background: linear-gradient(135deg, #1d3557 0%, #457b9d 100%);
+    padding: 12px 14px 10px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sticker-logo { font-size: 1.6rem; }
+  .sticker-brand { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: .9; }
+  .sticker-eco   { font-size: .65rem; opacity: .7; margin-top: 1px; }
+
+  .sticker-body  { padding: 14px; text-align: center; }
+  .sticker-msg {
+    font-size: .78rem;
+    color: #333;
+    line-height: 1.5;
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  .sticker-msg b { color: #1d3557; }
+
+  .qr-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+  }
+  .qr-wrap img, .qr-wrap canvas {
+    width: 130px !important;
+    height: 130px !important;
+    border-radius: 8px;
+    border: 3px solid #1d3557;
+    padding: 4px;
+    background: #fff;
+  }
+
+  .sticker-arrow {
+    font-size: .72rem;
+    color: #1db954;
+    font-weight: 700;
+    margin: 6px 0;
+  }
+  .sticker-cta {
+    background: #1db954;
+    color: #fff;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: .78rem;
+    font-weight: 700;
+    display: inline-block;
+    margin: 6px 0;
+  }
+
+  .sticker-bottom {
+    background: #f8f9fa;
+    border-top: 1px solid #eee;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .sticker-addr {
+    font-size: .68rem;
+    color: #555;
+    line-height: 1.4;
+    flex: 1;
+    text-align: left;
+  }
+  .sticker-rvm {
+    font-size: .65rem;
+    color: #aaa;
+    font-weight: 700;
+    background: #eee;
+    border-radius: 20px;
+    padding: 2px 8px;
+    white-space: nowrap;
+    margin-left: 6px;
+  }
+  .city-badge {
+    font-size: .65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .almaty  { background: #e3f2fd; color: #1565c0; }
+  .astana  { background: #f3e5f5; color: #6a1b9a; }
+  .kaskel  { background: #e8f5e9; color: #2e7d32; }
+
+  .sticker-bonus {
+    font-size: .68rem;
+    color: #f4a261;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+
+  /* ── БОЛЬШОЙ ФОРМАТ (A5) ── */
+  .sticker.large { min-height: 320px; }
+  .sticker.large .sticker-msg { font-size: .88rem; }
+  .sticker.large .qr-wrap img,
+  .sticker.large .qr-wrap canvas { width: 170px !important; height: 170px !important; }
+  .sticker.large .sticker-cta { font-size: .9rem; padding: 8px 22px; }
+
+  /* ── ПЕЧАТЬ ── */
+  @media print {
+    .controls, .filter-bar { display: none !important; }
+    body { background: #fff; }
+    .sticker-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 10px;
+    }
+    .sticker-grid.one-per-page {
+      grid-template-columns: 1fr;
+    }
+    .sticker {
+      box-shadow: none;
+      border: 2px solid #ccc;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    @page { size: A4; margin: 10mm; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
+<div class="controls">
+  <h1>♻️ Freedom Фандоматы — QR-наклейки для 2ГИС</h1>
+  <button class="btn btn-green" onclick="window.print()">🖨️ Печать всех</button>
+  <button class="btn btn-blue" onclick="toggleSize()">📐 Размер: <span id="sizeLabel">Стандарт</span></button>
+  <button class="btn btn-orange" onclick="toggleFormat()">📄 Формат: <span id="formatLabel">4 на странице</span></button>
+</div>
+
+<!-- ФИЛЬТРЫ -->
+<div class="filter-bar">
+  <select id="cityFilter" onchange="render()">
+    <option value="">🌍 Все города</option>
+    <option value="Алматы">Алматы</option>
+    <option value="Астана">Астана</option>
+    <option value="Каскелен">Каскелен</option>
+  </select>
+  <input type="text" id="searchInput" placeholder="🔍 Поиск по адресу..." oninput="render()">
+  <select id="countFilter" onchange="render()">
+    <option value="0">Все точки</option>
+    <option value="10000">Топ (принято > 10 000)</option>
+    <option value="5000">Активные (> 5 000)</option>
+  </select>
+  <div class="count-label" id="countLabel"></div>
+</div>
+
+<!-- СЕТКА НАКЛЕЕК -->
+<div class="sticker-grid" id="grid"></div>
+
+<script>
+// ── ДАННЫЕ ──────────────────────────────────────────
+const POINTS = [
+  {rvm:201,city:"Алматы",loc:"БЦ Нурикон",addr:"Ауэзова 175/1",total:24568},
+  {rvm:202,city:"Каскелен",loc:"ТЦ Замза",addr:"Абылай хана, 177а",total:9854},
+  {rvm:203,city:"Алматы",loc:"Спорт комплекс Балуана Шолака",addr:"Абая 44",total:2856},
+  {rvm:204,city:"Астана",loc:"Республиканский диагностический центр",addr:"Сыганак, 46",total:4017},
+  {rvm:205,city:"Алматы",loc:"Алмалинский комьюнити центр",addr:"Байтурсынова, 22 к1",total:8694},
+  {rvm:206,city:"Астана",loc:"Astana Hub",addr:"Мангилик Ел, 55/7",total:7400},
+  {rvm:207,city:"Астана",loc:"iKomek",addr:"Бейбитшилик, 9",total:3422},
+  {rvm:208,city:"Каскелен",loc:"ТЦ Алатау",addr:"Абылай Хана 90",total:7914},
+  {rvm:209,city:"Алматы",loc:"Зал Джуи Джитсу",addr:"Досмухамедова 68б",total:3052},
+  {rvm:210,city:"Алматы",loc:"Наурызбайский комьюнити центр",addr:"Шугыла, 343/7",total:1076},
+  {rvm:211,city:"Алматы",loc:"Панфилова",addr:"Панфилова",total:10648},
+  {rvm:212,city:"Алматы",loc:"Halyk Arena",addr:"Кульджинский тракт, 2",total:12687},
+  {rvm:213,city:"Алматы",loc:"Наурызбайское комьюнити центр",addr:"Жунисова 4/2",total:2497},
+  {rvm:214,city:"Алматы",loc:"Университет КазГАСА",addr:"Рыскулбекова, 28",total:3068},
+  {rvm:215,city:"Алматы",loc:"Avatariya 2",addr:"Халиуллина 194",total:1223},
+  {rvm:216,city:"Алматы",loc:"Казахстанско-Немецкий Университет",addr:"Назарбаева 173",total:3778},
+  {rvm:217,city:"Алматы",loc:"ЖК Athletic Village",addr:"Нуркент мкрн, 5 к20-22",total:3444},
+  {rvm:218,city:"Алматы",loc:"КБТУ",addr:"Толе би, 59",total:2877},
+  {rvm:219,city:"Алматы",loc:"Университет Нархоз",addr:"Жандосова, 55",total:2753},
+  {rvm:220,city:"Алматы",loc:"Жетысуйский Комьюнити Центр",addr:"Серикова 6а",total:1573},
+  {rvm:221,city:"Алматы",loc:"Кайсар Плаза",addr:"Богенбай батыра, 129",total:32346},
+  {rvm:222,city:"Алматы",loc:"Медеуский комьюнити центр",addr:"Халиуллина 140/5",total:4459},
+  {rvm:223,city:"Алматы",loc:"Almaty Management University",addr:"Розыбакиева 227",total:39330},
+  {rvm:224,city:"Алматы",loc:"Жетысуский комьюнити центр",addr:"Боткина, 18/1 к1",total:3723},
+  {rvm:225,city:"Алматы",loc:"Ледовый дворец",addr:"Абая 44",total:3096},
+  {rvm:226,city:"Алматы",loc:"КазНУ",addr:"Аль-Фараби 71",total:2204},
+  {rvm:227,city:"Алматы",loc:"Университет КИМЭП",addr:"Абая 4",total:3874},
+  {rvm:228,city:"Алматы",loc:"Казпочта",addr:"Богенбай батыра 134",total:4603},
+  {rvm:229,city:"Алматы",loc:"Арбат",addr:"Арбат",total:4691},
+  {rvm:230,city:"Алматы",loc:"Алатауский комьюнити центр",addr:"Мкрн. Саялы, 73",total:1088},
+  {rvm:231,city:"Алматы",loc:"Аэропорт",addr:"Майлина 2",total:3879},
+  {rvm:232,city:"Каскелен",loc:"SDU",addr:"Абылай хана, 1/1",total:1051},
+  {rvm:233,city:"Алматы",loc:"Теннисный центр Zhan Dosym",addr:"Аль-Фараби 71/20а",total:1251},
+  {rvm:234,city:"Алматы",loc:"Satbayev University",addr:"Каныша Сатпаева, 22",total:2379},
+  {rvm:235,city:"Алматы",loc:"Invictus Go",addr:"Каракулова, 39",total:3360},
+  {rvm:236,city:"Алматы",loc:"Кинотеатр Арман",addr:"Достык 104",total:29168},
+  {rvm:237,city:"Алматы",loc:"Теннисный центр",addr:"Санаторная, 14",total:3434},
+  {rvm:238,city:"Алматы",loc:"Фортис бизнес центр",addr:"Ходжанова 2/2",total:1618},
+  {rvm:239,city:"Алматы",loc:"Уличный Наурызбайский р-н",addr:"Магазин Алмалы",total:5398},
+  {rvm:240,city:"Алматы",loc:"Частная школа им. Шокана Уалиханова",addr:"Самал 3 мкрн 37/1",total:2268},
+  {rvm:241,city:"Алматы",loc:"ТК МЕРЕЙ",addr:"Суюнбая, 2 к9",total:17501},
+  {rvm:242,city:"Алматы",loc:"БЦ Esentai Tower",addr:"Аль-Фараби, 77/7",total:10004},
+  {rvm:243,city:"Алматы",loc:"КазНПУ им. Абая",addr:"Казыбек би 30",total:6374},
+  {rvm:244,city:"Астана",loc:"МФЦА",addr:"Мангилик ел С3.1",total:1894},
+  {rvm:245,city:"Алматы",loc:"Abylai Khan Plaza",addr:"Абылай хана 53",total:8795},
+  {rvm:246,city:"Алматы",loc:"ALT University",addr:"Шевченко 97",total:646},
+  {rvm:247,city:"Алматы",loc:"Ауэзовский комьюнити центр",addr:"Мамыр 1, 26/1 блок 1",total:6588},
+  {rvm:248,city:"Астана",loc:"Евразийский гуманитарный институт",addr:"Жумабаева, 4",total:2412},
+  {rvm:249,city:"Астана",loc:"Центр Сердца",addr:"Туран, 38",total:2419},
+  {rvm:250,city:"Астана",loc:"Coventry University",addr:"Коргалжын, 13а",total:933},
+  {rvm:251,city:"Астана",loc:"Ботанический сад 1",addr:"Ботанический сад",total:5040},
+  {rvm:252,city:"Астана",loc:"Nazarbayev University D3",addr:"Кабанбай батыр, 53 D3",total:6416},
+  {rvm:253,city:"Астана",loc:"ЕНУ",addr:"Кажымукан, 13",total:3237},
+  {rvm:254,city:"Астана",loc:"ТРЦ Madis",addr:"Коргалжын, 13д",total:3401},
+  {rvm:255,city:"Алматы",loc:"Алматинский технологический университет",addr:"Толе би, 100",total:8430},
+  {rvm:256,city:"Алматы",loc:"Центральный стадион",addr:"Центральный стадион",total:4495},
+  {rvm:257,city:"Алматы",loc:"BIRGE MART",addr:"Макатаева 68",total:5515},
+  {rvm:258,city:"Алматы",loc:"МУИТ Манаса",addr:"Манаса 34/1",total:2323},
+  {rvm:259,city:"Астана",loc:"Экохаб Астана",addr:"Косшыгулулы 8/1",total:2898},
+  {rvm:260,city:"Астана",loc:"Ботанический сад 2",addr:"Ботанический сад",total:5538},
+  {rvm:261,city:"Астана",loc:"Asia Park",addr:"Кабанбай батыр, 21",total:14261},
+  {rvm:262,city:"Астана",loc:"Центр материнства и детства",addr:"Туран, 32",total:4776},
+  {rvm:263,city:"Астана",loc:"Urban College",addr:"Даулеткерей 1",total:1879},
+  {rvm:264,city:"Астана",loc:"Haileybury",addr:"Ивана Панфилова, 4",total:380},
+  {rvm:265,city:"Астана",loc:"Aspan спортивная школа",addr:"Е-697, 5",total:2171},
+  {rvm:266,city:"Алматы",loc:"ЭкоХаб Маркова",addr:"Маркова 44",total:9542},
+  {rvm:267,city:"Астана",loc:"TAU University",addr:"Дукенулы 29а",total:5617},
+  {rvm:268,city:"Астана",loc:"Средняя школа 101",addr:"Толе би, 57а",total:587},
+  {rvm:269,city:"Астана",loc:"КТЖ",addr:"Кунаева 6",total:4968},
+  {rvm:270,city:"Астана",loc:"ТД Тумар",addr:"Сыганак, 1Б",total:7772},
+  {rvm:271,city:"Астана",loc:"Дворец школьников",addr:"Дворец Школьников",total:4514},
+  {rvm:272,city:"Астана",loc:"Ледовый дворец Алау",addr:"Кабанбай батыр, 47",total:3456},
+  {rvm:273,city:"Астана",loc:"Barys Arena",addr:"Туран, 57",total:2143},
+  {rvm:274,city:"Астана",loc:"Fitnation",addr:"Туран, 4/1",total:2725},
+  {rvm:275,city:"Астана",loc:"КазУТБ",addr:"Кайым Мухамедханов, 37а",total:2461},
+  {rvm:276,city:"Астана",loc:"Астана Арена",addr:"Туран, 48",total:867},
+  {rvm:277,city:"Астана",loc:"КазАТУ им. Сейфуллина",addr:"Женис, 62",total:2908},
+  {rvm:278,city:"Астана",loc:"Теннисный центр Даулет",addr:"Кордай 6",total:18759},
+  {rvm:279,city:"Алматы",loc:"Парк Первого Президента",addr:"Парк Первого Президента",total:3723},
+  {rvm:280,city:"Алматы",loc:"КазНУ Аль-Фараби 71/19",addr:"Аль-Фараби 71/19",total:619},
+  {rvm:281,city:"Алматы",loc:"Акимат Наурызбайского района",addr:"Акимат",total:10209},
+  {rvm:282,city:"Алматы",loc:"Ботанический сад",addr:"Тимирязева, 36д к2",total:3857},
+  {rvm:283,city:"Алматы",loc:"Айнабулак-2 уличный",addr:"Айнабулак-2",total:400},
+  {rvm:284,city:"Алматы",loc:"Satbayev University 2",addr:"Каныша Сатпаева, 22",total:384},
+  {rvm:285,city:"Алматы",loc:"Турксибский комьюнити центр",addr:"Жас Канат, 49а",total:3835},
+  {rvm:286,city:"Алматы",loc:"MEGA Park",addr:"Макатаева, 127/1",total:10304},
+  {rvm:287,city:"Астана",loc:"Astana Hub 2",addr:"Мангилик ел С4.5",total:847},
+  {rvm:288,city:"Алматы",loc:"Avatariya",addr:"Халиуллина 194",total:3782},
+  {rvm:289,city:"Алматы",loc:"МУИТ Абая",addr:"Абая 52в",total:6436},
+  {rvm:290,city:"Алматы",loc:"Сайран",addr:"Сайран",total:3426},
+  {rvm:291,city:"Алматы",loc:"Спорт Комплекс Абая",addr:"Абая 159",total:11837},
+  {rvm:292,city:"Алматы",loc:"Pyramid Pride",addr:"Жибек Жолы, 131",total:9226},
+  {rvm:293,city:"Алматы",loc:"Almaty Towers",addr:"Байзакова, 280",total:16523},
+  {rvm:294,city:"Алматы",loc:"Invictus Go 2",addr:"Каракулова, 39",total:1500},
+  {rvm:295,city:"Алматы",loc:"Трамплин Сункар",addr:"Каппарова 167",total:672},
+  {rvm:296,city:"Алматы",loc:"Бостандыкский комьюнити центр",addr:"Абая, 164/6 к6",total:16548},
+  {rvm:297,city:"Алматы",loc:"Медеуский комьюнити центр",addr:"Назарбаева, 36",total:12382},
+  {rvm:298,city:"Алматы",loc:"Зоопарк",addr:"Зоопарк",total:541},
+  {rvm:299,city:"Алматы",loc:"Halyk Arena 2",addr:"Кульджинский тракт, 2",total:18752},
+  {rvm:300,city:"Алматы",loc:"ЖК Шугыла Zarina",addr:"мкр. Шугыла 341/2",total:2730},
+];
+
+// Уникальная ссылка на 2ГИС для каждого фандомата
+function get2gisUrl(p) {
+  const city = p.city === 'Астана' ? 'astana' : 'almaty';
+  return `https://2gis.kz/${city}/search/${encodeURIComponent(p.loc + ' ' + p.addr)}`;
+}
+
+function cityClass(city) {
+  if (city === 'Астана')    return 'astana';
+  if (city === 'Каскелен')  return 'kaskel';
+  return 'almaty';
+}
+
+let isLarge = false;
+let onePerPage = false;
+
+function toggleSize() {
+  isLarge = !isLarge;
+  document.getElementById('sizeLabel').textContent = isLarge ? 'Большой A5' : 'Стандарт';
+  render();
+}
+
+function toggleFormat() {
+  onePerPage = !onePerPage;
+  document.getElementById('formatLabel').textContent = onePerPage ? '1 на странице' : '4 на странице';
+  const grid = document.getElementById('grid');
+  grid.classList.toggle('one-per-page', onePerPage);
+}
+
+function render() {
+  const cityF   = document.getElementById('cityFilter').value;
+  const searchF = document.getElementById('searchInput').value.toLowerCase();
+  const countF  = parseInt(document.getElementById('countFilter').value) || 0;
+
+  const filtered = POINTS.filter(p => {
+    if (cityF   && p.city !== cityF) return false;
+    if (countF  && p.total < countF) return false;
+    if (searchF && !(p.loc.toLowerCase().includes(searchF) || p.addr.toLowerCase().includes(searchF))) return false;
+    return true;
+  });
+
+  document.getElementById('countLabel').textContent = `Показано: ${filtered.length} наклеек`;
+
+  const grid = document.getElementById('grid');
+  grid.innerHTML = filtered.map(p => {
+    const url = get2gisUrl(p);
+    const sizeClass = isLarge ? 'large' : '';
+    return `
+    <div class="sticker ${sizeClass}">
+      <div class="sticker-top">
+        <div class="sticker-logo">♻️</div>
+        <div>
+          <div class="sticker-brand">Freedom Фандоматы</div>
+          <div class="sticker-eco">Сдавай пластик — береги планету</div>
+        </div>
+      </div>
+      <div class="sticker-body">
+        <div class="sticker-msg">
+          Вам понравилось?<br>
+          <b>Оставьте отзыв в 2ГИС</b> —<br>
+          это помогает нам развиваться!
+        </div>
+        <div class="qr-wrap" id="qr-${p.rvm}"></div>
+        <div class="sticker-arrow">↑ Наведите камеру телефона ↑</div>
+        <div class="sticker-cta">⭐ Оставить отзыв в 2ГИС</div>
+        <div class="sticker-bonus">🎁 Спасибо за каждый отзыв!</div>
+      </div>
+      <div class="sticker-bottom">
+        <div class="sticker-addr">
+          <div style="font-weight:700">${p.loc}</div>
+          <div>${p.addr}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          <span class="city-badge ${cityClass(p.city)}">${p.city}</span>
+          <span class="sticker-rvm">RVM ${p.rvm}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Генерируем QR-коды
+  filtered.forEach(p => {
+    const url = get2gisUrl(p);
+    const el  = document.getElementById(`qr-${p.rvm}`);
+    if (!el) return;
+    el.innerHTML = '';
+    new QRCode(el, {
+      text:          url,
+      width:         isLarge ? 170 : 130,
+      height:        isLarge ? 170 : 130,
+      colorDark:     '#1d3557',
+      colorLight:    '#ffffff',
+      correctLevel:  QRCode.CorrectLevel.M
+    });
+  });
+}
+
+// Запуск
+render();
+</script>
+</body>
+</html>
