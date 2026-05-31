@@ -2508,7 +2508,19 @@ const DEFAULTS = [
 ];
 
 function initData() {
-  if (!load().length) { save(DEFAULTS); }
+  const existing = load();
+  if (!existing.length) { save(DEFAULTS); return; }
+  // Добавляем новые точки из DEFAULTS которых нет в localStorage
+  const existingIds = new Set(existing.map(p => p.id));
+  const newPoints = DEFAULTS.filter(p => !existingIds.has(p.id));
+  if (newPoints.length > 0) {
+    save([...existing, ...newPoints]);
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#1db954;color:#fff;text-align:center;padding:10px;font-weight:700;z-index:9999;font-size:.9rem';
+    banner.innerHTML = '✅ Добавлено ' + newPoints.length + ' новых точек из обновления! <button onclick="this.parentNode.remove()" style="margin-left:12px;background:rgba(0,0,0,.2);border:none;color:#fff;padding:2px 10px;border-radius:20px;cursor:pointer">✕</button>';
+    document.body.prepend(banner);
+    setTimeout(() => banner.remove(), 5000);
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -3450,4 +3462,5 @@ setTimeout(restoreTasks, 100);
 </script>
 </body>
 </html>
+
 
