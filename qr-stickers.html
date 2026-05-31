@@ -1,199 +1,225 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Freedom Фандоматы — QR-наклейки для 2ГИС</title>
+<title>Freedom Фандоматы — QR-наклейки</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #222; }
 
-  /* ── УПРАВЛЕНИЕ (не печатается) ── */
+  /* ── ПАНЕЛЬ УПРАВЛЕНИЯ ── */
   .controls {
-    background: #1d3557;
-    color: #fff;
-    padding: 18px 28px;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 14px;
+    background: #1d3557; color: #fff;
+    padding: 16px 24px;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
   }
-  .controls h1 { font-size: 1.1rem; flex: 1; }
+  .controls h1 { font-size: 1rem; flex: 1; }
   .btn {
-    padding: 9px 20px; border: none; border-radius: 8px;
-    cursor: pointer; font-size: .88rem; font-weight: 700;
+    padding: 8px 18px; border: none; border-radius: 8px;
+    cursor: pointer; font-size: .85rem; font-weight: 700;
     display: inline-flex; align-items: center; gap: 6px;
   }
   .btn-green  { background: #1db954; color: #fff; }
+  .btn-red    { background: #e63946; color: #fff; }
   .btn-blue   { background: #457b9d; color: #fff; }
-  .btn-orange { background: #f4a261; color: #fff; }
+  .btn-gray   { background: #6c757d; color: #fff; }
 
+  /* ── ФИЛЬТРЫ ── */
   .filter-bar {
-    background: #fff;
-    padding: 12px 28px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
+    background: #fff; padding: 10px 24px;
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
     border-bottom: 1px solid #e0e0e0;
   }
   select, input[type=text] {
     padding: 7px 12px; border: 1px solid #ddd;
-    border-radius: 8px; font-size: .85rem; outline: none;
+    border-radius: 8px; font-size: .83rem; outline: none;
   }
-  .count-label { font-size: .85rem; color: #666; margin-left: auto; }
+  .count-lbl { font-size: .83rem; color: #666; margin-left: auto; }
 
-  /* ── СЕТКА НАКЛЕЕК ── */
-  .sticker-grid {
+  /* ── ТАБЫ ── */
+  .tabs {
+    display: flex; background: #fff;
+    border-bottom: 2px solid #e0e0e0;
+    padding: 0 24px;
+  }
+  .tab {
+    padding: 14px 22px; cursor: pointer;
+    font-size: .9rem; font-weight: 600;
+    color: #888; border-bottom: 3px solid transparent;
+    margin-bottom: -2px; transition: all .2s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .tab:hover { color: #1d3557; }
+  .tab.active-review    { color: #1d3557; border-bottom-color: #1d3557; }
+  .tab.active-complaint { color: #e63946; border-bottom-color: #e63946; }
+  .tab.active-both      { color: #6a1b9a; border-bottom-color: #6a1b9a; }
+
+  /* ── СЕТКА ── */
+  .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 20px;
-    padding: 20px 28px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px; padding: 20px 24px;
   }
+  .grid.two-col { grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); }
 
-  /* ── ОДНА НАКЛЕЙКА ── */
-  .sticker {
+  /* ══════════════════════════════
+     НАКЛЕЙКА: ОТЗЫВ (синяя)
+  ══════════════════════════════ */
+  .sticker-review {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,.1);
+    border: 2.5px solid #1d3557;
+    page-break-inside: avoid; break-inside: avoid;
+  }
+  .sticker-review .s-top {
+    background: linear-gradient(135deg, #1d3557 0%, #457b9d 100%);
+    color: #fff; padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sticker-review .s-body { padding: 14px 16px; text-align: center; }
+  .sticker-review .s-msg {
+    font-size: .82rem; color: #333; line-height: 1.55;
+    margin-bottom: 10px;
+  }
+  .sticker-review .s-msg b { color: #1d3557; }
+  .sticker-review .s-cta {
+    background: #1d3557; color: #fff;
+    border-radius: 20px; padding: 7px 18px;
+    font-size: .8rem; font-weight: 700;
+    display: inline-block; margin-top: 6px;
+  }
+  .sticker-review .s-sub { font-size: .68rem; color: #1db954; font-weight: 700; margin-top: 5px; }
+
+  /* ══════════════════════════════
+     НАКЛЕЙКА: ЖАЛОБА (красная)
+  ══════════════════════════════ */
+  .sticker-complaint {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,.1);
+    border: 2.5px solid #e63946;
+    page-break-inside: avoid; break-inside: avoid;
+  }
+  .sticker-complaint .s-top {
+    background: linear-gradient(135deg, #c0392b 0%, #e63946 100%);
+    color: #fff; padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sticker-complaint .s-body { padding: 14px 16px; text-align: center; }
+  .sticker-complaint .s-msg {
+    font-size: .82rem; color: #333; line-height: 1.55;
+    margin-bottom: 10px;
+  }
+  .sticker-complaint .s-msg b { color: #c0392b; }
+  .sticker-complaint .s-cta {
+    background: #e63946; color: #fff;
+    border-radius: 20px; padding: 7px 18px;
+    font-size: .8rem; font-weight: 700;
+    display: inline-block; margin-top: 6px;
+  }
+  .sticker-complaint .s-sub { font-size: .68rem; color: #e63946; font-weight: 700; margin-top: 5px; }
+
+  /* ══════════════════════════════
+     НАКЛЕЙКА: ОБЕ (двойная)
+  ══════════════════════════════ */
+  .sticker-pair {
     background: #fff;
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0,0,0,.1);
     border: 2px solid #e0e0e0;
-    page-break-inside: avoid;
-    break-inside: avoid;
+    page-break-inside: avoid; break-inside: avoid;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
-  .sticker-top {
-    background: linear-gradient(135deg, #1d3557 0%, #457b9d 100%);
-    padding: 12px 14px 10px;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  .sticker-pair .pair-left  {
+    border-right: 2px dashed #e0e0e0;
+    background: #f8faff;
   }
-  .sticker-logo { font-size: 1.6rem; }
-  .sticker-brand { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: .9; }
-  .sticker-eco   { font-size: .65rem; opacity: .7; margin-top: 1px; }
+  .sticker-pair .pair-right { background: #fff8f8; }
+  .sticker-pair .pair-header {
+    padding: 10px 12px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: .72rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .pair-header.blue { background: #1d3557; color: #fff; }
+  .pair-header.red  { background: #e63946; color: #fff; }
+  .pair-body { padding: 10px 12px; text-align: center; }
+  .pair-msg { font-size: .75rem; color: #444; line-height: 1.5; margin-bottom: 8px; }
+  .pair-cta {
+    display: inline-block; border-radius: 20px; padding: 5px 14px;
+    font-size: .73rem; font-weight: 700; color: #fff; margin-top: 4px;
+  }
+  .pair-cta.blue { background: #1d3557; }
+  .pair-cta.red  { background: #e63946; }
+  .pair-sub { font-size: .64rem; margin-top: 4px; }
+  .pair-sub.blue { color: #1db954; }
+  .pair-sub.red  { color: #e63946; }
 
-  .sticker-body  { padding: 14px; text-align: center; }
-  .sticker-msg {
-    font-size: .78rem;
-    color: #333;
-    line-height: 1.5;
-    margin-bottom: 12px;
-    font-weight: 500;
-  }
-  .sticker-msg b { color: #1d3557; }
-
-  .qr-wrap {
-    display: flex;
-    justify-content: center;
-    margin: 10px 0;
-  }
-  .qr-wrap img, .qr-wrap canvas {
-    width: 130px !important;
-    height: 130px !important;
-    border-radius: 8px;
-    border: 3px solid #1d3557;
-    padding: 4px;
-    background: #fff;
-  }
-
-  .sticker-arrow {
-    font-size: .72rem;
-    color: #1db954;
-    font-weight: 700;
-    margin: 6px 0;
-  }
-  .sticker-cta {
-    background: #1db954;
-    color: #fff;
-    border-radius: 20px;
-    padding: 6px 16px;
-    font-size: .78rem;
-    font-weight: 700;
-    display: inline-block;
-    margin: 6px 0;
-  }
-
-  .sticker-bottom {
-    background: #f8f9fa;
-    border-top: 1px solid #eee;
+  /* Общий блок нижней части */
+  .s-bottom {
+    background: #f8f9fa; border-top: 1px solid #eee;
     padding: 8px 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
   }
-  .sticker-addr {
-    font-size: .68rem;
-    color: #555;
-    line-height: 1.4;
-    flex: 1;
-    text-align: left;
-  }
-  .sticker-rvm {
-    font-size: .65rem;
-    color: #aaa;
-    font-weight: 700;
-    background: #eee;
-    border-radius: 20px;
-    padding: 2px 8px;
-    white-space: nowrap;
-    margin-left: 6px;
-  }
-  .city-badge {
-    font-size: .65rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 20px;
-    white-space: nowrap;
+  .sticker-pair .s-bottom { grid-column: 1 / -1; }
+  .s-addr { font-size: .68rem; color: #555; line-height: 1.4; flex: 1; text-align: left; }
+  .s-addr b { color: #222; }
+  .s-tags { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+  .city-tag {
+    font-size: .64rem; font-weight: 700; padding: 2px 7px; border-radius: 20px;
   }
   .almaty  { background: #e3f2fd; color: #1565c0; }
   .astana  { background: #f3e5f5; color: #6a1b9a; }
   .kaskel  { background: #e8f5e9; color: #2e7d32; }
-
-  .sticker-bonus {
-    font-size: .68rem;
-    color: #f4a261;
-    font-weight: 700;
-    margin-top: 4px;
+  .rvm-tag {
+    font-size: .63rem; color: #aaa; font-weight: 700;
+    background: #eee; border-radius: 20px; padding: 2px 7px;
   }
 
-  /* ── БОЛЬШОЙ ФОРМАТ (A5) ── */
-  .sticker.large { min-height: 320px; }
-  .sticker.large .sticker-msg { font-size: .88rem; }
-  .sticker.large .qr-wrap img,
-  .sticker.large .qr-wrap canvas { width: 170px !important; height: 170px !important; }
-  .sticker.large .sticker-cta { font-size: .9rem; padding: 8px 22px; }
+  /* QR обёртка */
+  .qr-box {
+    display: flex; justify-content: center; margin: 8px 0;
+  }
+  .qr-box canvas, .qr-box img {
+    border-radius: 8px !important;
+    border: 3px solid currentColor !important;
+    padding: 3px; background: #fff;
+  }
+  .qr-arrow { font-size: .68rem; color: #888; margin: 4px 0; }
+  .logo-icon { font-size: 1.4rem; }
+  .brand-name { font-weight: 700; font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; opacity: .9; }
+  .brand-sub  { font-size: .62rem; opacity: .75; margin-top: 1px; }
 
   /* ── ПЕЧАТЬ ── */
   @media print {
-    .controls, .filter-bar { display: none !important; }
+    .controls, .filter-bar, .tabs { display: none !important; }
     body { background: #fff; }
-    .sticker-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      padding: 10px;
+    .grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 10px; padding: 8px;
     }
-    .sticker-grid.one-per-page {
-      grid-template-columns: 1fr;
+    .sticker-review, .sticker-complaint, .sticker-pair {
+      box-shadow: none; border-width: 2px;
     }
-    .sticker {
-      box-shadow: none;
-      border: 2px solid #ccc;
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
-    @page { size: A4; margin: 10mm; }
+    @page { size: A4; margin: 8mm; }
   }
 </style>
 </head>
 <body>
 
-<!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
+<!-- ПАНЕЛЬ -->
 <div class="controls">
-  <h1>♻️ Freedom Фандоматы — QR-наклейки для 2ГИС</h1>
-  <button class="btn btn-green" onclick="window.print()">🖨️ Печать всех</button>
-  <button class="btn btn-blue" onclick="toggleSize()">📐 Размер: <span id="sizeLabel">Стандарт</span></button>
-  <button class="btn btn-orange" onclick="toggleFormat()">📄 Формат: <span id="formatLabel">4 на странице</span></button>
+  <h1>♻️ Freedom Фандоматы — QR-наклейки</h1>
+  <button class="btn btn-blue"  onclick="setTab('review')">⭐ Отзыв 2ГИС</button>
+  <button class="btn btn-red"   onclick="setTab('complaint')">🚨 Жалоба</button>
+  <button class="btn btn-gray"  onclick="setTab('both')">📋 Обе</button>
+  <button class="btn btn-green" onclick="window.print()">🖨️ Печать</button>
 </div>
 
 <!-- ФИЛЬТРЫ -->
@@ -204,27 +230,27 @@
     <option value="Астана">Астана</option>
     <option value="Каскелен">Каскелен</option>
   </select>
-  <input type="text" id="searchInput" placeholder="🔍 Поиск по адресу..." oninput="render()">
-  <select id="countFilter" onchange="render()">
-    <option value="0">Все точки</option>
-    <option value="10000">Топ (принято > 10 000)</option>
-    <option value="5000">Активные (> 5 000)</option>
+  <input type="text" id="searchInput" placeholder="🔍 Поиск..." oninput="render()">
+  <select id="sizeFilter" onchange="render()">
+    <option value="normal">Стандартный размер</option>
+    <option value="large">Большой (A5)</option>
   </select>
-  <select id="stickerType" onchange="render()">
-    <option value="review">⭐ Наклейка: Отзыв в 2ГИС</option>
-    <option value="complaint">🚨 Наклейка: Жалоба</option>
-    <option value="both">📋 Обе наклейки</option>
-  </select>
-  <div class="count-label" id="countLabel"></div>
+  <div class="count-lbl" id="countLbl"></div>
 </div>
 
-<!-- СЕТКА НАКЛЕЕК -->
-<div class="sticker-grid" id="grid"></div>
+<!-- ТАБЫ -->
+<div class="tabs">
+  <div class="tab active-review" id="tab-review"    onclick="setTab('review')">⭐ Наклейка «Отзыв в 2ГИС»</div>
+  <div class="tab"               id="tab-complaint" onclick="setTab('complaint')">🚨 Наклейка «Сообщить о проблеме»</div>
+  <div class="tab"               id="tab-both"      onclick="setTab('both')">📋 Обе наклейки рядом</div>
+</div>
+
+<!-- СЕТКА -->
+<div class="grid" id="grid"></div>
 
 <script>
 const BASE = 'https://almagulkasymova85-arch.github.io/freedom-fandomat--monitor';
 
-// ── ДАННЫЕ ──────────────────────────────────────────
 const POINTS = [
   {rvm:201,city:"Алматы",loc:"БЦ Нурикон",addr:"Ауэзова 175/1",total:24568},
   {rvm:202,city:"Каскелен",loc:"ТЦ Замза",addr:"Абылай хана, 177а",total:9854},
@@ -265,14 +291,14 @@ const POINTS = [
   {rvm:237,city:"Алматы",loc:"Теннисный центр",addr:"Санаторная, 14",total:3434},
   {rvm:238,city:"Алматы",loc:"Фортис бизнес центр",addr:"Ходжанова 2/2",total:1618},
   {rvm:239,city:"Алматы",loc:"Уличный Наурызбайский р-н",addr:"Магазин Алмалы",total:5398},
-  {rvm:240,city:"Алматы",loc:"Частная школа им. Шокана Уалиханова",addr:"Самал 3 мкрн 37/1",total:2268},
+  {rvm:240,city:"Алматы",loc:"Школа им. Шокана Уалиханова",addr:"Самал 3 мкрн 37/1",total:2268},
   {rvm:241,city:"Алматы",loc:"ТК МЕРЕЙ",addr:"Суюнбая, 2 к9",total:17501},
   {rvm:242,city:"Алматы",loc:"БЦ Esentai Tower",addr:"Аль-Фараби, 77/7",total:10004},
   {rvm:243,city:"Алматы",loc:"КазНПУ им. Абая",addr:"Казыбек би 30",total:6374},
   {rvm:244,city:"Астана",loc:"МФЦА",addr:"Мангилик ел С3.1",total:1894},
   {rvm:245,city:"Алматы",loc:"Abylai Khan Plaza",addr:"Абылай хана 53",total:8795},
   {rvm:246,city:"Алматы",loc:"ALT University",addr:"Шевченко 97",total:646},
-  {rvm:247,city:"Алматы",loc:"Ауэзовский комьюнити центр",addr:"Мамыр 1, 26/1 блок 1",total:6588},
+  {rvm:247,city:"Алматы",loc:"Ауэзовский комьюнити центр",addr:"Мамыр 1, 26/1",total:6588},
   {rvm:248,city:"Астана",loc:"Евразийский гуманитарный институт",addr:"Жумабаева, 4",total:2412},
   {rvm:249,city:"Астана",loc:"Центр Сердца",addr:"Туран, 38",total:2419},
   {rvm:250,city:"Астана",loc:"Coventry University",addr:"Коргалжын, 13а",total:933},
@@ -328,119 +354,165 @@ const POINTS = [
   {rvm:300,city:"Алматы",loc:"ЖК Шугыла Zarina",addr:"мкр. Шугыла 341/2",total:2730},
 ];
 
-function get2gisUrl(p) {
-  const city = p.city === 'Астана' ? 'astana' : 'almaty';
-  return 'https://2gis.kz/' + city + '/search/' + encodeURIComponent(p.loc + ' ' + p.addr);
+// ── СОСТОЯНИЕ ─────────────────────────────────────
+let currentTab = 'review';
+
+function cityClass(c) {
+  return c==='Астана'?'astana':c==='Каскелен'?'kaskel':'almaty';
 }
-function getComplaintUrl(p) {
-  return BASE + '/complaint.html?rvm=' + p.rvm;
+function gisUrl(p) {
+  const c = p.city==='Астана'?'astana':'almaty';
+  return 'https://2gis.kz/'+c+'/search/'+encodeURIComponent(p.loc+' '+p.addr);
+}
+function cmpUrl(p) {
+  return BASE+'/complaint.html?rvm='+p.rvm;
 }
 
-function cityClass(city) {
-  if (city === 'Астана')    return 'astana';
-  if (city === 'Каскелен')  return 'kaskel';
-  return 'almaty';
-}
-
-let isLarge = false;
-let onePerPage = false;
-
-function toggleSize() {
-  isLarge = !isLarge;
-  document.getElementById('sizeLabel').textContent = isLarge ? 'Большой A5' : 'Стандарт';
+// ── ТАБЫ ──────────────────────────────────────────
+function setTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.className = 'tab');
+  document.getElementById('tab-'+tab).className = 'tab active-'+tab;
+  const grid = document.getElementById('grid');
+  grid.className = tab==='both' ? 'grid two-col' : 'grid';
   render();
 }
 
-function toggleFormat() {
-  onePerPage = !onePerPage;
-  document.getElementById('formatLabel').textContent = onePerPage ? '1 на странице' : '4 на странице';
-  const grid = document.getElementById('grid');
-  grid.classList.toggle('one-per-page', onePerPage);
-}
-
+// ── РЕНДЕР ────────────────────────────────────────
 function render() {
-  const cityF   = document.getElementById('cityFilter').value;
-  const searchF = document.getElementById('searchInput').value.toLowerCase();
-  const countF  = parseInt(document.getElementById('countFilter').value) || 0;
+  const city   = document.getElementById('cityFilter').value;
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const large  = document.getElementById('sizeFilter').value === 'large';
+  const sz     = large ? 160 : 120;
 
-  const filtered = POINTS.filter(p => {
-    if (cityF   && p.city !== cityF) return false;
-    if (countF  && p.total < countF) return false;
-    if (searchF && !(p.loc.toLowerCase().includes(searchF) || p.addr.toLowerCase().includes(searchF))) return false;
-    return true;
-  });
+  const list = POINTS.filter(p =>
+    (!city   || p.city === city) &&
+    (!search || p.loc.toLowerCase().includes(search) || p.addr.toLowerCase().includes(search))
+  );
 
-  document.getElementById('countLabel').textContent = `Показано: ${filtered.length} наклеек`;
+  document.getElementById('countLbl').textContent = 'Наклеек: ' + list.length;
 
-  const stickerType = document.getElementById('stickerType').value;
   const grid = document.getElementById('grid');
-  grid.innerHTML = filtered.map(p => {
-    const sizeClass = isLarge ? 'large' : '';
-    const showReview    = stickerType === 'review'    || stickerType === 'both';
-    const showComplaint = stickerType === 'complaint' || stickerType === 'both';
-    const divider = (stickerType === 'both') ? '<div style="border-top:2px dashed #eee;margin:10px 0"></div>' : '';
 
-    const reviewBlock = showReview ? `
-      <div style="margin-bottom:4px">
-        ${stickerType==='both' ? '<div style="font-size:.68rem;font-weight:700;color:#1d3557;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">⭐ Отзыв в 2ГИС</div>' : ''}
-        <div class="sticker-msg">Вам понравилось?<br><b>Оставьте отзыв в 2ГИС</b> —<br>это помогает нам развиваться!</div>
-        <div class="qr-wrap" id="qr-rev-${p.rvm}"></div>
-        <div class="sticker-arrow">↑ Наведите камеру телефона ↑</div>
-        <div class="sticker-cta">⭐ Оставить отзыв в 2ГИС</div>
-        <div class="sticker-bonus">🎁 Спасибо за каждый отзыв!</div>
-      </div>` : '';
+  if (currentTab === 'review') {
+    grid.innerHTML = list.map(p => reviewSticker(p, sz)).join('');
+    list.forEach(p => makeQR('qr-r-'+p.rvm, gisUrl(p), sz, '#1d3557'));
 
-    const complaintBlock = showComplaint ? `
-      <div>
-        ${stickerType==='both' ? '<div style="font-size:.68rem;font-weight:700;color:#e63946;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">🚨 Есть проблема?</div>' : ''}
-        <div class="sticker-msg">${stickerType==='complaint'?'<b>Есть проблема?</b><br>':''}Сообщите нам прямо сейчас —<br>исправим за <b>24 часа</b>!</div>
-        <div class="qr-wrap" id="qr-cmp-${p.rvm}"></div>
-        <div class="sticker-arrow">↑ Наведите камеру телефона ↑</div>
-        <div style="background:#e63946;color:#fff;border-radius:20px;padding:6px 16px;font-size:.78rem;font-weight:700;display:inline-block;margin:6px 0">🚨 Сообщить о проблеме</div>
-        <div style="font-size:.66rem;color:#888;margin-top:2px">Реакция в течение 24 часов ⚡</div>
-      </div>` : '';
+  } else if (currentTab === 'complaint') {
+    grid.innerHTML = list.map(p => complaintSticker(p, sz)).join('');
+    list.forEach(p => makeQR('qr-c-'+p.rvm, cmpUrl(p), sz, '#e63946'));
 
-    return `<div class="sticker ${sizeClass}">
-      <div class="sticker-top">
-        <div class="sticker-logo">♻️</div>
-        <div>
-          <div class="sticker-brand">Freedom Фандоматы</div>
-          <div class="sticker-eco">Сдавай пластик — береги планету</div>
-        </div>
-      </div>
-      <div class="sticker-body">${reviewBlock}${divider}${complaintBlock}</div>
-      <div class="sticker-bottom">
-        <div class="sticker-addr">
-          <div style="font-weight:700">${p.loc}</div>
-          <div>${p.addr}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
-          <span class="city-badge ${cityClass(p.city)}">${p.city}</span>
-          <span class="sticker-rvm">RVM ${p.rvm}</span>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-
-  // Генерируем QR-коды
-  const sz = isLarge ? 170 : 130;
-  filtered.forEach(p => {
-    const showRev = stickerType === 'review'    || stickerType === 'both';
-    const showCmp = stickerType === 'complaint' || stickerType === 'both';
-    if (showRev) {
-      const el = document.getElementById('qr-rev-' + p.rvm);
-      if (el) { el.innerHTML = ''; new QRCode(el, { text: get2gisUrl(p), width:sz, height:sz, colorDark:'#1d3557', colorLight:'#ffffff', correctLevel: QRCode.CorrectLevel.M }); }
-    }
-    if (showCmp) {
-      const el = document.getElementById('qr-cmp-' + p.rvm);
-      if (el) { el.innerHTML = ''; new QRCode(el, { text: getComplaintUrl(p), width:sz, height:sz, colorDark:'#e63946', colorLight:'#ffffff', correctLevel: QRCode.CorrectLevel.M }); }
-    }
-  });
+  } else {
+    grid.innerHTML = list.map(p => bothSticker(p, sz)).join('');
+    list.forEach(p => {
+      makeQR('qr-br-'+p.rvm, gisUrl(p), sz, '#1d3557');
+      makeQR('qr-bc-'+p.rvm, cmpUrl(p), sz, '#e63946');
+    });
+  }
 }
 
-// Запуск
+function makeQR(id, url, sz, color) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = '';
+  const qr = new QRCode(el, { text:url, width:sz, height:sz, colorDark:color, colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M });
+  // Добавляем цветную рамку
+  setTimeout(() => {
+    const canvas = el.querySelector('canvas');
+    if (canvas) { canvas.style.border='3px solid '+color; canvas.style.borderRadius='8px'; canvas.style.padding='3px'; }
+  }, 50);
+}
+
+function footer(p) {
+  return `<div class="s-bottom">
+    <div class="s-addr"><b>${p.loc}</b><br>${p.addr}</div>
+    <div class="s-tags">
+      <span class="city-tag ${cityClass(p.city)}">${p.city}</span>
+      <span class="rvm-tag">RVM ${p.rvm}</span>
+    </div>
+  </div>`;
+}
+
+// ── НАКЛЕЙКА: ОТЗЫВ ───────────────────────────────
+function reviewSticker(p, sz) {
+  return `<div class="sticker-review">
+    <div class="s-top">
+      <span class="logo-icon">♻️</span>
+      <div>
+        <div class="brand-name">Freedom Фандоматы</div>
+        <div class="brand-sub">Сдавай пластик — береги планету</div>
+      </div>
+    </div>
+    <div class="s-body">
+      <div class="s-msg">
+        Вам понравилось?<br>
+        <b>Оставьте отзыв в 2ГИС</b> —<br>
+        это помогает нам развиваться!
+      </div>
+      <div class="qr-box" id="qr-r-${p.rvm}" style="color:#1d3557"></div>
+      <div class="qr-arrow">↑ Наведите камеру телефона ↑</div>
+      <div class="s-cta">⭐ Оставить отзыв в 2ГИС</div>
+      <div class="s-sub">🎁 Спасибо! Ваш отзыв очень важен</div>
+    </div>
+    ${footer(p)}
+  </div>`;
+}
+
+// ── НАКЛЕЙКА: ЖАЛОБА ──────────────────────────────
+function complaintSticker(p, sz) {
+  return `<div class="sticker-complaint">
+    <div class="s-top">
+      <span class="logo-icon">🔧</span>
+      <div>
+        <div class="brand-name">Freedom Фандоматы</div>
+        <div class="brand-sub">Поддержка работает 24/7</div>
+      </div>
+    </div>
+    <div class="s-body">
+      <div class="s-msg">
+        <b>Есть проблема с аппаратом?</b><br>
+        Сообщите нам прямо сейчас —<br>
+        устраним в течение <b>24 часов</b>!
+      </div>
+      <div class="qr-box" id="qr-c-${p.rvm}" style="color:#e63946"></div>
+      <div class="qr-arrow">↑ Наведите камеру телефона ↑</div>
+      <div class="s-cta">🚨 Сообщить о проблеме</div>
+      <div class="s-sub">⚡ Реакция в течение 24 часов</div>
+    </div>
+    ${footer(p)}
+  </div>`;
+}
+
+// ── НАКЛЕЙКА: ОБЕ ─────────────────────────────────
+function bothSticker(p, sz) {
+  const half = Math.round(sz * 0.7);
+  return `<div class="sticker-pair">
+    <div class="pair-left">
+      <div class="pair-header blue">⭐ Отзыв в 2ГИС</div>
+      <div class="pair-body">
+        <div class="pair-msg">Вам понравилось?<br><b>Оставьте отзыв в 2ГИС</b> — это помогает нам развиваться!</div>
+        <div class="qr-box" id="qr-br-${p.rvm}" style="color:#1d3557"></div>
+        <div class="qr-arrow">↑ Наведите камеру ↑</div>
+        <div class="pair-cta blue">⭐ Отзыв в 2ГИС</div>
+        <div class="pair-sub blue">🎁 Спасибо!</div>
+      </div>
+    </div>
+    <div class="pair-right">
+      <div class="pair-header red">🚨 Есть проблема?</div>
+      <div class="pair-body">
+        <div class="pair-msg"><b>Аппарат не работает?</b><br>Сообщите нам — устраним за <b>24 часа</b>!</div>
+        <div class="qr-box" id="qr-bc-${p.rvm}" style="color:#e63946"></div>
+        <div class="qr-arrow">↑ Наведите камеру ↑</div>
+        <div class="pair-cta red">🚨 Пожаловаться</div>
+        <div class="pair-sub red">⚡ Ответим за 24ч</div>
+      </div>
+    </div>
+    ${footer(p)}
+  </div>`;
+}
+
+// ── ЗАПУСК ────────────────────────────────────────
 render();
 </script>
 </body>
 </html>
-
