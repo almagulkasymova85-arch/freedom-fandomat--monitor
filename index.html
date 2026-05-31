@@ -1,1406 +1,2173 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>СтройМастер — Ремонт квартир и строительство домов</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Freedom Фандоматы — Монитор отзывов 2ГИС</title>
+<style>
+  :root {
+    --green:  #1db954;
+    --red:    #e63946;
+    --yellow: #f4a261;
+    --blue:   #1d3557;
+    --light:  #f8f9fa;
+    --card:   #ffffff;
+    --border: #e0e0e0;
+    --text:   #212529;
+    --muted:  #6c757d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: var(--text); }
 
-    :root {
-      --bg:       #08080f;
-      --bg2:      #0f0f1a;
-      --bg3:      #141422;
-      --card:     rgba(255,255,255,.04);
-      --card-h:   rgba(255,255,255,.07);
-      --border:   rgba(255,255,255,.08);
-      --border-h: rgba(255,255,255,.18);
-      --p1:       #7c3aed;
-      --p2:       #4f46e5;
-      --pg:       linear-gradient(135deg, #7c3aed, #4f46e5);
-      --gold:     #f59e0b;
-      --gold2:    #fcd34d;
-      --text:     #f1f5f9;
-      --muted:    #94a3b8;
-      --muted2:   #64748b;
-      --white:    #ffffff;
-      --danger:   #ef4444;
-      --success:  #22c55e;
-      --glow-p:   rgba(124,58,237,.35);
-      --glow-g:   rgba(245,158,11,.3);
-      --r:        16px;
-      --r2:       24px;
-    }
+  /* ── HEADER ── */
+  header {
+    background: var(--blue);
+    color: #fff;
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+  }
+  header h1 { font-size: 1.25rem; display: flex; align-items: center; gap: 10px; }
+  header h1 span { font-size: 1.5rem; }
+  .header-meta { font-size: .85rem; opacity: .8; }
 
-    html { scroll-behavior: smooth; }
+  /* ── TOOLBAR ── */
+  .toolbar {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  .btn {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: .88rem;
+    font-weight: 600;
+    transition: opacity .2s, transform .1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary  { background: var(--blue);  color: #fff; }
+  .btn-success  { background: var(--green); color: #fff; }
+  .btn-danger   { background: var(--red);   color: #fff; }
+  .btn-warning  { background: var(--yellow);color: #fff; }
+  .btn-outline  { background: #fff; color: var(--blue); border: 2px solid var(--blue); }
+  .btn:hover { opacity: .88; }
+  .search-box {
+    flex: 1; min-width: 200px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: .9rem;
+    outline: none;
+  }
+  .search-box:focus { border-color: var(--blue); }
+  select.filter {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: .88rem;
+    outline: none;
+    cursor: pointer;
+  }
 
-    body {
-      font-family: 'Inter', 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.65;
-      overflow-x: hidden;
-    }
+  /* ── KPI CARDS ── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 16px;
+    padding: 20px 28px 0;
+  }
+  .kpi {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    border-left: 5px solid var(--blue);
+  }
+  .kpi.red    { border-color: var(--red); }
+  .kpi.yellow { border-color: var(--yellow); }
+  .kpi.green  { border-color: var(--green); }
+  .kpi-label { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .kpi-value { font-size: 2rem; font-weight: 700; margin: 4px 0; line-height: 1; }
+  .kpi-sub   { font-size: .78rem; color: var(--muted); }
 
-    ::selection { background: var(--p1); color: #fff; }
+  /* ── TABLE ── */
+  .table-wrap {
+    margin: 20px 28px;
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.08);
+    overflow: hidden;
+  }
+  .table-wrap h2 {
+    padding: 16px 20px 14px;
+    font-size: 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  thead th {
+    background: #f4f6f9;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid #f0f0f0; transition: background .15s; }
+  tbody tr:hover { background: #f9fbff; }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 11px 14px; vertical-align: middle; }
 
-    /* ── SCROLLBAR ── */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg2); }
-    ::-webkit-scrollbar-thumb { background: var(--p1); border-radius: 3px; }
+  .stars { color: #f4a261; font-size: 1rem; letter-spacing: 1px; }
+  .rating-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .r-red    { background: #fde8e8; color: #c0392b; }
+  .r-yellow { background: #fff3e0; color: #d35400; }
+  .r-green  { background: #e8f8ee; color: #1e8449; }
 
-    /* ════════════════════════════
-       HEADER
-    ════════════════════════════ */
-    header {
-      position: sticky; top: 0; z-index: 200;
-      background: rgba(8,8,15,.8);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-      padding: 0 48px; height: 68px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-    .logo-icon {
-      width: 38px; height: 38px; border-radius: 10px;
-      background: var(--pg); display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; box-shadow: 0 0 20px var(--glow-p);
-    }
-    .logo-text { font-size: 1.15rem; font-weight: 800; color: var(--text); letter-spacing: -.3px; }
-    .logo-text span { color: var(--gold); }
-    nav { display: flex; gap: 4px; }
-    nav a {
-      color: var(--muted); text-decoration: none; padding: 8px 14px;
-      border-radius: 8px; font-size: .88rem; font-weight: 500;
-      transition: color .2s, background .2s;
-    }
-    nav a:hover { color: var(--text); background: var(--card-h); }
-    .nav-cta {
-      background: var(--pg) !important; color: #fff !important;
-      font-weight: 700 !important; box-shadow: 0 0 18px var(--glow-p);
-    }
-    .nav-cta:hover { opacity: .9; }
+  .status-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: .75rem;
+    font-weight: 600;
+  }
+  .s-critical { background: #fde8e8; color: #c0392b; }
+  .s-warning  { background: #fff3e0; color: #d35400; }
+  .s-good     { background: #e8f8ee; color: #1e8449; }
+  .s-new      { background: #e8f0fe; color: #1a73e8; }
 
-    /* ════════════════════════════
-       HERO
-    ════════════════════════════ */
-    .hero {
-      position: relative; overflow: hidden;
-      padding: 120px 48px 100px;
-      display: flex; align-items: center; gap: 64px;
-      min-height: 88vh;
-    }
-    /* animated gradient orbs */
-    .hero::before, .hero::after, .hero-orb {
-      content: ''; position: absolute; border-radius: 50%;
-      filter: blur(90px); pointer-events: none;
-    }
-    .hero::before {
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(124,58,237,.35) 0%, transparent 70%);
-      top: -100px; left: -150px;
-      animation: orb1 12s ease-in-out infinite alternate;
-    }
-    .hero::after {
-      width: 500px; height: 500px;
-      background: radial-gradient(circle, rgba(79,70,229,.28) 0%, transparent 70%);
-      bottom: -80px; right: -100px;
-      animation: orb2 10s ease-in-out infinite alternate;
-    }
-    .hero-orb {
-      width: 350px; height: 350px;
-      background: radial-gradient(circle, rgba(245,158,11,.15) 0%, transparent 70%);
-      top: 40%; right: 30%;
-      animation: orb3 15s ease-in-out infinite alternate;
-    }
-    @keyframes orb1 { 0%{ transform: translate(0,0) scale(1); } 100%{ transform: translate(80px,60px) scale(1.2); } }
-    @keyframes orb2 { 0%{ transform: translate(0,0) scale(1); } 100%{ transform: translate(-60px,-40px) scale(1.15); } }
-    @keyframes orb3 { 0%{ transform: translate(0,0); } 100%{ transform: translate(40px,-60px); } }
+  .city-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: .73rem;
+    font-weight: 600;
+  }
+  .city-almaty { background: #e3f2fd; color: #1565c0; }
+  .city-astana { background: #f3e5f5; color: #6a1b9a; }
 
-    .hero-text { position: relative; flex: 1; z-index: 1; }
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      border: 1px solid rgba(124,58,237,.5);
-      background: rgba(124,58,237,.12);
-      color: var(--gold2); border-radius: 30px;
-      padding: 6px 18px; font-size: .8rem; font-weight: 600;
-      margin-bottom: 28px; letter-spacing: .5px;
-      backdrop-filter: blur(8px);
-    }
-    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: blink 2s infinite; }
-    @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:.3; } }
+  .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mini-btn {
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: .75rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: opacity .2s;
+  }
+  .mini-btn:hover { opacity: .8; }
+  .mb-2gis   { background: #1a9e71; color: #fff; }
+  .mb-add    { background: var(--blue); color: #fff; }
+  .mb-edit   { background: #6c757d; color: #fff; }
+  .mb-del    { background: #e63946; color: #fff; }
 
-    .hero h1 {
-      font-size: clamp(2.2rem, 4.5vw, 3.6rem);
-      font-weight: 900; line-height: 1.1;
-      letter-spacing: -1.5px; margin-bottom: 24px;
-    }
-    .hero h1 em {
-      font-style: normal;
-      background: var(--pg);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero-sub {
-      color: var(--muted); font-size: 1.05rem;
-      max-width: 500px; margin-bottom: 40px; line-height: 1.75;
-    }
-    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+  .trend { font-size: .8rem; font-weight: 600; }
+  .trend.up   { color: var(--green); }
+  .trend.down { color: var(--red); }
+  .trend.same { color: var(--muted); }
 
-    .btn-pri {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--pg); color: #fff;
-      padding: 15px 32px; border-radius: 12px;
-      font-weight: 700; font-size: .97rem; text-decoration: none;
-      box-shadow: 0 0 32px var(--glow-p);
-      transition: opacity .2s, transform .2s, box-shadow .2s;
-      white-space: nowrap;
-    }
-    .btn-pri:hover { opacity: .9; transform: translateY(-2px); box-shadow: 0 0 48px var(--glow-p); }
-    .btn-sec {
-      display: inline-flex; align-items: center; gap: 8px;
-      border: 1px solid var(--border-h); color: var(--text);
-      padding: 14px 28px; border-radius: 12px;
-      font-weight: 600; font-size: .97rem; text-decoration: none;
-      backdrop-filter: blur(8px);
-      transition: background .2s, border-color .2s;
-      white-space: nowrap;
-    }
-    .btn-sec:hover { background: var(--card-h); border-color: rgba(255,255,255,.3); }
+  /* ── MODAL ── */
+  .overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .overlay.active { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px 32px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(0,0,0,.25);
+    position: relative;
+  }
+  .modal h3 { font-size: 1.15rem; margin-bottom: 18px; display: flex; gap: 8px; align-items: center; }
+  .modal-close {
+    position: absolute; top: 14px; right: 16px;
+    background: none; border: none; font-size: 1.4rem;
+    cursor: pointer; color: var(--muted);
+  }
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: .83rem; font-weight: 600; margin-bottom: 5px; color: var(--muted); }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: .9rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--blue); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
-    .hero-cards {
-      position: relative; z-index: 1; flex-shrink: 0;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
-    }
-    .hero-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--r2); padding: 24px 22px; text-align: center;
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      transition: border-color .3s, transform .3s;
-    }
-    .hero-card:hover { border-color: rgba(124,58,237,.4); transform: translateY(-3px); }
-    .hc-num {
-      font-size: 2.2rem; font-weight: 900; letter-spacing: -1px;
-      background: var(--pg);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hc-label { color: var(--muted); font-size: .78rem; margin-top: 4px; }
+  /* ── HISTORY LOG ── */
+  .log-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: .85rem;
+  }
+  .log-entry:last-child { border-bottom: none; }
+  .log-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+  .log-dot.red    { background: var(--red); }
+  .log-dot.yellow { background: var(--yellow); }
+  .log-dot.green  { background: var(--green); }
+  .log-dot.blue   { background: var(--blue); }
 
-    /* ════════════════════════════
-       SHARED SECTION
-    ════════════════════════════ */
-    .section { padding: 96px 48px; max-width: 1160px; margin: 0 auto; }
-    .section-tag {
-      display: inline-flex; align-items: center; gap: 6px;
-      border: 1px solid rgba(124,58,237,.3);
-      background: rgba(124,58,237,.1);
-      color: var(--gold2); border-radius: 30px;
-      padding: 5px 16px; font-size: .75rem; font-weight: 700;
-      letter-spacing: .7px; text-transform: uppercase;
-      margin-bottom: 14px; backdrop-filter: blur(8px);
-    }
-    h2 {
-      font-size: clamp(1.7rem, 3vw, 2.4rem);
-      font-weight: 900; letter-spacing: -1px;
-      color: var(--text); margin-bottom: 12px; line-height: 1.2;
-    }
-    h2 span {
-      background: var(--pg);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .section-sub { color: var(--muted); font-size: .97rem; margin-bottom: 48px; max-width: 520px; }
-    .divider { height: 1px; background: var(--border); margin: 0 48px; }
+  /* ── REPORT ── */
+  #reportArea {
+    display: none;
+    margin: 0 28px 20px;
+  }
+  .report-card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.08);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .report-card-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .report-card-header h3 { font-size: .95rem; display: flex; align-items: center; gap: 8px; }
+  .report-section-badge {
+    font-size: .75rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .report-table-wrap { overflow-x: auto; }
+  .report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .83rem;
+  }
+  .report-table thead th {
+    background: #f4f6f9;
+    padding: 9px 14px;
+    text-align: left;
+    font-weight: 700;
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .report-table tbody tr { border-bottom: 1px solid #f0f0f0; }
+  .report-table tbody tr:last-child { border-bottom: none; }
+  .report-table tbody tr:hover { background: #f9fbff; }
+  .report-table td { padding: 10px 14px; vertical-align: middle; }
+  .report-table td.num { text-align: center; font-weight: 700; }
 
-    /* glass card base */
-    .glass {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--r2); backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      transition: background .25s, border-color .25s, transform .25s, box-shadow .25s;
-    }
-    .glass:hover {
-      background: var(--card-h); border-color: rgba(124,58,237,.35);
-      transform: translateY(-4px);
-      box-shadow: 0 20px 60px rgba(0,0,0,.4), 0 0 0 1px rgba(124,58,237,.15);
-    }
+  .report-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0;
+    padding: 0;
+  }
+  .report-kpi-cell {
+    padding: 16px 20px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+  .report-kpi-cell:last-child { border-right: none; }
+  .report-kpi-val { font-size: 1.8rem; font-weight: 700; line-height: 1; }
+  .report-kpi-lbl { font-size: .72rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .4px; }
 
-    /* ════════════════════════════
-       SERVICES
-    ════════════════════════════ */
-    .services-grid {
-      display: grid; grid-template-columns: repeat(3,1fr); gap: 20px;
-    }
-    .service-card.glass { overflow: hidden; }
-    .service-card.featured {
-      grid-column: span 2; display: flex; gap: 0;
-    }
-    .sc-thumb {
-      min-width: 180px; display: flex; align-items: center;
-      justify-content: center; font-size: 3.8rem; flex-shrink: 0;
-      background: linear-gradient(135deg, rgba(124,58,237,.25), rgba(79,70,229,.15));
-      border-right: 1px solid var(--border);
-    }
-    .service-card:not(.featured) .sc-thumb {
-      min-width: unset; width: 100%; height: 130px;
-      font-size: 2.8rem; border-right: none; border-bottom: 1px solid var(--border);
-    }
-    .sc-body { padding: 26px; }
-    .sc-tag {
-      display: inline-block;
-      background: rgba(124,58,237,.2); color: #a78bfa;
-      border: 1px solid rgba(124,58,237,.3);
-      border-radius: 20px; padding: 3px 12px;
-      font-size: .73rem; font-weight: 700; margin-bottom: 10px;
-    }
-    .sc-body h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
-    .sc-body p  { font-size: .88rem; color: var(--muted); margin-bottom: 14px; }
-    .sc-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-    .sc-list li {
-      font-size: .85rem; color: var(--muted2);
-      display: flex; align-items: center; gap: 8px;
-    }
-    .sc-list li::before { content: '✓'; color: var(--gold); font-weight: 700; font-size: .9rem; }
+  .report-actions { padding: 14px 20px; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+  .report-reco-list { padding: 14px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .report-reco-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: .83rem;
+  }
+  .report-reco-item.red    { background: #fff8f8; border-left: 3px solid var(--red); }
+  .report-reco-item.yellow { background: #fffaf5; border-left: 3px solid var(--yellow); }
+  .report-reco-item.green  { background: #f5fff8; border-left: 3px solid var(--green); }
+  .report-reco-icon { font-size: 1rem; flex-shrink: 0; }
+  .report-date-row {
+    padding: 10px 20px;
+    font-size: .75rem;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 
-    /* ════════════════════════════
-       WHY US
-    ════════════════════════════ */
-    .why-strip { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .why-inner { max-width: 1160px; margin: 0 auto; padding: 96px 48px; }
-    .why-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 18px; }
-    .why-card.glass { padding: 28px 24px; }
-    .why-icon {
-      width: 48px; height: 48px; border-radius: 14px;
-      background: linear-gradient(135deg, rgba(124,58,237,.3), rgba(79,70,229,.2));
-      border: 1px solid rgba(124,58,237,.3);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.4rem; margin-bottom: 16px;
-    }
-    .why-card h3 { font-size: .97rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
-    .why-card p  { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+  /* ── EMPTY STATE ── */
+  .empty { text-align: center; padding: 40px; color: var(--muted); }
+  .empty-icon { font-size: 3rem; }
 
-    /* ════════════════════════════
-       PROCESS
-    ════════════════════════════ */
-    .process-track {
-      display: grid; grid-template-columns: repeat(4,1fr); gap: 0; position: relative;
-    }
-    .process-track::before {
-      content: ''; position: absolute;
-      top: 35px; left: calc(12.5% + 0px); right: calc(12.5% + 0px);
-      height: 2px;
-      background: linear-gradient(90deg, var(--p1), var(--p2), var(--gold));
-      z-index: 0; opacity: .5;
-    }
-    .proc-step { text-align: center; padding: 0 12px; position: relative; z-index: 1; }
-    .proc-num {
-      width: 70px; height: 70px; border-radius: 50%;
-      background: var(--pg); color: #fff;
-      font-size: 1.4rem; font-weight: 900;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 20px;
-      box-shadow: 0 0 30px var(--glow-p);
-    }
-    .proc-step h3 { font-size: .93rem; font-weight: 700; margin-bottom: 6px; color: var(--text); }
-    .proc-step p  { font-size: .82rem; color: var(--muted); }
+  /* ── ALERTS ── */
+  .alert-box {
+    margin: 16px 28px 0;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: .88rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .alert-danger  { background: #fde8e8; color: #c0392b; border-left: 4px solid var(--red); }
+  .alert-warning { background: #fff3e0; color: #d35400; border-left: 4px solid var(--yellow); }
+  .alert-success { background: #e8f8ee; color: #1e8449; border-left: 4px solid var(--green); }
 
-    /* ════════════════════════════
-       PRICES
-    ════════════════════════════ */
-    .prices-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; }
-    .price-card.glass { padding: 32px 28px; position: relative; overflow: hidden; }
-    .price-card.popular {
-      border-color: rgba(124,58,237,.5) !important;
-      box-shadow: 0 0 60px rgba(124,58,237,.15), 0 0 0 1px rgba(124,58,237,.25) !important;
-    }
-    .price-card.popular::before {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(124,58,237,.08), rgba(79,70,229,.05));
-      pointer-events: none;
-    }
-    .pop-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--pg); color: #fff;
-      border-radius: 20px; padding: 4px 14px;
-      font-size: .73rem; font-weight: 700; margin-bottom: 18px;
-    }
-    .pc-icon { font-size: 2rem; margin-bottom: 14px; }
-    .pc-title { font-size: 1.15rem; font-weight: 800; margin-bottom: 6px; }
-    .pc-desc  { font-size: .85rem; color: var(--muted); margin-bottom: 20px; }
-    .pc-price {
-      font-size: 1.8rem; font-weight: 900; letter-spacing: -1px;
-      background: var(--pg);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 4px;
-    }
-    .pc-price span { font-size: .82rem; font-weight: 400; color: var(--muted); -webkit-text-fill-color: var(--muted); }
-    .pc-hr { height: 1px; background: var(--border); margin: 20px 0; }
-    .pc-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-    .pc-list li {
-      font-size: .86rem; color: var(--muted);
-      display: flex; align-items: flex-start; gap: 10px;
-    }
-    .pc-list li::before { content: '✓'; color: var(--gold); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
-    .pc-btn {
-      display: block; text-align: center; margin-top: 26px;
-      padding: 13px; border-radius: 12px;
-      font-weight: 700; font-size: .93rem; text-decoration: none;
-      transition: opacity .2s, transform .2s;
-    }
-    .price-card.popular .pc-btn {
-      background: var(--pg); color: #fff;
-      box-shadow: 0 0 24px var(--glow-p);
-    }
-    .price-card:not(.popular) .pc-btn {
-      background: transparent; border: 1px solid var(--border-h); color: var(--text);
-    }
-    .pc-btn:hover { opacity: .85; transform: translateY(-1px); }
+  /* ── CHART ── */
+  .chart-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 0 28px 20px;
+  }
+  @media (max-width: 700px) { .chart-row { grid-template-columns: 1fr; } .kpi-row { padding: 14px 14px 0; } .table-wrap,.alert-box,.chart-row,#reportArea,.analysis-wrap,.workplan-wrap { margin-left: 14px; margin-right: 14px; } .toolbar { padding: 10px 14px; } header { padding: 14px; } .report-kpi-grid { grid-template-columns: repeat(2,1fr); } }
 
-    /* ════════════════════════════
-       PORTFOLIO
-    ════════════════════════════ */
-    .portfolio-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
-    .port-item {
-      border-radius: var(--r2); overflow: hidden; position: relative;
-      aspect-ratio: 4/3; cursor: pointer;
-      background: var(--bg3); border: 1px solid var(--border);
-    }
-    .port-item.tall { grid-row: span 2; aspect-ratio: auto; min-height: 280px; }
-    .port-bg {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 3.2rem; transition: transform .4s ease;
-    }
-    .port-item:hover .port-bg { transform: scale(1.1); }
-    .port-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(8,8,15,.9) 0%, transparent 55%);
-      display: flex; align-items: flex-end; padding: 18px;
-      opacity: 0; transition: opacity .3s;
-    }
-    .port-item:hover .port-overlay { opacity: 1; }
-    .port-label { color: #fff; font-weight: 600; font-size: .88rem; }
+  /* ── ANALYSIS SECTION ── */
+  .analysis-wrap {
+    margin: 0 28px 20px;
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.08);
+    overflow: hidden;
+  }
+  .analysis-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .analysis-header h2 { font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+  .analysis-tabs {
+    display: flex;
+    gap: 6px;
+  }
+  .atab {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-size: .82rem;
+    font-weight: 700;
+    transition: all .2s;
+  }
+  .atab.red    { background: #fde8e8; color: #c0392b; }
+  .atab.yellow { background: #fff3e0; color: #d35400; }
+  .atab.green  { background: #e8f8ee; color: #1e8449; }
+  .atab.active.red    { background: #e63946; color: #fff; border-color: #c0392b; }
+  .atab.active.yellow { background: #f4a261; color: #fff; border-color: #d35400; }
+  .atab.active.green  { background: #1db954; color: #fff; border-color: #1e8449; }
+  .analysis-panel { display: none; padding: 20px; }
+  .analysis-panel.active { display: block; }
 
-    /* ════════════════════════════
-       REVIEWS
-    ════════════════════════════ */
-    .reviews-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
-    .review-card.glass { padding: 26px 22px; }
-    .stars { color: var(--gold); font-size: 1rem; margin-bottom: 14px; letter-spacing: 2px; }
-    .review-text {
-      font-size: .88rem; color: var(--muted); line-height: 1.7;
-      font-style: italic; margin-bottom: 20px;
-    }
-    .reviewer { display: flex; align-items: center; gap: 12px; }
-    .rev-avatar {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: var(--pg);
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 800; font-size: .95rem; flex-shrink: 0;
-    }
-    .rev-name { font-weight: 700; font-size: .88rem; color: var(--text); }
-    .rev-meta { font-size: .75rem; color: var(--muted2); margin-top: 2px; }
+  .reason-list { display: flex; flex-direction: column; gap: 12px; }
+  .reason-card {
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    border-left: 5px solid transparent;
+    background: #fafafa;
+  }
+  .reason-card.red    { border-color: var(--red);    background: #fff8f8; }
+  .reason-card.yellow { border-color: var(--yellow); background: #fffaf5; }
+  .reason-card.green  { border-color: var(--green);  background: #f5fff8; }
 
-    /* ════════════════════════════
-       FORM SECTION
-    ════════════════════════════ */
-    .form-strip { background: var(--bg2); border-top: 1px solid var(--border); }
-    .form-inner { max-width: 1160px; margin: 0 auto; padding: 96px 48px; }
-    .form-inner h2 { color: var(--text); }
-    .form-inner .section-sub { color: var(--muted); }
-    .form-wrap { display: grid; grid-template-columns: 1fr 1.5fr; gap: 56px; align-items: start; }
+  .reason-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .85rem;
+    flex-shrink: 0;
+    color: #fff;
+  }
+  .reason-num.red    { background: var(--red); }
+  .reason-num.yellow { background: var(--yellow); }
+  .reason-num.green  { background: var(--green); }
 
-    .fi-item { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 28px; }
-    .fi-icon {
-      width: 46px; height: 46px; border-radius: 12px;
-      background: linear-gradient(135deg, rgba(124,58,237,.3), rgba(79,70,229,.2));
-      border: 1px solid rgba(124,58,237,.3);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; flex-shrink: 0;
-    }
-    .fi-label { font-size: .75rem; color: var(--muted2); text-transform: uppercase; letter-spacing: .5px; }
-    .fi-value { color: var(--text); font-weight: 600; font-size: .93rem; margin-top: 3px; }
+  .reason-body { flex: 1; }
+  .reason-title { font-weight: 700; font-size: .92rem; margin-bottom: 4px; }
+  .reason-quote {
+    font-size: .8rem;
+    color: var(--muted);
+    font-style: italic;
+    border-left: 3px solid #e0e0e0;
+    padding-left: 8px;
+    margin: 6px 0 4px;
+  }
+  .reason-action {
+    font-size: .78rem;
+    font-weight: 600;
+    margin-top: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .reason-action.red    { color: #c0392b; }
+  .reason-action.yellow { color: #d35400; }
+  .reason-action.green  { color: #1e8449; }
 
-    form {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--r2); padding: 36px 32px;
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    }
-    .form-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 26px; letter-spacing: -.3px; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .form-group { margin-bottom: 16px; }
-    .form-group label {
-      display: block; font-size: .75rem; font-weight: 700;
-      color: var(--muted2); margin-bottom: 6px;
-      text-transform: uppercase; letter-spacing: .5px;
-    }
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%; padding: 12px 15px;
-      background: rgba(255,255,255,.05); border: 1px solid var(--border);
-      border-radius: 10px; color: var(--text);
-      font-size: .9rem; font-family: inherit; outline: none;
-      transition: border-color .2s, background .2s, box-shadow .2s;
-      -webkit-appearance: none;
-    }
-    .form-group input::placeholder,
-    .form-group textarea::placeholder { color: var(--muted2); }
-    .form-group select option { background: var(--bg3); color: var(--text); }
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      border-color: var(--p1);
-      background: rgba(124,58,237,.08);
-      box-shadow: 0 0 0 3px rgba(124,58,237,.15);
-    }
-    textarea { resize: vertical; min-height: 95px; }
+  .freq-badge {
+    display: inline-block;
+    font-size: .7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .freq-high   { background: #fde8e8; color: #c0392b; }
+  .freq-medium { background: #fff3e0; color: #d35400; }
+  .freq-low    { background: #e8f0fe; color: #1a73e8; }
 
-    .services-check { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
-    .check-item {
-      display: flex; align-items: center; gap: 9px;
-      padding: 9px 12px; border: 1px solid var(--border);
-      border-radius: 10px; cursor: pointer; font-size: .83rem; color: var(--muted);
-      background: rgba(255,255,255,.03);
-      transition: border-color .2s, background .2s, color .2s;
-    }
-    .check-item:has(input:checked) {
-      border-color: rgba(124,58,237,.5);
-      background: rgba(124,58,237,.12); color: var(--text);
-    }
-    .check-item input { accent-color: var(--p1); width: 15px; height: 15px; }
+  .action-plan {
+    margin-top: 20px;
+    background: #f0f4ff;
+    border-radius: 12px;
+    padding: 16px 18px;
+    border-left: 5px solid var(--blue);
+  }
+  .action-plan h4 { font-size: .88rem; color: var(--blue); margin-bottom: 10px; }
+  .action-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: .83rem;
+  }
+  .step-num {
+    width: 22px; height: 22px;
+    background: var(--blue);
+    color: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .72rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
 
-    .form-submit {
-      width: 100%; padding: 14px; margin-top: 6px;
-      background: var(--pg); color: #fff; border: none;
-      border-radius: 12px; font-size: 1rem; font-weight: 700;
-      cursor: pointer; letter-spacing: .2px;
-      box-shadow: 0 0 28px var(--glow-p);
-      transition: opacity .2s, transform .15s;
-    }
-    .form-submit:hover { opacity: .88; transform: translateY(-1px); }
-    .form-note { font-size: .75rem; color: var(--muted2); text-align: center; margin-top: 12px; }
+  /* ── WORKPLAN ── */
+  .workplan-wrap {
+    margin: 0 28px 20px;
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.08);
+    overflow: hidden;
+  }
+  .workplan-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .workplan-header h2 { font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+  .wp-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .wp-tab {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--muted);
+    transition: all .2s;
+  }
+  .wp-tab.active { background: var(--blue); color: #fff; border-color: var(--blue); }
 
-    /* ════════════════════════════
-       FOOTER
-    ════════════════════════════ */
-    footer {
-      background: var(--bg); border-top: 1px solid var(--border);
-      padding: 36px 48px;
-    }
-    .footer-inner {
-      max-width: 1160px; margin: 0 auto;
-      display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 20px;
-    }
-    .footer-logo { font-weight: 800; font-size: 1.05rem; color: var(--text); }
-    .footer-logo span { color: var(--gold); }
-    .footer-links { display: flex; gap: 22px; flex-wrap: wrap; }
-    .footer-links a { color: var(--muted2); text-decoration: none; font-size: .83rem; transition: color .2s; }
-    .footer-links a:hover { color: var(--text); }
-    .footer-copy { font-size: .8rem; color: var(--muted2); }
+  .wp-panel { display: none; padding: 20px; }
+  .wp-panel.active { display: block; }
 
-    /* ════════════════════════════
-       CHAT WIDGET
-    ════════════════════════════ */
-    .chat-widget {
-      position: fixed; bottom: 28px; right: 28px; z-index: 9999;
-      display: flex; flex-direction: column; align-items: flex-end; gap: 12px;
-    }
-    .chat-toggle {
-      width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer;
-      background: var(--pg);
-      display: flex; align-items: center; justify-content: center; font-size: 1.45rem;
-      box-shadow: 0 0 32px var(--glow-p);
-      position: relative; transition: transform .25s, box-shadow .25s;
-    }
-    .chat-toggle:hover { transform: scale(1.1); box-shadow: 0 0 48px var(--glow-p); }
-    .chat-close-icon { display: none; font-size: 1rem; font-weight: 700; color: #fff; }
-    .chat-open-icon  { color: #fff; }
-    .chat-widget.open .chat-open-icon  { display: none; }
-    .chat-widget.open .chat-close-icon { display: block; }
-    .chat-badge {
-      position: absolute; top: 0; right: 0;
-      background: #ef4444; color: #fff;
-      width: 20px; height: 20px; border-radius: 50%;
-      font-size: .7rem; font-weight: 700;
-      display: flex; align-items: center; justify-content: center;
-      animation: cpulse 2s infinite; border: 2px solid var(--bg);
-    }
-    .chat-badge.hidden { display: none; }
-    @keyframes cpulse { 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.25);} }
+  /* Timeline */
+  .timeline { position: relative; padding-left: 32px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #e63946, #f4a261, #1db954);
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-dot {
+    position: absolute;
+    left: -26px;
+    top: 4px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px currentColor;
+    flex-shrink: 0;
+  }
+  .tl-dot.red    { background: var(--red);    color: var(--red); }
+  .tl-dot.yellow { background: var(--yellow); color: var(--yellow); }
+  .tl-dot.green  { background: var(--green);  color: var(--green); }
+  .tl-dot.blue   { background: var(--blue);   color: var(--blue); }
 
-    .chat-window {
-      width: 360px; background: var(--bg2);
-      border: 1px solid var(--border); border-radius: 20px;
-      box-shadow: 0 24px 80px rgba(0,0,0,.5), 0 0 0 1px rgba(124,58,237,.1);
-      display: flex; flex-direction: column;
-      overflow: hidden; max-height: 540px;
-      transform: scale(.85) translateY(20px); opacity: 0; pointer-events: none;
-      transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .25s;
-      transform-origin: bottom right;
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    }
-    .chat-widget.open .chat-window {
-      transform: scale(1) translateY(0); opacity: 1; pointer-events: all;
-    }
-    .chat-header {
-      background: var(--pg); padding: 14px 16px;
-      display: flex; align-items: center; gap: 12px; flex-shrink: 0;
-    }
-    .chat-avatar {
-      width: 38px; height: 38px; border-radius: 50%;
-      background: rgba(255,255,255,.2);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; flex-shrink: 0;
-    }
-    .chat-name   { color: #fff; font-weight: 700; font-size: .92rem; }
-    .chat-status { color: rgba(255,255,255,.75); font-size: .72rem; margin-top: 2px; }
-    .chat-hmin {
-      margin-left: auto; background: rgba(255,255,255,.15); border: none;
-      color: #fff; font-size: 1rem; cursor: pointer;
-      width: 28px; height: 28px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      transition: background .2s;
-    }
-    .chat-hmin:hover { background: rgba(255,255,255,.28); }
+  .tl-card {
+    background: #fafafa;
+    border-radius: 10px;
+    padding: 12px 16px;
+    border-left: 4px solid transparent;
+  }
+  .tl-card.red    { border-color: var(--red);    background: #fff8f8; }
+  .tl-card.yellow { border-color: var(--yellow); background: #fffaf5; }
+  .tl-card.green  { border-color: var(--green);  background: #f5fff8; }
+  .tl-card.blue   { border-color: var(--blue);   background: #f0f4ff; }
 
-    .chat-messages {
-      flex: 1; overflow-y: auto; padding: 14px 14px 8px;
-      display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth;
-    }
-    .chat-messages::-webkit-scrollbar { width: 4px; }
-    .chat-messages::-webkit-scrollbar-thumb { background: var(--border-h); border-radius: 4px; }
+  .tl-period {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 4px;
+  }
+  .tl-period.red    { color: var(--red); }
+  .tl-period.yellow { color: #d35400; }
+  .tl-period.green  { color: #1e8449; }
+  .tl-period.blue   { color: var(--blue); }
 
-    .chat-msg { max-width: 88%; display: flex; flex-direction: column; gap: 3px; }
-    .chat-msg.bot  { align-self: flex-start; }
-    .chat-msg.user { align-self: flex-end; }
-    .chat-bubble {
-      padding: 10px 13px; border-radius: 16px;
-      font-size: .85rem; line-height: 1.55; white-space: pre-wrap;
-    }
-    .chat-msg.bot .chat-bubble {
-      background: rgba(255,255,255,.06); border: 1px solid var(--border);
-      border-bottom-left-radius: 4px; color: var(--text);
-    }
-    .chat-msg.user .chat-bubble {
-      background: var(--pg); color: #fff;
-      border-bottom-right-radius: 4px; font-weight: 600;
-    }
-    .chat-time { font-size: .67rem; color: var(--muted2); padding: 0 3px; }
-    .chat-msg.user .chat-time { text-align: right; }
+  .tl-title { font-weight: 700; font-size: .92rem; margin-bottom: 8px; }
+  .tl-tasks { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .tl-tasks li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: .83rem;
+    color: var(--text);
+  }
+  .tl-tasks li .chk {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .7rem;
+    transition: all .2s;
+    margin-top: 1px;
+    background: #fff;
+  }
+  .tl-tasks li .chk.done { background: var(--green); border-color: var(--green); color: #fff; }
+  .tl-tasks li span { flex: 1; line-height: 1.4; }
+  .tl-tasks li span.done-text { text-decoration: line-through; color: var(--muted); }
 
-    .typing-bbl {
-      background: rgba(255,255,255,.06); border: 1px solid var(--border);
-      border-radius: 16px; border-bottom-left-radius: 4px;
-      padding: 12px 16px; display: flex; gap: 5px; align-items: center;
-      align-self: flex-start;
-    }
-    .typing-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--muted); animation: tbounce 1.2s infinite;
-    }
-    .typing-dot:nth-child(2) { animation-delay: .2s; }
-    .typing-dot:nth-child(3) { animation-delay: .4s; }
-    @keyframes tbounce { 0%,60%,100%{ transform:translateY(0);} 30%{ transform:translateY(-7px);} }
+  .tl-result {
+    margin-top: 10px;
+    font-size: .78rem;
+    font-style: italic;
+    color: var(--muted);
+    border-top: 1px dashed var(--border);
+    padding-top: 8px;
+  }
 
-    .chat-quick {
-      padding: 8px 12px 10px; display: flex; flex-wrap: wrap; gap: 6px;
-      border-top: 1px solid var(--border); flex-shrink: 0;
-      max-height: 110px; overflow-y: auto;
-    }
-    .chat-qbtn {
-      background: rgba(255,255,255,.05); border: 1px solid var(--border);
-      color: var(--text); border-radius: 20px;
-      padding: 6px 12px; font-size: .77rem; font-weight: 600;
-      cursor: pointer; white-space: nowrap; transition: border-color .2s, background .2s;
-    }
-    .chat-qbtn:hover { border-color: rgba(124,58,237,.5); background: rgba(124,58,237,.12); }
+  /* Responsible grid */
+  .resp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .resp-card {
+    background: #fafafa;
+    border-radius: 10px;
+    padding: 14px 16px;
+    border-top: 4px solid var(--blue);
+  }
+  .resp-card.red    { border-color: var(--red); }
+  .resp-card.yellow { border-color: var(--yellow); }
+  .resp-card.green  { border-color: var(--green); }
+  .resp-role { font-weight: 700; font-size: .88rem; margin-bottom: 8px; }
+  .resp-tasks-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .resp-tasks-list li { font-size: .8rem; display: flex; gap: 6px; align-items: flex-start; color: var(--text); }
+  .resp-tasks-list li::before { content: '→'; color: var(--muted); flex-shrink: 0; }
 
-    .chat-input-row {
-      padding: 10px 12px; display: flex; gap: 8px;
-      border-top: 1px solid var(--border); flex-shrink: 0;
-    }
-    .chat-input {
-      flex: 1; padding: 9px 14px;
-      background: rgba(255,255,255,.06); border: 1px solid var(--border);
-      border-radius: 24px; font-size: .85rem; font-family: inherit;
-      color: var(--text); outline: none; transition: border-color .2s;
-    }
-    .chat-input::placeholder { color: var(--muted2); }
-    .chat-input:focus { border-color: var(--p1); }
-    .chat-send {
-      width: 37px; height: 37px; border-radius: 50%;
-      background: var(--pg); border: none; cursor: pointer;
-      color: #fff; font-size: .95rem;
-      display: flex; align-items: center; justify-content: center;
-      transition: opacity .2s, transform .15s;
-    }
-    .chat-send:hover { opacity: .85; transform: scale(1.1); }
+  /* Templates */
+  .tpl-list { display: flex; flex-direction: column; gap: 14px; }
+  .tpl-card { background: #fafafa; border-radius: 10px; padding: 14px 16px; border-left: 4px solid var(--blue); }
+  .tpl-card.red { border-color: var(--red); }
+  .tpl-card.green { border-color: var(--green); }
+  .tpl-label { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 6px; }
+  .tpl-text {
+    font-size: .83rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 6px 0;
+  }
+  .copy-btn {
+    padding: 4px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--blue);
+    transition: all .2s;
+  }
+  .copy-btn:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); }
 
-    @media (max-width: 640px) {
-      .chat-window { width: calc(100vw - 36px); }
-      .chat-widget { bottom: 16px; right: 16px; }
-    }
+  /* KPI table */
+  .kpi-table { width: 100%; border-collapse: collapse; font-size: .83rem; margin-top: 4px; }
+  .kpi-table th { background: #f4f6f9; padding: 8px 12px; text-align: left; font-size: .75rem; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .kpi-table td { padding: 9px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+  .kpi-table tr:last-child td { border-bottom: none; }
+  .target-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: .72rem; font-weight: 700; }
+  .target-red    { background: #fde8e8; color: #c0392b; }
+  .target-yellow { background: #fff3e0; color: #d35400; }
+  .target-green  { background: #e8f8ee; color: #1e8449; }
 
-    /* ════════════════════════════
-       RESPONSIVE
-    ════════════════════════════ */
-    @media (max-width: 960px) {
-      header { padding: 0 20px; }
-      nav { display: none; }
-      .hero { padding: 80px 20px 60px; flex-direction: column; gap: 40px; min-height: auto; }
-      .hero-cards { grid-template-columns: repeat(4,1fr); width: 100%; }
-      .section { padding: 64px 20px; }
-      .why-inner, .form-inner { padding: 64px 20px; }
-      .divider { margin: 0 20px; }
-      .services-grid { grid-template-columns: 1fr; }
-      .service-card.featured { flex-direction: column; grid-column: span 1; }
-      .service-card.featured .sc-thumb { min-width: unset; width: 100%; height: 120px; border-right: none; border-bottom: 1px solid var(--border); }
-      .prices-grid { grid-template-columns: 1fr; }
-      .portfolio-grid { grid-template-columns: 1fr 1fr; }
-      .port-item.tall { grid-row: auto; }
-      .reviews-grid { grid-template-columns: 1fr; }
-      .form-wrap { grid-template-columns: 1fr; gap: 32px; }
-      .form-row { grid-template-columns: 1fr; }
-      .services-check { grid-template-columns: 1fr; }
-      .process-track { grid-template-columns: 1fr 1fr; }
-      .process-track::before { display: none; }
-      footer { padding: 28px 20px; }
-      .footer-inner { flex-direction: column; align-items: flex-start; }
-    }
-  </style>
+  /* Progress bar */
+  .progress-wrap { margin-top: 6px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: .75rem; color: var(--muted); margin-bottom: 3px; }
+  .progress-track { height: 8px; background: #f0f0f0; border-radius: 20px; overflow: hidden; }
+  .progress-fill  { height: 100%; border-radius: 20px; background: var(--blue); transition: width .5s; }
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .chart-card { background: #fff; border-radius: 14px; padding: 18px 20px; box-shadow: 0 1px 6px rgba(0,0,0,.08); }
+  .chart-card h3 { font-size: .9rem; margin-bottom: 14px; color: var(--muted); }
+  .bar-chart { display: flex; flex-direction: column; gap: 8px; }
+  .bar-item { display: flex; align-items: center; gap: 8px; font-size: .78rem; }
+  .bar-label { width: 140px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+  .bar-track { flex: 1; background: #f0f0f0; border-radius: 20px; height: 14px; overflow: hidden; }
+  .bar-fill  { height: 100%; border-radius: 20px; transition: width .5s; }
+  .bar-val   { width: 30px; text-align: right; font-weight: 700; }
+
+  .pie-legend { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .pie-item { display: flex; align-items: center; gap: 8px; font-size: .82rem; }
+  .pie-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+  footer { text-align: center; padding: 18px; color: var(--muted); font-size: .78rem; }
+
+  @media print {
+    .toolbar, header .btn, .action-btns, .btn { display: none !important; }
+    body { background: #fff; }
+  }
+</style>
 </head>
 <body>
 
-<!-- ── HEADER ── -->
+<!-- HEADER -->
 <header>
-  <a class="logo" href="#">
-    <div class="logo-icon">🏗️</div>
-    <div class="logo-text">Строй<span>Мастер</span></div>
-  </a>
-  <nav>
-    <a href="#services">Услуги</a>
-    <a href="#why">О нас</a>
-    <a href="#process">Как работаем</a>
-    <a href="#prices">Цены</a>
-    <a href="#reviews">Отзывы</a>
-    <a href="#form" class="nav-cta">Оставить заявку</a>
-  </nav>
+  <h1><span>♻️</span> Freedom Фандоматы — Монитор отзывов 2ГИС</h1>
+  <div class="header-meta" id="lastUpdate">Последнее обновление: —</div>
 </header>
 
-<!-- ── HERO ── -->
-<div class="hero">
-  <div class="hero-orb"></div>
-  <div class="hero-text">
-    <div class="hero-badge">
-      <span class="badge-dot"></span>
-      Работаем с 2008 года · 16 лет опыта
-    </div>
-    <h1>Ремонт квартир<br>и <em>строительство</em><br>домов под ключ</h1>
-    <p class="hero-sub">Профессиональная отделка, капитальный ремонт и строительство частных домов в Астане и Алматы. Договор, фиксированная смета и гарантия — всегда.</p>
-    <div class="hero-btns">
-      <a href="#form" class="btn-pri">Получить смету бесплатно →</a>
-      <a href="#services" class="btn-sec">Наши услуги</a>
-    </div>
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <button class="btn btn-primary" onclick="openAddModal()">➕ Добавить точку</button>
+  <button class="btn btn-success" onclick="logManualCheck()">✅ Зафиксировать проверку</button>
+  <button class="btn btn-warning" onclick="generateReport()">📋 Отчёт за день</button>
+  <button class="btn btn-outline" onclick="exportCSV()">⬇️ Экспорт CSV</button>
+  <button class="btn btn-outline" onclick="scrollToAnalysis()">🔍 Анализ отзывов</button>
+  <button class="btn btn-outline" onclick="document.getElementById('workplanSection').scrollIntoView({behavior:'smooth'})">📅 План работы</button>
+  <button class="btn btn-danger"  onclick="clearAll()" style="margin-left:auto">🗑️ Сбросить всё</button>
+  <input class="search-box" id="searchInput" placeholder="🔍 Поиск по адресу..." oninput="renderTable()">
+  <select class="filter" id="cityFilter" onchange="renderTable()">
+    <option value="">🌍 Все города</option>
+    <option value="Алматы">Алматы</option>
+    <option value="Астана">Астана</option>
+  </select>
+  <select class="filter" id="statusFilter" onchange="renderTable()">
+    <option value="">📊 Все статусы</option>
+    <option value="critical">🔴 Критично</option>
+    <option value="warning">🟡 Слабо</option>
+    <option value="good">🟢 Хорошо</option>
+  </select>
+</div>
+
+<!-- ALERTS -->
+<div id="alertsArea"></div>
+
+<!-- KPI -->
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- CHARTS -->
+<div class="chart-row" id="chartRow">
+  <div class="chart-card">
+    <h3>📊 Рейтинг по точкам</h3>
+    <div class="bar-chart" id="barChart"></div>
   </div>
-  <div class="hero-cards">
-    <div class="hero-card">
-      <div class="hc-num">830+</div>
-      <div class="hc-label">объектов сдано</div>
-    </div>
-    <div class="hero-card">
-      <div class="hc-num">16</div>
-      <div class="hc-label">лет на рынке</div>
-    </div>
-    <div class="hero-card">
-      <div class="hc-num">3 года</div>
-      <div class="hc-label">гарантия</div>
-    </div>
-    <div class="hero-card">
-      <div class="hc-num">98%</div>
-      <div class="hc-label">довольных клиентов</div>
-    </div>
+  <div class="chart-card">
+    <h3>🗂️ Распределение статусов</h3>
+    <div class="pie-legend" id="pieLegend"></div>
   </div>
 </div>
 
-<!-- ── SERVICES ── -->
-<section class="section" id="services">
-  <div class="section-tag">✦ Услуги</div>
-  <h2>Что мы <span>делаем</span></h2>
-  <p class="section-sub">От косметического ремонта до строительства дома с нуля — полный цикл строительно-отделочных работ.</p>
-  <div class="services-grid">
-
-    <div class="service-card glass featured">
-      <div class="sc-thumb">🏠</div>
-      <div class="sc-body">
-        <div class="sc-tag">Популярное</div>
-        <h3>Ремонт и отделка квартир</h3>
-        <p>Полный цикл: от демонтажа до финишной отделки. Работаем в новостройках и вторичном жилье любой сложности.</p>
-        <ul class="sc-list">
-          <li>Косметический и капитальный ремонт</li>
-          <li>Черновая и чистовая отделка</li>
-          <li>Дизайнерский ремонт под ключ</li>
-          <li>Перепланировка и согласование</li>
-          <li>Укладка плитки, ламината, паркета</li>
-          <li>Монтаж натяжных потолков</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="service-card glass" style="display:flex;flex-direction:column">
-      <div class="sc-thumb">🏡</div>
-      <div class="sc-body">
-        <div class="sc-tag">Строительство</div>
-        <h3>Строительство домов</h3>
-        <p>Возводим частные дома из кирпича, газобетона, дерева и по каркасной технологии.</p>
-        <ul class="sc-list">
-          <li>Проектирование и геодезия</li>
-          <li>Фундамент любого типа</li>
-          <li>Стены, кровля, перекрытия</li>
-          <li>Инженерные коммуникации</li>
-          <li>Внутренняя и внешняя отделка</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="service-card glass" style="display:flex;flex-direction:column">
-      <div class="sc-thumb">🚿</div>
-      <div class="sc-body">
-        <div class="sc-tag">Отделка</div>
-        <h3>Ванные комнаты и санузлы</h3>
-        <p>Полная отделка санузлов: гидроизоляция, плитка, сантехника, вентиляция.</p>
-        <ul class="sc-list">
-          <li>Укладка плитки любой сложности</li>
-          <li>Установка душевых и ванн</li>
-          <li>Тёплые полы</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="service-card glass" style="display:flex;flex-direction:column">
-      <div class="sc-thumb">⚡</div>
-      <div class="sc-body">
-        <div class="sc-tag">Инженерия</div>
-        <h3>Инженерные системы</h3>
-        <p>Монтаж и замена электрики, водопровода, канализации и отопления.</p>
-        <ul class="sc-list">
-          <li>Электромонтаж под ключ</li>
-          <li>Замена труб и радиаторов</li>
-          <li>Тёплые полы, «умный дом»</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="service-card glass" style="display:flex;flex-direction:column">
-      <div class="sc-thumb">🪟</div>
-      <div class="sc-body">
-        <div class="sc-tag">Фасад</div>
-        <h3>Фасадные работы</h3>
-        <p>Утепление и отделка фасадов, монтаж сайдинга, штукатурка, вентфасады.</p>
-        <ul class="sc-list">
-          <li>Утепление минватой и пенопластом</li>
-          <li>Декоративная штукатурка</li>
-          <li>Монтаж сайдинга и вентфасада</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="service-card glass" style="display:flex;flex-direction:column">
-      <div class="sc-thumb">🧹</div>
-      <div class="sc-body">
-        <div class="sc-tag">Доп. услуга</div>
-        <h3>Клининг объекта</h3>
-        <p>По заявке заказчика — профессиональная уборка объекта после завершения ремонта или строительства.</p>
-        <ul class="sc-list">
-          <li>Удаление строительной пыли и мусора</li>
-          <li>Мытьё окон, дверей, плитки</li>
-          <li>Чистка напольных покрытий</li>
-          <li>Уборка санузлов и кухни</li>
-          <li>Вывоз строительного мусора</li>
-        </ul>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<div class="divider"></div>
-
-<!-- ── WHY US ── -->
-<div class="why-strip" id="why">
-  <div class="why-inner">
-    <div class="section-tag">✦ Почему мы</div>
-    <h2>Надёжный партнёр<br>в <span>строительстве</span></h2>
-    <p class="section-sub">Мы не субподрядчики — собственная бригада мастеров и полная ответственность за результат.</p>
-    <div class="why-grid">
-      <div class="why-card glass">
-        <div class="why-icon">📋</div>
-        <h3>Фиксированная смета</h3>
-        <p>Итоговая цена не меняется после подписания договора. Никаких скрытых доплат.</p>
-      </div>
-      <div class="why-card glass">
-        <div class="why-icon">🛡️</div>
-        <h3>Гарантия 3 года</h3>
-        <p>Официальная гарантия на все выполненные работы. Дефекты устраняем бесплатно.</p>
-      </div>
-      <div class="why-card glass">
-        <div class="why-icon">📅</div>
-        <h3>Соблюдаем сроки</h3>
-        <p>Дата сдачи объекта прописана в договоре. За просрочку — штраф в вашу пользу.</p>
-      </div>
-      <div class="why-card glass">
-        <div class="why-icon">📸</div>
-        <h3>Фотоотчёт онлайн</h3>
-        <p>Ежедневные фото с объекта в мессенджер. Контролируйте ход работ из любой точки.</p>
-      </div>
-      <div class="why-card glass">
-        <div class="why-icon">🧑‍🔧</div>
-        <h3>Собственная бригада</h3>
-        <p>Только штатные мастера с опытом от 5 лет. Никаких случайных людей.</p>
-      </div>
-      <div class="why-card glass">
-        <div class="why-icon">📦</div>
-        <h3>Закупка материалов</h3>
-        <p>Закупаем оптом — вы экономите 10–15% от розничной цены на материалах.</p>
-      </div>
-    </div>
-  </div>
+<!-- TABLE -->
+<div class="table-wrap">
+  <h2>📍 Все точки фандоматов <span id="countLabel" style="font-size:.8rem;color:var(--muted);font-weight:400"></span></h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Город</th>
+        <th>Адрес / Локация</th>
+        <th>Рейтинг</th>
+        <th>Отзывов</th>
+        <th>Статус</th>
+        <th>Тренд</th>
+        <th>Последняя проверка</th>
+        <th>Действия</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
 </div>
 
-<!-- ── PROCESS ── -->
-<section class="section" id="process">
-  <div class="section-tag">✦ Как работаем</div>
-  <h2>От заявки до<br><span>сдачи ключей</span></h2>
-  <p class="section-sub">Прозрачный процесс без сюрпризов на каждом этапе.</p>
-  <div class="process-track">
-    <div class="proc-step">
-      <div class="proc-num">1</div>
-      <h3>Заявка и замер</h3>
-      <p>Оставляете заявку — выезжаем бесплатно в удобное время</p>
-    </div>
-    <div class="proc-step">
-      <div class="proc-num">2</div>
-      <h3>Смета и договор</h3>
-      <p>Детальная смета, договор с фиксированной ценой и сроками</p>
-    </div>
-    <div class="proc-step">
-      <div class="proc-num">3</div>
-      <h3>Ход работ</h3>
-      <p>Работаем по графику, ежедневно отправляем фотоотчёт</p>
-    </div>
-    <div class="proc-step">
-      <div class="proc-num">4</div>
-      <h3>Сдача объекта</h3>
-      <p>Принимаете работу, подписываем акт. Уборка включена</p>
+<!-- ANALYSIS -->
+<div class="analysis-wrap" id="analysisSection">
+  <div class="analysis-header">
+    <h2>🔍 Анализ причин отзывов</h2>
+    <div class="analysis-tabs">
+      <button class="atab red active"    onclick="switchTab('critical')">🔴 Критично</button>
+      <button class="atab yellow"        onclick="switchTab('warning')">🟡 Слабо</button>
+      <button class="atab green"         onclick="switchTab('good')">🟢 Хорошо</button>
     </div>
   </div>
-</section>
 
-<div class="divider"></div>
+  <!-- КРИТИЧНО -->
+  <div class="analysis-panel active" id="panel-critical">
+    <div class="reason-list">
 
-<!-- ── PRICES ── -->
-<section class="section" id="prices">
-  <div class="section-tag">✦ Цены</div>
-  <h2>Пакеты <span>услуг</span></h2>
-  <p class="section-sub">Точная стоимость рассчитывается после бесплатного замера. Смета фиксируется в договоре.</p>
-  <div class="prices-grid">
+      <div class="reason-card red">
+        <div class="reason-num red">1</div>
+        <div class="reason-body">
+          <div class="reason-title">Аппарат не работает / белый экран <span class="freq-badge freq-high">⚡ Очень часто</span></div>
+          <div class="reason-quote">«Прихожу уже третий день подряд — просто белый экран, аппарат не реагирует»</div>
+          <div class="reason-action red">🔧 Действие: Ежедневный технический обход всех точек, SLA на реакцию — max 2 часа</div>
+        </div>
+      </div>
 
-    <div class="price-card glass">
-      <div class="pc-icon">🖌️</div>
-      <div class="pc-title">Косметический ремонт</div>
-      <div class="pc-desc">Обновление без перепланировки и замены коммуникаций</div>
-      <div class="pc-price">от 12 000 ₸<span> / м²</span></div>
-      <div class="pc-hr"></div>
-      <ul class="pc-list">
-        <li>Поклейка обоев и покраска</li>
-        <li>Замена напольного покрытия</li>
-        <li>Замена розеток и выключателей</li>
-        <li>Монтаж натяжного потолка</li>
-        <li>Покраска дверей и окон</li>
-      </ul>
-      <a href="#form" class="pc-btn">Оставить заявку</a>
+      <div class="reason-card red">
+        <div class="reason-num red">2</div>
+        <div class="reason-body">
+          <div class="reason-title">Не распознаёт бутылки и банки <span class="freq-badge freq-high">⚡ Очень часто</span></div>
+          <div class="reason-quote">«Ошибка по весу даже на маленькие бутылки. Встал в очередь, потратил время — зря»</div>
+          <div class="reason-action red">🔧 Действие: Калибровка сенсора. Добавить инструкцию на аппарат: «Толкните бутылку до конца»</div>
+        </div>
+      </div>
+
+      <div class="reason-card red">
+        <div class="reason-num red">3</div>
+        <div class="reason-body">
+          <div class="reason-title">Аппарат переполнен — не принимает тару <span class="freq-badge freq-high">⚡ Очень часто</span></div>
+          <div class="reason-quote">«Фандомат переполнен, освобождать не спешат. Ждала три дня»</div>
+          <div class="reason-action red">📋 Действие: Ввести расписание очистки 2 раза в день для высоконагруженных точек (Сыганак, Панфилова)</div>
+        </div>
+      </div>
+
+      <div class="reason-card red">
+        <div class="reason-num red">4</div>
+        <div class="reason-body">
+          <div class="reason-title">Бонусы не начисляются на карту <span class="freq-badge freq-medium">🔁 Регулярно</span></div>
+          <div class="reason-quote">«Сдала бутылки — деньги так и не пришли на карту Freedom»</div>
+          <div class="reason-action red">💻 Действие: Проверить интеграцию с Freedom Bank, добавить push-уведомление о зачислении</div>
+        </div>
+      </div>
+
+      <div class="reason-card red">
+        <div class="reason-num red">5</div>
+        <div class="reason-body">
+          <div class="reason-title">Нет реакции от поддержки <span class="freq-badge freq-medium">🔁 Регулярно</span></div>
+          <div class="reason-quote">«Если взялись за такую инициативу — поддерживайте должным образом!»</div>
+          <div class="reason-action red">📞 Действие: Отвечать на отзывы в 2ГИС в течение 24 ч. Разместить QR на аппарате для жалоб</div>
+        </div>
+      </div>
+
+      <div class="reason-card red">
+        <div class="reason-num red">6</div>
+        <div class="reason-body">
+          <div class="reason-title">Люди уходят и выбрасывают бутылки в мусор <span class="freq-badge freq-high">⚠️ Критично для экологии</span></div>
+          <div class="reason-quote">«Простоял час — выбросил всё в обычный мусор. Смысл тогда вообще?»</div>
+          <div class="reason-action red">🚨 Действие: Мониторинг загруженности аппаратов в реальном времени — ключевой KPI</div>
+        </div>
+      </div>
+
+      <div class="reason-card red">
+        <div class="reason-num red">7</div>
+        <div class="reason-body">
+          <div class="reason-title">Пользователи рекомендуют конкурента Sparklo <span class="freq-badge freq-high">⚠️ Репутационный риск</span></div>
+          <div class="reason-quote">«Идите в Sparklo — там фандоматы всегда работают по всему городу»</div>
+          <div class="reason-action red">🎯 Действие: Повысить надёжность работы — это главное конкурентное преимущество</div>
+        </div>
+      </div>
+
     </div>
-
-    <div class="price-card glass popular">
-      <div class="pop-badge">⭐ Популярный выбор</div>
-      <div class="pc-icon">🏠</div>
-      <div class="pc-title">Капитальный ремонт</div>
-      <div class="pc-desc">Полное обновление квартиры с заменой коммуникаций</div>
-      <div class="pc-price">от 28 000 ₸<span> / м²</span></div>
-      <div class="pc-hr"></div>
-      <ul class="pc-list">
-        <li>Демонтаж и черновые работы</li>
-        <li>Замена электрики и сантехники</li>
-        <li>Штукатурка, стяжка, выравнивание</li>
-        <li>Чистовая отделка под ключ</li>
-        <li>Укладка плитки и напольных покрытий</li>
-        <li>Монтаж дверей и окон</li>
-      </ul>
-      <a href="#form" class="pc-btn">Оставить заявку</a>
-    </div>
-
-    <div class="price-card glass">
-      <div class="pc-icon">🏡</div>
-      <div class="pc-title">Строительство дома</div>
-      <div class="pc-desc">Под ключ от фундамента до внутренней отделки</div>
-      <div class="pc-price">от 130 000 ₸<span> / м²</span></div>
-      <div class="pc-hr"></div>
-      <ul class="pc-list">
-        <li>Проектирование и согласование</li>
-        <li>Фундамент, стены, кровля</li>
-        <li>Окна, двери, лестницы</li>
-        <li>Все инженерные системы</li>
-        <li>Внутренняя и внешняя отделка</li>
-        <li>Ландшафтное благоустройство</li>
-      </ul>
-      <a href="#form" class="pc-btn">Оставить заявку</a>
-    </div>
-
-  </div>
-</section>
-
-<div class="divider"></div>
-
-<!-- ── PORTFOLIO ── -->
-<section class="section">
-  <div class="section-tag">✦ Портфолио</div>
-  <h2>Наши <span>работы</span></h2>
-  <p class="section-sub">Завершённые проекты в Астане и Алматы разных ценовых категорий.</p>
-  <div class="portfolio-grid">
-    <div class="port-item tall" style="background:linear-gradient(135deg,#1e1b4b,#312e81)">
-      <div class="port-bg">🏠</div>
-      <div class="port-overlay"><span class="port-label">Дом 180 м² — под ключ, Алматы</span></div>
-    </div>
-    <div class="port-item" style="background:linear-gradient(135deg,#1a1a2e,#16213e)">
-      <div class="port-bg">🛁</div>
-      <div class="port-overlay"><span class="port-label">Ванная комната — дизайнерский ремонт</span></div>
-    </div>
-    <div class="port-item" style="background:linear-gradient(135deg,#0f3460,#533483)">
-      <div class="port-bg">🍽️</div>
-      <div class="port-overlay"><span class="port-label">Кухня-гостиная 45 м²</span></div>
-    </div>
-    <div class="port-item" style="background:linear-gradient(135deg,#1e1b4b,#4c1d95)">
-      <div class="port-bg">🛋️</div>
-      <div class="port-overlay"><span class="port-label">Гостиная — капитальный ремонт, Астана</span></div>
-    </div>
-    <div class="port-item" style="background:linear-gradient(135deg,#0c0c1d,#1e1e3f)">
-      <div class="port-bg">🏗️</div>
-      <div class="port-overlay"><span class="port-label">Коттедж 220 м² — строительство</span></div>
+    <div class="action-plan">
+      <h4>⚡ План быстрых действий для критичных точек (ул. Сыганак 1Б · ТРЦ Asia Park · ул. Панфилова)</h4>
+      <div class="action-step"><div class="step-num">1</div><span>Ответить на все негативные отзывы в 2ГИС сегодня — шаблон ответа вежливый + решение</span></div>
+      <div class="action-step"><div class="step-num">2</div><span>Выехать на точки и проверить физическое состояние аппаратов (переполнен / не включён)</span></div>
+      <div class="action-step"><div class="step-num">3</div><span>Наклеить инструкцию на аппарат: «Как правильно сдать бутылку» + номер поддержки</span></div>
+      <div class="action-step"><div class="step-num">4</div><span>После устранения — попросить лояльных клиентов обновить отзыв / оставить новый</span></div>
     </div>
   </div>
-</section>
 
-<div class="divider"></div>
+  <!-- СЛАБО -->
+  <div class="analysis-panel" id="panel-warning">
+    <div class="reason-list">
 
-<!-- ── REVIEWS ── -->
-<section class="section" id="reviews">
-  <div class="section-tag">✦ Отзывы</div>
-  <h2>Что говорят <span>клиенты</span></h2>
-  <p class="section-sub">Реальные отзывы людей, которые доверили нам свои объекты.</p>
-  <div class="reviews-grid">
-    <div class="review-card glass">
-      <div class="stars">★★★★★</div>
-      <div class="review-text">«Делали капитальный ремонт двушки в новостройке. Смета не изменилась ни на тиын, сдали на 4 дня раньше срока. Отдельное спасибо за ежедневные фото — не переживала, живя у мамы.»</div>
-      <div class="reviewer">
-        <div class="rev-avatar">АС</div>
+      <div class="reason-card yellow">
+        <div class="reason-num yellow">1</div>
+        <div class="reason-body">
+          <div class="reason-title">Медленная работа аппарата <span class="freq-badge freq-medium">🔁 Регулярно</span></div>
+          <div class="reason-quote">«Принимает очень долго — створка то открывается, то закрывается, процесс затягивается»</div>
+          <div class="reason-action yellow">🔧 Действие: Техническое обновление прошивки / механизма подачи на слабых точках</div>
+        </div>
+      </div>
+
+      <div class="reason-card yellow">
+        <div class="reason-num yellow">2</div>
+        <div class="reason-body">
+          <div class="reason-title">Неудобное расположение / далеко ехать <span class="freq-badge freq-medium">🔁 Регулярно</span></div>
+          <div class="reason-quote">«Специально поехал через весь город — оказалось не работает. Зря потратил время»</div>
+          <div class="reason-action yellow">📲 Действие: Добавить онлайн-статус «Работает / Не работает» в приложение или на сайт</div>
+        </div>
+      </div>
+
+      <div class="reason-card yellow">
+        <div class="reason-num yellow">3</div>
+        <div class="reason-body">
+          <div class="reason-title">Нельзя сдать смятые / деформированные бутылки <span class="freq-badge freq-medium">📌 Часто</span></div>
+          <div class="reason-quote">«Пришлось тащить два огромных пакета — бутылки нельзя смять, аппарат не берёт»</div>
+          <div class="reason-action yellow">📋 Действие: Указать на аппарате / в соцсетях: принимаются только целые бутылки, объяснить почему</div>
+        </div>
+      </div>
+
+      <div class="reason-card yellow">
+        <div class="reason-num yellow">4</div>
+        <div class="reason-body">
+          <div class="reason-title">Маленькое вознаграждение — 4 тенге за бутылку <span class="freq-badge freq-medium">📌 Часто</span></div>
+          <div class="reason-quote">«За столько усилий получаю копейки — не стоит потраченного времени»</div>
+          <div class="reason-action yellow">💡 Действие: Добавить бонусные акции (×2 в выходные, розыгрыши), сделать акцент на экологической ценности</div>
+        </div>
+      </div>
+
+      <div class="reason-card yellow">
+        <div class="reason-num yellow">5</div>
+        <div class="reason-body">
+          <div class="reason-title">Нет информации о статусе аппарата онлайн <span class="freq-badge freq-medium">📌 Часто</span></div>
+          <div class="reason-quote">«Не знаешь заранее — работает или нет. Хотелось бы проверить до поездки»</div>
+          <div class="reason-action yellow">💻 Действие: Карта точек с онлайн-статусом в мобильном приложении / 2ГИС</div>
+        </div>
+      </div>
+
+      <div class="reason-card yellow">
+        <div class="reason-num yellow">6</div>
+        <div class="reason-body">
+          <div class="reason-title">Не принимает бутылки из-под молока и нестандартную тару <span class="freq-badge freq-low">📌 Иногда</span></div>
+          <div class="reason-quote">«Всё хорошо, но бутылку от молока не распознал»</div>
+          <div class="reason-action yellow">📋 Действие: Разместить список принимаемой тары на аппарате. Рассмотреть расширение типов</div>
+        </div>
+      </div>
+
+      <div class="reason-card yellow">
+        <div class="reason-num yellow">7</div>
+        <div class="reason-body">
+          <div class="reason-title">Компания не отвечает на отзывы в 2ГИС <span class="freq-badge freq-high">⚠️ Репутация</span></div>
+          <div class="reason-quote">— (отсутствие ответов само по себе сигнал для новых пользователей)</div>
+          <div class="reason-action yellow">✅ Действие: Назначить ответственного за мониторинг 2ГИС, отвечать в течение 24 ч на каждый отзыв</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="action-plan">
+      <h4>🟡 План улучшений для точек со слабым рейтингом (пр. Абая · ЕНУ · Esentai Tower)</h4>
+      <div class="action-step"><div class="step-num">1</div><span>Повесить информационную табличку на аппарат: что принимается, как правильно сдавать</span></div>
+      <div class="action-step"><div class="step-num">2</div><span>Запустить акцию «Двойные бонусы по выходным» — стимулирует повторные визиты и отзывы</span></div>
+      <div class="action-step"><div class="step-num">3</div><span>Добавить QR-код на аппарат: «Оставьте отзыв в 2ГИС — получите +10 бонусных тенге»</span></div>
+    </div>
+  </div>
+
+  <!-- ХОРОШО -->
+  <div class="analysis-panel" id="panel-good">
+    <div class="reason-list">
+
+      <div class="reason-card green">
+        <div class="reason-num green">1</div>
+        <div class="reason-body">
+          <div class="reason-title">Аппарат работает исправно <span class="freq-badge freq-low">✅ При хорошем обслуживании</span></div>
+          <div class="reason-quote">«Всё отлично, сдала большой пакет тары без проблем — быстро и удобно»</div>
+          <div class="reason-action green">💡 Используй: Мотивировать таких клиентов оставлять отзывы — QR-код на аппарате</div>
+        </div>
+      </div>
+
+      <div class="reason-card green">
+        <div class="reason-num green">2</div>
+        <div class="reason-body">
+          <div class="reason-title">Экологическая идея вызывает симпатию <span class="freq-badge freq-medium">💚 Постоянно</span></div>
+          <div class="reason-quote">«Отличная инициатива! Наконец-то можно сдать пластик и помочь природе»</div>
+          <div class="reason-action green">📣 Используй: Делать контент о том, куда идёт пластик — повышает лояльность и охват</div>
+        </div>
+      </div>
+
+      <div class="reason-card green">
+        <div class="reason-num green">3</div>
+        <div class="reason-body">
+          <div class="reason-title">Удобство начисления бонусов на карту Freedom <span class="freq-badge freq-medium">💳 Часто</span></div>
+          <div class="reason-quote">«Деньги сразу пришли на карту Freedom — приятно получать вознаграждение за экологию»</div>
+          <div class="reason-action green">💡 Используй: Продвигать механику «сдал → получил деньги» как ключевое УТП в соцсетях</div>
+        </div>
+      </div>
+
+      <div class="reason-card green">
+        <div class="reason-num green">4</div>
+        <div class="reason-body">
+          <div class="reason-title">Удобное расположение рядом с домом или работой <span class="freq-badge freq-low">📍 Иногда</span></div>
+          <div class="reason-quote">«Зашла по дороге домой — быстро, не надо специально ехать. Очень удобно»</div>
+          <div class="reason-action green">📍 Используй: При выборе новых точек ставить приоритет на «по дороге» — жилые кварталы, метро</div>
+        </div>
+      </div>
+
+      <div class="reason-card green">
+        <div class="reason-num green">5</div>
+        <div class="reason-body">
+          <div class="reason-title">Лайфхак: бутылку нужно толкать до конца <span class="freq-badge freq-low">💡 Полезно знать</span></div>
+          <div class="reason-quote">«Сенсор находится сзади — если толкнуть бутылку до упора, всё срабатывает нормально»</div>
+          <div class="reason-action green">📋 Используй: Напечатать инструкцию прямо на корпусе аппарата — снизит число жалоб на «не распознаёт»</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="action-plan" style="background:#f0fff5;border-color:var(--green)">
+      <h4 style="color:#1e8449">🟢 Как масштабировать успех хороших точек (ул. Маркова · ул. Бейбитшилик)</h4>
+      <div class="action-step"><div class="step-num" style="background:var(--green)">1</div><span>Изучить операционные процессы лучших точек и применить их на всей сети</span></div>
+      <div class="action-step"><div class="step-num" style="background:var(--green)">2</div><span>Активно просить довольных клиентов оставить отзыв — через QR-код, бонусы, сообщение на экране аппарата</span></div>
+      <div class="action-step"><div class="step-num" style="background:var(--green)">3</div><span>Снять видео о лучших точках для соцсетей — покажите как это работает в реальности</span></div>
+      <div class="action-step"><div class="step-num" style="background:var(--green)">4</div><span>Разместить истории успеха в Instagram: «Жители района Х сдали 1000 бутылок за месяц»</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- WORKPLAN -->
+<div class="workplan-wrap" id="workplanSection">
+  <div class="workplan-header">
+    <h2>📅 План работы над проблемами</h2>
+    <div class="wp-tabs">
+      <button class="wp-tab active" onclick="switchWP('timeline')">🗓️ По срокам</button>
+      <button class="wp-tab"        onclick="switchWP('roles')">👥 По ролям</button>
+      <button class="wp-tab"        onclick="switchWP('templates')">💬 Шаблоны ответов</button>
+      <button class="wp-tab"        onclick="switchWP('kpi')">🎯 KPI и цели</button>
+    </div>
+  </div>
+
+  <!-- ════ ПО СРОКАМ ════ -->
+  <div class="wp-panel active" id="wp-timeline">
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:18px">
+      Отмечайте выполненные задачи — прогресс сохраняется в браузере
+    </div>
+    <div class="timeline">
+
+      <div class="tl-item">
+        <div class="tl-dot red"></div>
+        <div class="tl-card red">
+          <div class="tl-period red">⚡ День 1 — Сегодня (срочно)</div>
+          <div class="tl-title">Реакция на критичные точки</div>
+          <ul class="tl-tasks">
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Открыть 2ГИС и ответить на ВСЕ отзывы без ответа (ул. Сыганак, ТРЦ Asia Park, ул. Панфилова)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Позвонить/написать техслужбе: выехать и проверить аппараты на критичных точках</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Сфотографировать состояние аппаратов — зафиксировать для отчёта</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Проверить начисление бонусов — отправить тестовую бутылку на каждой проблемной точке</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Обновить рейтинги в мониторе (кнопка 🔄 у каждой точки)</span></li>
+          </ul>
+          <div class="tl-result">📌 Результат: зафиксированы проблемы, начат диалог с пользователями</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot red"></div>
+        <div class="tl-card red">
+          <div class="tl-period red">📅 Дни 2–3</div>
+          <div class="tl-title">Устранение технических сбоев</div>
+          <ul class="tl-tasks">
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Техобслуживание: очистка, перезагрузка, калибровка сенсора на всех критичных точках</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Напечатать и наклеить инструкцию на корпус: «Как правильно сдать бутылку»</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Установить расписание очистки для переполненных точек (минимум 2 раза в день)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Проверить и исправить проблемы с начислением бонусов — связаться с IT/Freedom Bank</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Повторно проверить работу аппаратов после ремонта, внести данные в монитор</span></li>
+          </ul>
+          <div class="tl-result">📌 Результат: аппараты работают, технические сбои устранены</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot yellow"></div>
+        <div class="tl-card yellow">
+          <div class="tl-period yellow">📅 Неделя 1 (дни 4–7)</div>
+          <div class="tl-title">Операционные улучшения</div>
+          <ul class="tl-tasks">
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Разработать и внедрить регламент ежедневного обхода точек (утро + вечер)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Наклеить QR-код «Оставьте отзыв в 2ГИС» на каждый аппарат</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Разместить список принимаемой тары рядом с аппаратом (что берёт, что нет)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Запустить Telegram/WhatsApp-группу для быстрых жалоб от пользователей</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Попросить 3–5 лояльных клиентов обновить или оставить новый отзыв на улучшенных точках</span></li>
+          </ul>
+          <div class="tl-result">📌 Результат: системный контроль запущен, начинается рост отзывов</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot yellow"></div>
+        <div class="tl-card yellow">
+          <div class="tl-period yellow">📅 Неделя 2 (дни 8–14)</div>
+          <div class="tl-title">Работа с репутацией и контентом</div>
+          <ul class="tl-tasks">
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Запустить акцию «Двойные бонусы по выходным» — анонс в соцсетях</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Снять видео/reels о работе аппарата на лучшей точке (ул. Бейбитшилик, Алматы — Маркова)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Публикация в Instagram: «Как правильно сдать бутылку + лайфхак» с отметкой адресов</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Ответить на все новые отзывы за прошедшую неделю (контроль в мониторе)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Провести первый еженедельный отчёт — сравнить рейтинги до и после</span></li>
+          </ul>
+          <div class="tl-result">📌 Результат: рост вовлечённости, первые позитивные отзывы от акции</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot green"></div>
+        <div class="tl-card green">
+          <div class="tl-period green">📅 Месяц 1 (дни 15–30)</div>
+          <div class="tl-title">Системная работа и масштабирование</div>
+          <ul class="tl-tasks">
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Внедрить онлайн-статус аппаратов «Работает / Не работает» (сайт, приложение или Telegram-бот)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Применить операционные процессы лучших точек на всей сети</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Провести опрос среди пользователей: что улучшить, где поставить новый фандомат</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Подготовить итоговый отчёт: рейтинги до и после, динамика отзывов, выполненные задачи</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>Поставить цели на следующий месяц — целевой рейтинг для каждой точки</span></li>
+          </ul>
+          <div class="tl-result">📌 Цель: средний рейтинг сети ≥ 3.5 ★, критичных точек = 0</div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot green"></div>
+        <div class="tl-card blue">
+          <div class="tl-period blue">🔁 Постоянно (ежедневно)</div>
+          <div class="tl-title">Ежедневный контрольный чеклист</div>
+          <ul class="tl-tasks">
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>09:00 — Открыть монитор, проверить новые отзывы в 2ГИС по каждой точке</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>09:30 — Обновить рейтинги в программе (кнопка 🔄 Обновить)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>10:00 — Ответить на все новые отзывы (шаблоны во вкладке «Шаблоны ответов»)</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>10:30 — Передать сигналы о технических проблемах в службу обслуживания</span></li>
+            <li><div class="chk" onclick="toggleTask(this)"></div><span>18:00 — Нажать «✅ Зафиксировать проверку», сформировать «📋 Отчёт за день»</span></li>
+          </ul>
+          <div class="tl-result">⏱️ Время на ежедневный контроль: ~45–60 минут</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════ ПО РОЛЯМ ════ -->
+  <div class="wp-panel" id="wp-roles">
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:16px">Распределение задач по ответственным сотрудникам</div>
+    <div class="resp-grid">
+
+      <div class="resp-card red">
+        <div class="resp-role">🔧 Технический специалист</div>
+        <ul class="resp-tasks-list">
+          <li>Ежедневный обход всех точек (утро)</li>
+          <li>Очистка переполненных аппаратов</li>
+          <li>Перезагрузка и калибровка сенсоров</li>
+          <li>Фиксация неисправностей с фото</li>
+          <li>Замена / ремонт оборудования</li>
+          <li>Отчёт о состоянии аппаратов</li>
+        </ul>
+      </div>
+
+      <div class="resp-card yellow">
+        <div class="resp-role">💬 Менеджер по репутации</div>
+        <ul class="resp-tasks-list">
+          <li>Мониторинг отзывов в 2ГИС ежедневно</li>
+          <li>Ответы на все отзывы (≤24 ч)</li>
+          <li>Обновление рейтингов в мониторе</li>
+          <li>Формирование ежедневного отчёта</li>
+          <li>Стимулирование позитивных отзывов</li>
+          <li>Коммуникация с недовольными клиентами</li>
+        </ul>
+      </div>
+
+      <div class="resp-card green">
+        <div class="resp-role">📣 SMM / Маркетолог</div>
+        <ul class="resp-tasks-list">
+          <li>Публикации в Instagram, Telegram</li>
+          <li>Съёмка контента на точках</li>
+          <li>Запуск акций и розыгрышей</li>
+          <li>QR-коды и наклейки на аппараты</li>
+          <li>Работа с инфлюенсерами (эко-блогеры)</li>
+          <li>Продвижение страницы в 2ГИС</li>
+        </ul>
+      </div>
+
+      <div class="resp-card" style="border-color:var(--blue)">
+        <div class="resp-role">💻 IT / Разработчик</div>
+        <ul class="resp-tasks-list">
+          <li>Онлайн-статус аппаратов (работает / нет)</li>
+          <li>Исправление ошибок начисления бонусов</li>
+          <li>Интеграция с приложением Freedom</li>
+          <li>Telegram-бот для жалоб пользователей</li>
+          <li>API мониторинг загруженности</li>
+          <li>Push-уведомления о зачислении</li>
+        </ul>
+      </div>
+
+      <div class="resp-card" style="border-color:#9c27b0">
+        <div class="resp-role">📊 Руководитель проекта</div>
+        <ul class="resp-tasks-list">
+          <li>Контроль выполнения плана (этот монитор)</li>
+          <li>Еженедельные совещания по динамике</li>
+          <li>Приоритизация проблемных точек</li>
+          <li>Решение о повышении вознаграждений</li>
+          <li>Утверждение бюджета на акции</li>
+          <li>Итоговый отчёт раз в месяц</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div style="background:#f4f6f9;border-radius:10px;padding:14px 16px;font-size:.83rem;">
+      <div style="font-weight:700;margin-bottom:8px">📆 Ритм совещаний</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div>🕘 <b>Ежедневно 09:00</b> — Менеджер по репутации проверяет монитор и отправляет сигналы технику</div>
+        <div>📋 <b>Пятница 17:00</b> — Еженедельный отчёт руководителю: рейтинги, динамика, выполненные задачи</div>
+        <div>📊 <b>1-е число месяца</b> — Итоги месяца, постановка целей на следующий период</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ ШАБЛОНЫ ОТВЕТОВ ════ -->
+  <div class="wp-panel" id="wp-templates">
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:16px">Готовые шаблоны для ответов на отзывы в 2ГИС. Нажмите «Копировать» и вставьте в 2ГИС.</div>
+    <div class="tpl-list">
+
+      <div class="tpl-card red">
+        <div class="tpl-label">🔴 На отзыв: «Аппарат не работает / белый экран»</div>
+        <div class="tpl-text" id="tpl1">Здравствуйте! Приносим искренние извинения за доставленные неудобства. Мы уже передали информацию нашей технической службе — специалист выедет на точку в ближайшие часы. Благодарим вас за то, что сообщили об этом! Если проблема повторится, пишите нам в WhatsApp: +7 771 765 5999 — ответим быстро. Ваша обратная связь помогает нам становиться лучше 🙏</div>
+        <button class="copy-btn" onclick="copyTpl('tpl1', this)">📋 Копировать</button>
+      </div>
+
+      <div class="tpl-card red">
+        <div class="tpl-label">🔴 На отзыв: «Аппарат переполнен, не принимает»</div>
+        <div class="tpl-text" id="tpl2">Здравствуйте! Очень жаль, что вы столкнулись с этой ситуацией. Мы вводим усиленный график очистки аппаратов — теперь каждая точка проверяется минимум дважды в день. Ваш адрес взяли в приоритет. Следите за обновлениями в нашем Instagram — там публикуем статус точек. Спасибо, что помогаете нам развиваться ♻️</div>
+        <button class="copy-btn" onclick="copyTpl('tpl2', this)">📋 Копировать</button>
+      </div>
+
+      <div class="tpl-card red">
+        <div class="tpl-label">🔴 На отзыв: «Бонусы не пришли на карту»</div>
+        <div class="tpl-text" id="tpl3">Здравствуйте! Приносим извинения за задержку начисления. Напишите нам в WhatsApp +7 771 765 5999 с указанием даты визита и суммой — разберёмся и зачислим бонусы вручную. Мы уже работаем над устранением технической ошибки. Ценим ваше терпение и доверие к нашему проекту 💳</div>
+        <button class="copy-btn" onclick="copyTpl('tpl3', this)">📋 Копировать</button>
+      </div>
+
+      <div class="tpl-card red">
+        <div class="tpl-label">🔴 На отзыв: «Не распознаёт бутылки»</div>
+        <div class="tpl-text" id="tpl4">Здравствуйте! Спасибо, что рассказали об этом. Небольшой лайфхак: бутылку нужно вставить и аккуратно толкнуть до конца — сенсор расположен в дальней части приёмника. Также аппарат принимает только целые (несмятые) ПЭТ-бутылки и алюминиевые банки от напитков. Если это не помогло — наш техник уже осмотрит точку. Спасибо за вашу экологичность! ♻️</div>
+        <button class="copy-btn" onclick="copyTpl('tpl4', this)">📋 Копировать</button>
+      </div>
+
+      <div class="tpl-card" style="border-color:var(--yellow)">
+        <div class="tpl-label">🟡 На отзыв: «Маленькое вознаграждение»</div>
+        <div class="tpl-text" id="tpl5">Здравствуйте! Понимаем ваше мнение. Помимо денежного вознаграждения, каждая сданная бутылка — это вклад в экологию: из них делают бушлаты, постельные принадлежности, спортивную одежду. Также следите за нашими акциями — периодически запускаем «двойные бонусы» и розыгрыши среди участников. Спасибо, что заботитесь о природе вместе с нами 🌿</div>
+        <button class="copy-btn" onclick="copyTpl('tpl5', this)">📋 Копировать</button>
+      </div>
+
+      <div class="tpl-card green">
+        <div class="tpl-label">🟢 На позитивный отзыв (благодарность)</div>
+        <div class="tpl-text" id="tpl6">Большое спасибо за ваш отзыв! 🙏 Очень приятно слышать, что всё прошло хорошо. Именно такие неравнодушные люди, как вы, делают наш город чище. Ждём вас снова — и не забывайте рассказывать друзьям о фандоматах Freedom! ♻️🌿</div>
+        <button class="copy-btn" onclick="copyTpl('tpl6', this)">📋 Копировать</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════ KPI и ЦЕЛИ ════ -->
+  <div class="wp-panel" id="wp-kpi">
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:16px">Целевые показатели для оценки прогресса работы над отзывами</div>
+
+    <table class="kpi-table">
+      <thead>
+        <tr>
+          <th>Метрика</th>
+          <th>Сейчас</th>
+          <th>Цель — 1 месяц</th>
+          <th>Цель — 3 месяца</th>
+          <th>Статус</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>Средний рейтинг сети</b></td>
+          <td>⭐ ~2.4</td>
+          <td><span class="target-badge target-yellow">≥ 3.0 ★</span></td>
+          <td><span class="target-badge target-green">≥ 4.0 ★</span></td>
+          <td><span class="target-badge target-red">🔴 Ниже цели</span></td>
+        </tr>
+        <tr>
+          <td><b>Критичных точек (&lt;2.5 ★)</b></td>
+          <td>3 точки</td>
+          <td><span class="target-badge target-yellow">≤ 1</span></td>
+          <td><span class="target-badge target-green">0</span></td>
+          <td><span class="target-badge target-red">🔴 Требует действий</span></td>
+        </tr>
+        <tr>
+          <td><b>Процент отвеченных отзывов</b></td>
+          <td>~0%</td>
+          <td><span class="target-badge target-yellow">≥ 80%</span></td>
+          <td><span class="target-badge target-green">100%</span></td>
+          <td><span class="target-badge target-red">🔴 Не начато</span></td>
+        </tr>
+        <tr>
+          <td><b>Время реакции на отзыв</b></td>
+          <td>Нет</td>
+          <td><span class="target-badge target-yellow">≤ 24 ч</span></td>
+          <td><span class="target-badge target-green">≤ 4 ч</span></td>
+          <td><span class="target-badge target-red">🔴 Не настроено</span></td>
+        </tr>
+        <tr>
+          <td><b>Новых позитивных отзывов</b></td>
+          <td>0</td>
+          <td><span class="target-badge target-yellow">+15</span></td>
+          <td><span class="target-badge target-green">+50</span></td>
+          <td><span class="target-badge target-red">🔴 Не начато</span></td>
+        </tr>
+        <tr>
+          <td><b>Аппараты работают без сбоев</b></td>
+          <td>~40%</td>
+          <td><span class="target-badge target-yellow">≥ 80%</span></td>
+          <td><span class="target-badge target-green">≥ 95%</span></td>
+          <td><span class="target-badge target-red">🔴 Критично</span></td>
+        </tr>
+        <tr>
+          <td><b>Время очистки переполненных</b></td>
+          <td>3+ дня</td>
+          <td><span class="target-badge target-yellow">≤ 4 часа</span></td>
+          <td><span class="target-badge target-green">≤ 2 часа</span></td>
+          <td><span class="target-badge target-red">🔴 Критично</span></td>
+        </tr>
+        <tr>
+          <td><b>Рейтинг ул. Сыганак (Астана)</b></td>
+          <td>⭐ 1.3</td>
+          <td><span class="target-badge target-yellow">≥ 2.5 ★</span></td>
+          <td><span class="target-badge target-green">≥ 4.0 ★</span></td>
+          <td><span class="target-badge target-red">🔴 Приоритет #1</span></td>
+        </tr>
+        <tr>
+          <td><b>Рейтинг ул. Панфилова (Алматы)</b></td>
+          <td>⭐ 1.7</td>
+          <td><span class="target-badge target-yellow">≥ 2.5 ★</span></td>
+          <td><span class="target-badge target-green">≥ 4.0 ★</span></td>
+          <td><span class="target-badge target-red">🔴 Приоритет #2</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:20px">
+      <div style="font-weight:700;font-size:.9rem;margin-bottom:12px">📈 Прогресс по ключевым метрикам</div>
+      <div style="display:flex;flex-direction:column;gap:14px">
         <div>
-          <div class="rev-name">Анна Смирнова</div>
-          <div class="rev-meta">Капитальный ремонт, 64 м² · Астана</div>
+          <div class="progress-label"><span>Средний рейтинг сети</span><span>2.4 / 4.0 ★ (цель)</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:30%;background:#e63946"></div></div>
+        </div>
+        <div>
+          <div class="progress-label"><span>Процент отвеченных отзывов</span><span>0% / 100% (цель)</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:0%;background:#f4a261"></div></div>
+        </div>
+        <div>
+          <div class="progress-label"><span>Надёжность аппаратов</span><span>40% / 95% (цель)</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:40%;background:#f4a261"></div></div>
+        </div>
+        <div>
+          <div class="progress-label"><span>Новые позитивные отзывы</span><span>0 / 50 (цель)</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:0%;background:#1db954"></div></div>
         </div>
       </div>
     </div>
-    <div class="review-card glass">
-      <div class="stars">★★★★★</div>
-      <div class="review-text">«Строили дом 160 м² из газобетона. Ребята предложили несколько вариантов фундамента, объяснили плюсы и минусы. Дом стоит второй год, никаких трещин и проблем.»</div>
-      <div class="reviewer">
-        <div class="rev-avatar">ДК</div>
-        <div>
-          <div class="rev-name">Дмитрий Козлов</div>
-          <div class="rev-meta">Строительство дома · Алматы</div>
-        </div>
-      </div>
-    </div>
-    <div class="review-card glass">
-      <div class="stars">★★★★★</div>
-      <div class="review-text">«Переехали в квартиру с дизайнерским ремонтом — ни одного косяка за полгода эксплуатации. Мастера вежливые, приходили вовремя, убирались за собой каждый день.»</div>
-      <div class="reviewer">
-        <div class="rev-avatar">ОВ</div>
-        <div>
-          <div class="rev-name">Ольга Васильева</div>
-          <div class="rev-meta">Дизайнерский ремонт, 82 м² · Астана</div>
-        </div>
-      </div>
+
+    <div style="background:#fff8f8;border-radius:10px;padding:14px 16px;margin-top:16px;border-left:4px solid var(--red);font-size:.83rem;">
+      <div style="font-weight:700;margin-bottom:6px">🚨 Главный приоритет на ближайшие 30 дней</div>
+      <div>Поднять рейтинги трёх критичных точек выше 2.5 ★ — это даст наибольший эффект для общей репутации сети. Без технической надёжности аппаратов рост рейтинга невозможен.</div>
     </div>
   </div>
-</section>
 
-<!-- ── FORM ── -->
-<div class="form-strip" id="form">
-  <div class="form-inner">
-    <div class="section-tag">✦ Заявка</div>
-    <h2>Получите <span>бесплатную смету</span></h2>
-    <p class="section-sub">Замерщик выедет в течение 24 часов. Смета — бесплатно и без обязательств.</p>
-    <div class="form-wrap">
-      <div>
-        <div class="fi-item">
-          <div class="fi-icon">📞</div>
-          <div>
-            <div class="fi-label">Телефон</div>
-            <div class="fi-value">+7 (700) 555-35-35</div>
-          </div>
-        </div>
-        <div class="fi-item">
-          <div class="fi-icon">⏰</div>
-          <div>
-            <div class="fi-label">Режим работы</div>
-            <div class="fi-value">Пн–Вс с 8:00 до 21:00</div>
-          </div>
-        </div>
-        <div class="fi-item">
-          <div class="fi-icon">📍</div>
-          <div>
-            <div class="fi-label">Работаем в</div>
-            <div class="fi-value">Астане и Алматы</div>
-          </div>
-        </div>
-        <div class="fi-item">
-          <div class="fi-icon">🚗</div>
-          <div>
-            <div class="fi-label">Выезд на замер</div>
-            <div class="fi-value">Бесплатно, в течение 24 ч.</div>
-          </div>
-        </div>
-        <div class="fi-item">
-          <div class="fi-icon">💬</div>
-          <div>
-            <div class="fi-label">Мессенджеры</div>
-            <div class="fi-value">WhatsApp · Telegram</div>
-          </div>
-        </div>
+</div>
+
+<!-- HISTORY -->
+<div class="table-wrap">
+  <h2>📜 Журнал проверок</h2>
+  <div id="historyLog" style="padding:6px 16px 10px">
+    <div class="empty"><div class="empty-icon">📭</div><p>Журнал пуст. Добавьте точки и зафиксируйте проверку.</p></div>
+  </div>
+</div>
+
+<!-- REPORT -->
+<div id="reportArea"></div>
+
+<!-- ═══ ADD/EDIT MODAL ═══ -->
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3 id="modalTitle">➕ Новая точка фандомата</h3>
+    <input type="hidden" id="editId">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Город *</label>
+        <select id="fCity">
+          <option value="Алматы">Алматы</option>
+          <option value="Астана">Астана</option>
+        </select>
       </div>
-
-      <form onsubmit="handleSubmit(event)">
-        <div class="form-title">Заявка на расчёт стоимости</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Ваше имя *</label>
-            <input type="text" placeholder="Айгерим Сейткали" required />
-          </div>
-          <div class="form-group">
-            <label>Телефон *</label>
-            <input type="tel" placeholder="+7 (7__) ___-__-__" required />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Город *</label>
-            <select required>
-              <option value="" disabled selected>Выберите город</option>
-              <option>Астана</option>
-              <option>Алматы</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Площадь объекта, м²</label>
-            <input type="number" placeholder="Например: 65" min="10" />
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Тип услуги *</label>
-          <select required>
-            <option value="" disabled selected>Выберите услугу</option>
-            <option>Косметический ремонт квартиры</option>
-            <option>Капитальный ремонт квартиры</option>
-            <option>Дизайнерский ремонт под ключ</option>
-            <option>Ремонт ванной комнаты / санузла</option>
-            <option>Строительство дома под ключ</option>
-            <option>Строительство дома (коробка)</option>
-            <option>Фасадные работы</option>
-            <option>Инженерные системы (электрика, сантехника)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Дополнительные работы</label>
-          <div class="services-check">
-            <label class="check-item"><input type="checkbox" /> Дизайн-проект</label>
-            <label class="check-item"><input type="checkbox" /> Закупка материалов</label>
-            <label class="check-item"><input type="checkbox" /> Замена электрики</label>
-            <label class="check-item"><input type="checkbox" /> Замена сантехники</label>
-            <label class="check-item"><input type="checkbox" /> Натяжные потолки</label>
-            <label class="check-item"><input type="checkbox" /> Тёплые полы</label>
-            <label class="check-item"><input type="checkbox" /> 🧹 Клининг объекта</label>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Желаемые сроки</label>
-          <select>
-            <option value="" disabled selected>Выберите</option>
-            <option>Как можно скорее</option>
-            <option>В течение месяца</option>
-            <option>В течение 3 месяцев</option>
-            <option>Ориентировочно через полгода</option>
-            <option>Просто узнаю стоимость</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Комментарий или пожелания</label>
-          <textarea placeholder="Опишите задачу: особенности объекта, пожелания по материалам и т.д."></textarea>
-        </div>
-        <button type="submit" class="form-submit">Отправить заявку — бесплатный замер</button>
-        <div class="form-note">Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности. Мы не передаём данные третьим лицам.</div>
-      </form>
+      <div class="form-group">
+        <label>Рейтинг (0–5) *</label>
+        <input type="number" id="fRating" min="0" max="5" step="0.1" placeholder="напр. 3.7">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Адрес / Локация *</label>
+      <input type="text" id="fAddress" placeholder="напр. ул. Панфилова, выше Толе би">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Кол-во отзывов</label>
+        <input type="number" id="fReviews" min="0" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Ссылка 2ГИС</label>
+        <input type="url" id="fLink" placeholder="https://2gis.kz/...">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Заметки / Проблемы</label>
+      <textarea id="fNotes" rows="3" placeholder="Опишите проблемы или особенности точки..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="savePoint()">💾 Сохранить</button>
     </div>
   </div>
 </div>
 
-<!-- ── CHAT WIDGET ── -->
-<div class="chat-widget" id="chatWidget">
-  <button class="chat-toggle" id="chatToggle" onclick="toggleChat()" aria-label="Открыть чат">
-    <span class="chat-open-icon">💬</span>
-    <span class="chat-close-icon">✕</span>
-    <span class="chat-badge" id="chatBadge">1</span>
-  </button>
-  <div class="chat-window" id="chatWindow">
-    <div class="chat-header">
-      <div class="chat-avatar">🤖</div>
-      <div>
-        <div class="chat-name">Виртуальный помощник</div>
-        <div class="chat-status">● Онлайн — отвечаю мгновенно</div>
+<!-- ═══ UPDATE RATING MODAL ═══ -->
+<div class="overlay" id="updateOverlay">
+  <div class="modal" style="max-width:400px">
+    <button class="modal-close" onclick="closeUpdate()">✕</button>
+    <h3>🔄 Обновить данные</h3>
+    <div id="updateAddr" style="font-size:.85rem;color:var(--muted);margin-bottom:14px"></div>
+    <input type="hidden" id="updateId">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Новый рейтинг (0–5)</label>
+        <input type="number" id="uRating" min="0" max="5" step="0.1">
       </div>
-      <button class="chat-hmin" onclick="toggleChat()" aria-label="Закрыть">✕</button>
+      <div class="form-group">
+        <label>Кол-во отзывов</label>
+        <input type="number" id="uReviews" min="0">
+      </div>
     </div>
-    <div class="chat-messages" id="chatMessages"></div>
-    <div class="chat-quick" id="chatQuick"></div>
-    <div class="chat-input-row">
-      <input class="chat-input" id="chatInput" type="text"
-        placeholder="Напишите вопрос..."
-        onkeydown="if(event.key==='Enter')sendMsg()" />
-      <button class="chat-send" onclick="sendMsg()" aria-label="Отправить">➤</button>
+    <div class="form-group">
+      <label>Новый отзыв (текст)</label>
+      <textarea id="uReviewText" rows="3" placeholder="Вставьте текст нового отзыва..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeUpdate()">Отмена</button>
+      <button class="btn btn-success" onclick="applyUpdate()">✅ Обновить</button>
     </div>
   </div>
 </div>
 
-<!-- ── FOOTER ── -->
-<footer>
-  <div class="footer-inner">
-    <div class="footer-logo">Строй<span>Мастер</span> © 2026</div>
-    <div class="footer-links">
-      <a href="#">Политика конфиденциальности</a>
-      <a href="#">Договор оферты</a>
-      <a href="#">Реквизиты</a>
-      <a href="#form">Оставить заявку</a>
-    </div>
-    <div class="footer-copy">Лицензия СРО № 0123456. Все работы застрахованы.</div>
-  </div>
-</footer>
+<footer>Freedom Фандоматы Monitor v1.0 · Данные хранятся в браузере (localStorage) · Обновляйте рейтинги ежедневно вручную из 2ГИС</footer>
 
 <script>
-/* ══════════════════════════════════════════════════
-   TELEGRAM CONFIG
-   1. Создайте бота через @BotFather → получите TOKEN
-   2. Напишите боту /start, затем откройте:
-      https://api.telegram.org/bot{TOKEN}/getUpdates
-      — скопируйте "id" из поля "chat"
-   ══════════════════════════════════════════════════ */
-const TG_TOKEN = '8958857533:AAHjVYe2HGI3z592qRgrhPdjkur6Ea3ffp4';
-const TG_CHAT  = '202527540';
+// ══════════════════════════════════════════════
+//  DATA LAYER  (localStorage)
+// ══════════════════════════════════════════════
+const STORE_KEY = 'freedom_fandomatы';
+const LOG_KEY   = 'freedom_log';
 
-async function sendToTelegram(data) {
-  if (!TG_TOKEN || !TG_CHAT) return true;
-  const text = [
-    '🏗️ <b>Новая заявка — СтройМастер</b>',
-    '',
-    `👤 <b>Имя:</b> ${data.name}`,
-    `📞 <b>Телефон:</b> ${data.phone}`,
-    `📍 <b>Город:</b> ${data.city}`,
-    `🔧 <b>Услуга:</b> ${data.service}`,
-    `📐 <b>Площадь:</b> ${data.area ? data.area + ' м²' : 'не указана'}`,
-    `⏱️ <b>Сроки:</b> ${data.deadline || 'не указаны'}`,
-    `➕ <b>Доп. работы:</b> ${data.extras || 'нет'}`,
-    `💬 <b>Комментарий:</b> ${data.comment || 'нет'}`,
-  ].join('\n');
-  const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: TG_CHAT, text, parse_mode: 'HTML' }),
-  });
-  return res.ok;
-}
+function load()    { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch { return []; } }
+function save(d)   { localStorage.setItem(STORE_KEY, JSON.stringify(d)); }
+function loadLog() { try { return JSON.parse(localStorage.getItem(LOG_KEY)) || []; } catch { return []; } }
+function saveLog(l){ localStorage.setItem(LOG_KEY, JSON.stringify(l)); }
 
-async function handleSubmit(e) {
-  e.preventDefault();
-  const form = e.target;
-  const btn  = form.querySelector('.form-submit');
-  const selects = [...form.querySelectorAll('select')];
-  const extras  = [...form.querySelectorAll('.check-item input:checked')]
-                    .map(i => i.parentElement.textContent.trim()).join(', ');
-  const data = {
-    name:     form.querySelector('input[type=text]').value.trim(),
-    phone:    form.querySelector('input[type=tel]').value.trim(),
-    city:     selects[0]?.value || '—',
-    service:  selects[1]?.value || '—',
-    area:     form.querySelector('input[type=number]').value,
-    deadline: selects[2]?.value || '—',
-    extras, comment: form.querySelector('textarea').value.trim(),
-  };
-  btn.textContent = 'Отправляю...';
-  btn.disabled = true;
-  const ok = await sendToTelegram(data);
-  if (ok) {
-    btn.textContent = '✓ Заявка принята! Перезвоним в течение 30 минут.';
-    btn.style.background = 'linear-gradient(135deg,#16a34a,#15803d)';
-    btn.style.boxShadow  = '0 0 28px rgba(34,197,94,.35)';
-  } else {
-    btn.textContent = '⚠️ Ошибка. Позвоните: +7 (700) 555-35-35';
-    btn.style.background = 'linear-gradient(135deg,#dc2626,#b91c1c)';
-    btn.disabled = false;
-  }
-}
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
-/* ══════════════════════════════════════════════════
-   CHATBOT
-   ══════════════════════════════════════════════════ */
-const SCRIPT = {
-  start: {
-    text: 'Здравствуйте! 👋\n\nЯ виртуальный помощник СтройМастера. Помогу разобраться с услугами, ценами и сроками ремонта или строительства в Астане и Алматы.\n\nЧто вас интересует?',
-    quick: ['💰 Цены', '🏠 Ремонт квартиры', '🏡 Строительство дома', '🚿 Ванная комната', '⚡ Инженерные системы', '🧹 Клининг объекта', '⏱️ Сроки', '🛡️ Гарантия', '📍 Где работаем', '📞 Контакты', '✍️ Оставить заявку'],
-  },
-  '💰 Цены': {
-    text: '💰 Стоимость работ:\n\n🖌️ Косметический ремонт\n→ от 12 000 ₸ / м²\n\n🏠 Капитальный ремонт\n→ от 28 000 ₸ / м²\n\n🏡 Строительство дома под ключ\n→ от 130 000 ₸ / м²\n\nТочная цена — после бесплатного замера. Смета фиксируется в договоре.',
-    quick: ['✍️ Оставить заявку', '🏠 Ремонт квартиры', '🏡 Строительство дома', '← Главное меню'],
-  },
-  '🏠 Ремонт квартиры': {
-    text: '🏠 Ремонт и отделка квартир:\n\n• Косметический — обои, краска, пол, потолок\n• Капитальный — полное обновление с заменой коммуникаций\n• Дизайнерский под ключ\n• Перепланировка и согласование\n• Укладка плитки, ламината, паркета\n• Монтаж натяжных потолков\n\nРаботаем в новостройках и вторичном жилье.',
-    quick: ['💰 Цены', '⏱️ Сроки', '✍️ Оставить заявку', '← Главное меню'],
-  },
-  '🏡 Строительство дома': {
-    text: '🏡 Строительство частных домов:\n\n• Проектирование и геодезия\n• Фундамент любого типа\n• Стены: кирпич, газобетон, дерево, каркас\n• Кровля и перекрытия\n• Все инженерные коммуникации\n• Внутренняя и внешняя отделка\n\nСтроим под ключ или на любом этапе.',
-    quick: ['💰 Цены', '⏱️ Сроки', '✍️ Оставить заявку', '← Главное меню'],
-  },
-  '🚿 Ванная комната': {
-    text: '🚿 Ремонт ванных комнат:\n\n• Гидроизоляция и стяжка\n• Укладка плитки любой сложности\n• Установка душевых кабин и ванн\n• Монтаж сантехники\n• Тёплые полы\n• Вентиляция и освещение\n\nПолный ремонт санузла — в среднем 3–5 недель.',
-    quick: ['💰 Цены', '✍️ Оставить заявку', '← Главное меню'],
-  },
-  '🧹 Клининг объекта': {
-    text: '🧹 Клининг объекта — дополнительная услуга по заявке заказчика:\n\n• Удаление строительной пыли и мусора\n• Мытьё окон, дверей, плитки и зеркал\n• Чистка напольных покрытий\n• Уборка санузлов и кухни\n• Вывоз строительного мусора\n\nУслуга заказывается дополнительно при оформлении заявки на ремонт или строительство. Уточните наличие и стоимость у менеджера.',
-    quick: ['✍️ Оставить заявку', '📞 Контакты', '← Главное меню'],
-  },
-  '⚡ Инженерные системы': {
-    text: '⚡ Инженерные системы:\n\n• Электромонтаж под ключ\n• Замена труб водоснабжения и канализации\n• Монтаж и замена радиаторов отопления\n• Тёплые полы (электро и водяные)\n• Умный дом — базовые сценарии\n\nВсе работы выполняют сертифицированные специалисты.',
-    quick: ['💰 Цены', '✍️ Оставить заявку', '← Главное меню'],
-  },
-  '⏱️ Сроки': {
-    text: '⏱️ Ориентировочные сроки:\n\n🖌️ Косметический ремонт 50 м²  →  3–4 нед.\n🏠 Капитальный ремонт 60 м²  →  2–4 мес.\n🚿 Ремонт ванной  →  3–5 нед.\n🏡 Строительство дома 150 м²  →  6–12 мес.\n\nСроки фиксируются в договоре. Просрочка — штраф в вашу пользу.',
-    quick: ['💰 Цены', '🛡️ Гарантия', '✍️ Оставить заявку', '← Главное меню'],
-  },
-  '🛡️ Гарантия': {
-    text: '🛡️ Наши гарантии:\n\n✅ Официальная гарантия 3 года на все работы\n✅ Дефекты устраняем бесплатно в гарантийный период\n✅ Фиксированная смета — цена не растёт\n✅ Фотоотчёт с объекта каждый день\n✅ Только штатные мастера от 5 лет опыта\n✅ Уборка после завершения включена',
-    quick: ['💰 Цены', '⏱️ Сроки', '✍️ Оставить заявку', '← Главное меню'],
-  },
-  '📍 Где работаем': {
-    text: '📍 Работаем в двух городах:\n\n🏙️ Астана — все районы\n🏙️ Алматы — все районы\n\nВыезд замерщика — бесплатно, в течение 24 часов.',
-    quick: ['📞 Контакты', '✍️ Оставить заявку', '← Главное меню'],
-  },
-  '📞 Контакты': {
-    text: '📞 Контакты СтройМастера:\n\n📱 Телефон: +7 (700) 555-35-35\n⏰ Режим работы: Пн–Вс 8:00–21:00\n💬 WhatsApp и Telegram: +7 (700) 555-35-35',
-    quick: ['✍️ Оставить заявку', '← Главное меню'],
-  },
-  '✍️ Оставить заявку': {
-    text: 'Заполните короткую форму на этой странице — займёт 2 минуты. Специалист перезвонит в течение 30 минут.',
-    quick: ['📋 Перейти к форме', '📞 Контакты', '← Главное меню'],
-    actions: {
-      '📋 Перейти к форме': () => {
-        document.getElementById('form').scrollIntoView({ behavior: 'smooth' });
-        toggleChat();
-      },
-    },
-  },
-  '← Главное меню': { redirect: 'start' },
-};
-
-const KEYWORDS = [
-  [/цен|стоим|сколько|прайс/i,      '💰 Цены'],
-  [/ремонт|отделк|квартир|косметич|капитал|дизайн/i, '🏠 Ремонт квартиры'],
-  [/дом|строит|коттедж|кирпич|каркас|фундамент/i,    '🏡 Строительство дома'],
-  [/ванн|санузел|душ|плитк/i,        '🚿 Ванная комната'],
-  [/электр|проводк|сантехник|отоплен|труб/i, '⚡ Инженерные системы'],
-  [/срок|когда|быстро|долго/i,       '⏱️ Сроки'],
-  [/гарант|качеств/i,                '🛡️ Гарантия'],
-  [/где|район|город|астана|алматы/i, '📍 Где работаем'],
-  [/контакт|телефон|номер|звон/i,    '📞 Контакты'],
-  [/клининг|уборк|чистк|мусор|пыль/i, '🧹 Клининг объекта'],
-  [/заявк|замер|записат/i,           '✍️ Оставить заявку'],
+// Default dataset
+const DEFAULTS = [
+  // АЛМАТЫ
+  { id:'a1', city:'Алматы', address:'ул. Панфилова, выше Толе би',        rating:1.7, reviews:13, prevRating:null, link:'https://2gis.kz/almaty/firm/70000001090502323', notes:'Частые жалобы: аппарат не работает, пустой экран', checked:null },
+  { id:'a2', city:'Алматы', address:'ул. Маркова, 44',                    rating:5.0, reviews:2,  prevRating:null, link:'https://2gis.kz/almaty/search/Фандомат',          notes:'', checked:null },
+  { id:'a3', city:'Алматы', address:'пр. Абая, 90',                       rating:2.3, reviews:3,  prevRating:null, link:'https://2gis.kz/almaty/search/Фандомат',          notes:'', checked:null },
+  { id:'a4', city:'Алматы', address:'ЖК Megapolis',                       rating:5.0, reviews:1,  prevRating:null, link:'https://2gis.kz/almaty/search/Фандомат',          notes:'Мало отзывов — нужна активация', checked:null },
+  { id:'a5', city:'Алматы', address:'Esentai Tower, пр. Аль-Фараби, 77/7',rating:3.6, reviews:3,  prevRating:null, link:'https://2gis.kz/almaty/search/Фандомат',          notes:'Работает с 08:00', checked:null },
+  // АСТАНА
+  { id:'s1', city:'Астана', address:'ул. Бейбитшилик, 9',                 rating:4.1, reviews:7,  prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'Лучшая точка', checked:null },
+  { id:'s2', city:'Астана', address:'ул. Кажымукан, 13 (ЕНУ)',            rating:3.7, reviews:4,  prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'', checked:null },
+  { id:'s3', city:'Астана', address:'ТРЦ Asia Park, пр. Кабанбай батыра, 21', rating:1.0, reviews:5,  prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'Оценка 1.0 — срочно требует внимания', checked:null },
+  { id:'s4', city:'Астана', address:'ул. Сыганак, 1Б',                    rating:1.3, reviews:16, prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'Наибольшее кол-во отзывов, самый низкий рейтинг', checked:null },
+  { id:'s5', city:'Астана', address:'пр. Республики, 8',                  rating:null,reviews:0,  prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'Рейтинг не подтверждён — требует проверки', checked:null },
+  { id:'s6', city:'Астана', address:'Шоссе Коргалжын, 13д',               rating:null,reviews:0,  prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'Рейтинг не подтверждён — требует проверки', checked:null },
 ];
 
-let chatStarted = false, chatOpen = false;
+function initData() {
+  if (!load().length) { save(DEFAULTS); }
+}
 
-function toggleChat() {
-  chatOpen = !chatOpen;
-  document.getElementById('chatWidget').classList.toggle('open', chatOpen);
-  document.getElementById('chatBadge').classList.add('hidden');
-  if (chatOpen && !chatStarted) {
-    chatStarted = true;
-    setTimeout(() => showTyping(() => renderNode('start')), 700);
+// ══════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════
+function getStatus(r) {
+  if (r === null || r === undefined) return 'new';
+  if (r < 2.5) return 'critical';
+  if (r < 3.5) return 'warning';
+  return 'good';
+}
+function statusLabel(s) {
+  return { critical:'🔴 Критично', warning:'🟡 Слабо', good:'🟢 Хорошо', new:'🔵 Не проверено' }[s] || '—';
+}
+function statusClass(s) {
+  return { critical:'s-critical', warning:'s-warning', good:'s-good', new:'s-new' }[s] || '';
+}
+function ratingClass(r) {
+  if (r === null) return '';
+  if (r < 2.5) return 'r-red';
+  if (r < 3.5) return 'r-yellow';
+  return 'r-green';
+}
+function stars(r) {
+  if (r === null) return '—';
+  const full = Math.round(r);
+  return '★'.repeat(full) + '☆'.repeat(5 - full);
+}
+function fmt(r) { return r !== null && r !== undefined ? r.toFixed(1) : '—'; }
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
+}
+function today() { return new Date().toISOString(); }
+
+function trendIcon(cur, prev) {
+  if (prev === null || prev === undefined || cur === null) return '<span class="trend same">—</span>';
+  const d = (cur - prev).toFixed(1);
+  if (d > 0) return `<span class="trend up">▲ +${d}</span>`;
+  if (d < 0) return `<span class="trend down">▼ ${d}</span>`;
+  return '<span class="trend same">→ 0</span>';
+}
+
+function barColor(r) {
+  if (r === null) return '#ccc';
+  if (r < 2.5) return '#e63946';
+  if (r < 3.5) return '#f4a261';
+  return '#1db954';
+}
+
+// ══════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════
+function renderAll() {
+  renderAlerts();
+  renderKPI();
+  renderCharts();
+  renderTable();
+  renderLog();
+  document.getElementById('lastUpdate').textContent =
+    'Последнее обновление: ' + new Date().toLocaleString('ru-RU');
+}
+
+function renderAlerts() {
+  const data = load();
+  const box  = document.getElementById('alertsArea');
+  const critical = data.filter(p => getStatus(p.rating) === 'critical');
+  const unchecked = data.filter(p => {
+    if (!p.checked) return true;
+    const diff = (Date.now() - new Date(p.checked).getTime()) / 36e5;
+    return diff > 24;
+  });
+  let html = '';
+  if (critical.length)
+    html += `<div class="alert-box alert-danger">🚨 <b>${critical.length} точки</b> с критическим рейтингом (&lt;2.5) требуют срочного внимания!</div>`;
+  if (unchecked.length)
+    html += `<div class="alert-box alert-warning">⏰ <b>${unchecked.length} точек</b> не проверялись более 24 часов.</div>`;
+  if (!critical.length && !unchecked.length)
+    html += `<div class="alert-box alert-success">✅ Все точки проверены сегодня. Критических проблем нет.</div>`;
+  box.innerHTML = html;
+}
+
+function renderKPI() {
+  const data = load();
+  const rated = data.filter(p => p.rating !== null);
+  const avg = rated.length ? (rated.reduce((s,p) => s + p.rating, 0) / rated.length).toFixed(2) : '—';
+  const crit = data.filter(p => getStatus(p.rating) === 'critical').length;
+  const total = data.reduce((s,p) => s + (p.reviews||0), 0);
+  const good  = data.filter(p => getStatus(p.rating) === 'good').length;
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi"><div class="kpi-label">Всего точек</div><div class="kpi-value">${data.length}</div><div class="kpi-sub">Алматы: ${data.filter(p=>p.city==='Алматы').length} · Астана: ${data.filter(p=>p.city==='Астана').length}</div></div>
+    <div class="kpi ${crit ? 'red':'green'}"><div class="kpi-label">Критичных точек</div><div class="kpi-value">${crit}</div><div class="kpi-sub">Рейтинг &lt; 2.5 ⭐</div></div>
+    <div class="kpi yellow"><div class="kpi-label">Средний рейтинг</div><div class="kpi-value">${avg}</div><div class="kpi-sub">из 5.0 ★</div></div>
+    <div class="kpi"><div class="kpi-label">Всего отзывов</div><div class="kpi-value">${total}</div><div class="kpi-sub">суммарно по всем точкам</div></div>
+    <div class="kpi green"><div class="kpi-label">Хороших точек</div><div class="kpi-value">${good}</div><div class="kpi-sub">Рейтинг ≥ 3.5 ⭐</div></div>
+  `;
+}
+
+function renderCharts() {
+  const data = load();
+  // Bar chart — рейтинг по точкам
+  const sorted = [...data].filter(p=>p.rating!==null).sort((a,b)=>a.rating-b.rating);
+  document.getElementById('barChart').innerHTML = sorted.map(p => `
+    <div class="bar-item">
+      <div class="bar-label" title="${p.address}">${p.address.substring(0,22)}${p.address.length>22?'…':''}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(p.rating/5)*100}%;background:${barColor(p.rating)}"></div></div>
+      <div class="bar-val" style="color:${barColor(p.rating)}">${fmt(p.rating)}</div>
+    </div>
+  `).join('');
+
+  // Pie legend
+  const counts = { critical:0, warning:0, good:0, new:0 };
+  data.forEach(p => counts[getStatus(p.rating)]++);
+  const colors = { critical:'#e63946', warning:'#f4a261', good:'#1db954', new:'#1a73e8' };
+  const labels = { critical:'🔴 Критично', warning:'🟡 Слабо', good:'🟢 Хорошо', new:'🔵 Не проверено' };
+  document.getElementById('pieLegend').innerHTML = Object.entries(counts).map(([k,v]) => `
+    <div class="pie-item">
+      <div class="pie-dot" style="background:${colors[k]}"></div>
+      <span>${labels[k]}</span>
+      <span style="margin-left:auto;font-weight:700">${v} точек</span>
+    </div>
+  `).join('');
+}
+
+function renderTable() {
+  const data   = load();
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const city   = document.getElementById('cityFilter').value;
+  const status = document.getElementById('statusFilter').value;
+
+  const filtered = data.filter(p => {
+    if (city   && p.city !== city) return false;
+    if (status && getStatus(p.rating) !== status) return false;
+    if (search && !p.address.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  document.getElementById('countLabel').textContent = `(${filtered.length} из ${data.length})`;
+
+  if (!filtered.length) {
+    document.getElementById('tableBody').innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-icon">🔍</div><p>Ничего не найдено</p></div></td></tr>`;
+    return;
   }
+
+  document.getElementById('tableBody').innerHTML = filtered.map((p, i) => {
+    const s = getStatus(p.rating);
+    const overdue = p.checked && (Date.now() - new Date(p.checked).getTime()) / 36e5 > 24;
+    return `
+    <tr>
+      <td>${i+1}</td>
+      <td><span class="city-tag city-${p.city==='Алматы'?'almaty':'astana'}">${p.city}</span></td>
+      <td>
+        <div style="font-weight:600">${p.address}</div>
+        ${p.notes ? `<div style="font-size:.75rem;color:var(--muted);margin-top:3px">${p.notes}</div>` : ''}
+        ${overdue ? '<div style="font-size:.72rem;color:#e63946;margin-top:2px">⚠️ Не проверялась 24+ ч.</div>' : ''}
+      </td>
+      <td>
+        <span class="rating-badge ${ratingClass(p.rating)}">
+          ${fmt(p.rating)} <span class="stars">${stars(p.rating)}</span>
+        </span>
+      </td>
+      <td style="text-align:center;font-weight:600">${p.reviews || 0}</td>
+      <td><span class="status-pill ${statusClass(s)}">${statusLabel(s)}</span></td>
+      <td>${trendIcon(p.rating, p.prevRating)}</td>
+      <td style="font-size:.78rem;color:var(--muted)">${fmtDate(p.checked)}</td>
+      <td>
+        <div class="action-btns">
+          ${p.link ? `<a class="mini-btn mb-2gis" href="${p.link}" target="_blank">🗺️ 2ГИС</a>` : ''}
+          <button class="mini-btn mb-add" onclick="openUpdate('${p.id}')">🔄 Обновить</button>
+          <button class="mini-btn mb-edit" onclick="openEdit('${p.id}')">✏️</button>
+          <button class="mini-btn mb-del"  onclick="deletePoint('${p.id}')">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
-function now() {
-  return new Date().toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' });
+function renderLog() {
+  const logs = loadLog().slice().reverse().slice(0, 50);
+  const el = document.getElementById('historyLog');
+  if (!logs.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><p>Журнал пуст. Добавьте точки и зафиксируйте проверку.</p></div>';
+    return;
+  }
+  el.innerHTML = logs.map(l => `
+    <div class="log-entry">
+      <div class="log-dot ${l.type}"></div>
+      <div>
+        <div style="font-weight:600">${l.action}</div>
+        <div style="color:var(--muted);font-size:.78rem">${l.detail}</div>
+      </div>
+      <div style="margin-left:auto;font-size:.75rem;color:var(--muted);white-space:nowrap">${fmtDate(l.ts)}</div>
+    </div>
+  `).join('');
 }
-function appendMsg(role, text) {
-  const box = document.getElementById('chatMessages');
-  const el  = document.createElement('div');
-  el.className = `chat-msg ${role}`;
-  el.innerHTML = `<div class="chat-bubble">${text}</div><div class="chat-time">${now()}</div>`;
-  box.appendChild(el);
-  box.scrollTop = box.scrollHeight;
+
+function addLog(type, action, detail) {
+  const logs = loadLog();
+  logs.push({ type, action, detail, ts: today() });
+  saveLog(logs);
 }
-function showTyping(cb) {
-  const box = document.getElementById('chatMessages');
-  const t   = document.createElement('div');
-  t.className = 'typing-bbl'; t.id = 'typingEl';
-  t.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
-  box.appendChild(t); box.scrollTop = box.scrollHeight;
-  setTimeout(() => { t.remove(); cb(); }, 900 + Math.random() * 500);
+
+// ══════════════════════════════════════════════
+//  MODAL: ADD / EDIT
+// ══════════════════════════════════════════════
+function openAddModal() {
+  document.getElementById('modalTitle').textContent = '➕ Новая точка фандомата';
+  document.getElementById('editId').value = '';
+  document.getElementById('fCity').value = 'Алматы';
+  document.getElementById('fAddress').value = '';
+  document.getElementById('fRating').value = '';
+  document.getElementById('fReviews').value = '';
+  document.getElementById('fLink').value = '';
+  document.getElementById('fNotes').value = '';
+  document.getElementById('modalOverlay').classList.add('active');
 }
-function renderQuick(btns, actions = {}) {
-  const qc = document.getElementById('chatQuick');
-  qc.innerHTML = '';
-  (btns || []).forEach(label => {
-    const b = document.createElement('button');
-    b.className = 'chat-qbtn'; b.textContent = label;
-    b.onclick = () => {
-      if (actions[label]) { actions[label](); return; }
-      appendMsg('user', label); qc.innerHTML = '';
-      showTyping(() => renderNode(label));
-    };
-    qc.appendChild(b);
+function openEdit(id) {
+  const data = load();
+  const p = data.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('modalTitle').textContent = '✏️ Редактировать точку';
+  document.getElementById('editId').value = id;
+  document.getElementById('fCity').value = p.city;
+  document.getElementById('fAddress').value = p.address;
+  document.getElementById('fRating').value = p.rating !== null ? p.rating : '';
+  document.getElementById('fReviews').value = p.reviews || 0;
+  document.getElementById('fLink').value = p.link || '';
+  document.getElementById('fNotes').value = p.notes || '';
+  document.getElementById('modalOverlay').classList.add('active');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+
+function savePoint() {
+  const id      = document.getElementById('editId').value;
+  const city    = document.getElementById('fCity').value.trim();
+  const address = document.getElementById('fAddress').value.trim();
+  const ratingV = document.getElementById('fRating').value;
+  const rating  = ratingV !== '' ? parseFloat(ratingV) : null;
+  const reviews = parseInt(document.getElementById('fReviews').value) || 0;
+  const link    = document.getElementById('fLink').value.trim();
+  const notes   = document.getElementById('fNotes').value.trim();
+
+  if (!city || !address) { alert('Заполните город и адрес!'); return; }
+
+  const data = load();
+  if (id) {
+    const idx = data.findIndex(x => x.id === id);
+    if (idx >= 0) {
+      const old = data[idx];
+      data[idx] = { ...old, city, address, rating, reviews, link, notes };
+      addLog('blue', 'Точка обновлена', `${city} — ${address}`);
+    }
+  } else {
+    data.push({ id: uid(), city, address, rating, reviews, prevRating: null, link, notes, checked: null });
+    addLog('green', 'Добавлена новая точка', `${city} — ${address}`);
+  }
+  save(data);
+  closeModal();
+  renderAll();
+}
+
+// ══════════════════════════════════════════════
+//  MODAL: UPDATE RATING
+// ══════════════════════════════════════════════
+function openUpdate(id) {
+  const data = load();
+  const p = data.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('updateId').value = id;
+  document.getElementById('updateAddr').textContent = `${p.city} — ${p.address}`;
+  document.getElementById('uRating').value  = p.rating !== null ? p.rating : '';
+  document.getElementById('uReviews').value = p.reviews || 0;
+  document.getElementById('uReviewText').value = '';
+  document.getElementById('updateOverlay').classList.add('active');
+}
+function closeUpdate() { document.getElementById('updateOverlay').classList.remove('active'); }
+
+function applyUpdate() {
+  const id      = document.getElementById('updateId').value;
+  const newRate = parseFloat(document.getElementById('uRating').value);
+  const newRevs = parseInt(document.getElementById('uReviews').value) || 0;
+  const text    = document.getElementById('uReviewText').value.trim();
+
+  const data = load();
+  const idx  = data.findIndex(x => x.id === id);
+  if (idx < 0) return;
+
+  const old = data[idx];
+  const oldRating = old.rating;
+  data[idx] = {
+    ...old,
+    prevRating: oldRating,
+    rating:  isNaN(newRate) ? old.rating : newRate,
+    reviews: newRevs,
+    checked: today()
+  };
+  save(data);
+
+  const changed = !isNaN(newRate) && newRate !== oldRating;
+  const direction = changed ? (newRate > (oldRating||0) ? '▲ вырос' : '▼ упал') : 'без изменений';
+  addLog(
+    changed ? (newRate < 2.5 ? 'red' : newRate < 3.5 ? 'yellow' : 'green') : 'blue',
+    `Рейтинг обновлён: ${fmt(oldRating)} → ${fmt(isNaN(newRate)?oldRating:newRate)} (${direction})`,
+    `${old.city} — ${old.address}${text ? ' · Отзыв: «' + text.substring(0,60) + (text.length>60?'…':'') + '»' : ''}`
+  );
+  closeUpdate();
+  renderAll();
+}
+
+// ══════════════════════════════════════════════
+//  ACTIONS
+// ══════════════════════════════════════════════
+function deletePoint(id) {
+  const data = load();
+  const p = data.find(x => x.id === id);
+  if (!p || !confirm(`Удалить точку:\n${p.city} — ${p.address}?`)) return;
+  save(data.filter(x => x.id !== id));
+  addLog('red', 'Точка удалена', `${p.city} — ${p.address}`);
+  renderAll();
+}
+
+function logManualCheck() {
+  const data = load();
+  const now  = today();
+  data.forEach(p => { if (!p.checked || (Date.now() - new Date(p.checked).getTime()) / 36e5 > 23) p.checked = now; });
+  save(data);
+  addLog('green', '✅ Ежедневная проверка зафиксирована', `Проверено ${data.length} точек`);
+  renderAll();
+  alert('✅ Проверка зафиксирована! Не забудьте обновить рейтинги вручную из 2ГИС.');
+}
+
+function generateReport() {
+  const data     = load();
+  const now      = new Date();
+  const nowStr   = now.toLocaleString('ru-RU');
+  const dateStr  = now.toLocaleDateString('ru-RU', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+  const critical = data.filter(p => getStatus(p.rating) === 'critical');
+  const warning  = data.filter(p => getStatus(p.rating) === 'warning');
+  const good     = data.filter(p => getStatus(p.rating) === 'good');
+  const noData   = data.filter(p => p.rating === null);
+  const rated    = data.filter(p => p.rating !== null);
+  const avg      = rated.length ? (rated.reduce((s,p)=>s+p.rating,0)/rated.length).toFixed(2) : '—';
+  const total    = data.reduce((s,p)=>s+(p.reviews||0),0);
+  const improved = data.filter(p=>p.prevRating!==null&&p.rating!==null&&p.rating>p.prevRating).length;
+  const declined = data.filter(p=>p.prevRating!==null&&p.rating!==null&&p.rating<p.prevRating).length;
+
+  // ── build table rows helper
+  const tblRows = (arr, color) => arr.length
+    ? arr.map((p,i) => {
+        const s = getStatus(p.rating);
+        const trend = p.prevRating === null ? '—'
+          : p.rating > p.prevRating ? `▲ +${(p.rating-p.prevRating).toFixed(1)}`
+          : p.rating < p.prevRating ? `▼ ${(p.rating-p.prevRating).toFixed(1)}`
+          : '→ 0';
+        const trendColor = trend.startsWith('▲') ? '#1e8449' : trend.startsWith('▼') ? '#c0392b' : '#999';
+        const overdue = !p.checked || (Date.now()-new Date(p.checked).getTime())/36e5 > 24;
+        return `<tr>
+          <td class="num">${i+1}</td>
+          <td><span class="city-tag city-${p.city==='Алматы'?'almaty':'astana'}">${p.city}</span></td>
+          <td><b>${p.address}</b>${p.notes?`<br><span style="font-size:.72rem;color:var(--muted)">${p.notes}</span>`:''}</td>
+          <td><span class="rating-badge ${ratingClass(p.rating)}">${fmt(p.rating)} ${stars(p.rating)}</span></td>
+          <td class="num">${p.reviews||0}</td>
+          <td><span style="font-weight:700;color:${trendColor}">${trend}</span></td>
+          <td><span class="status-pill ${statusClass(s)}">${statusLabel(s)}</span></td>
+          <td style="font-size:.75rem;color:var(--muted)">${p.checked?fmtDate(p.checked):'<span style="color:#e63946">Не проверено</span>'}</td>
+          <td>${overdue?'<span style="color:#e63946;font-size:.75rem">⚠️ Просрочено</span>':'<span style="color:#1e8449;font-size:.75rem">✅ Актуально</span>'}</td>
+        </tr>`;
+      }).join('')
+    : `<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--muted)">Нет данных</td></tr>`;
+
+  const recos = [
+    ...critical.map(p=>`<div class="report-reco-item red"><div class="report-reco-icon">🚨</div><div><b>${p.city} — ${p.address}</b><br>Ответить на отзывы в 2ГИС · Выехать на точку · Проверить аппарат</div></div>`),
+    ...warning.map(p=>`<div class="report-reco-item yellow"><div class="report-reco-icon">⚠️</div><div><b>${p.city} — ${p.address}</b><br>Стимулировать позитивные отзывы · Проверить работу аппарата</div></div>`),
+    ...(critical.length===0&&warning.length===0?['<div class="report-reco-item green"><div class="report-reco-icon">✅</div><div>Все точки в норме. Продолжайте стимулировать отзывы на хороших точках.</div></div>']:[])
+  ].join('');
+
+  const allRows = [...critical,...warning,...good,...noData];
+
+  const html = `
+  <div class="report-card">
+    <div class="report-card-header">
+      <h3>📋 Ежедневный отчёт — Freedom Фандоматы</h3>
+      <span style="font-size:.8rem;color:var(--muted)">${dateStr}</span>
+    </div>
+    <div class="report-kpi-grid">
+      <div class="report-kpi-cell">
+        <div class="report-kpi-val">${data.length}</div>
+        <div class="report-kpi-lbl">Всего точек</div>
+      </div>
+      <div class="report-kpi-cell">
+        <div class="report-kpi-val" style="color:${avg<2.5?'#e63946':avg<3.5?'#f4a261':'#1db954'}">${avg}★</div>
+        <div class="report-kpi-lbl">Средний рейтинг</div>
+      </div>
+      <div class="report-kpi-cell">
+        <div class="report-kpi-val">${total}</div>
+        <div class="report-kpi-lbl">Всего отзывов</div>
+      </div>
+      <div class="report-kpi-cell">
+        <div class="report-kpi-val" style="color:#e63946">${critical.length}</div>
+        <div class="report-kpi-lbl">🔴 Критичных</div>
+      </div>
+      <div class="report-kpi-cell">
+        <div class="report-kpi-val" style="color:#f4a261">${warning.length}</div>
+        <div class="report-kpi-lbl">🟡 Слабых</div>
+      </div>
+      <div class="report-kpi-cell">
+        <div class="report-kpi-val" style="color:#1db954">${good.length}</div>
+        <div class="report-kpi-lbl">🟢 Хороших</div>
+      </div>
+      <div class="report-kpi-cell">
+        <div class="report-kpi-val" style="color:#1db954">▲${improved}</div>
+        <div class="report-kpi-lbl">Выросли</div>
+      </div>
+      <div class="report-kpi-cell" style="border-right:none">
+        <div class="report-kpi-val" style="color:#e63946">▼${declined}</div>
+        <div class="report-kpi-lbl">Упали</div>
+      </div>
+    </div>
+    <div class="report-date-row">
+      <span>Freedom Monitor v1.0</span><span>Сформирован: ${nowStr}</span>
+    </div>
+  </div>
+
+  <div class="report-card">
+    <div class="report-card-header">
+      <h3>🔴 Критичные точки <span class="report-section-badge" style="background:#fde8e8;color:#c0392b">${critical.length} точек</span></h3>
+      <span style="font-size:.78rem;color:#c0392b;font-weight:600">Требуют реакции сегодня!</span>
+    </div>
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead><tr><th>#</th><th>Город</th><th>Адрес / Локация</th><th>Рейтинг</th><th>Отзывов</th><th>Тренд</th><th>Статус</th><th>Проверено</th><th>Актуальность</th></tr></thead>
+        <tbody>${tblRows(critical,'red')}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="report-card">
+    <div class="report-card-header">
+      <h3>🟡 Слабые точки <span class="report-section-badge" style="background:#fff3e0;color:#d35400">${warning.length} точек</span></h3>
+    </div>
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead><tr><th>#</th><th>Город</th><th>Адрес / Локация</th><th>Рейтинг</th><th>Отзывов</th><th>Тренд</th><th>Статус</th><th>Проверено</th><th>Актуальность</th></tr></thead>
+        <tbody>${tblRows(warning,'yellow')}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="report-card">
+    <div class="report-card-header">
+      <h3>🟢 Хорошие точки <span class="report-section-badge" style="background:#e8f8ee;color:#1e8449">${good.length} точек</span></h3>
+    </div>
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead><tr><th>#</th><th>Город</th><th>Адрес / Локация</th><th>Рейтинг</th><th>Отзывов</th><th>Тренд</th><th>Статус</th><th>Проверено</th><th>Актуальность</th></tr></thead>
+        <tbody>${tblRows(good,'green')}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="report-card">
+    <div class="report-card-header">
+      <h3>📊 Сводная таблица — все точки <span class="report-section-badge" style="background:#e8f0fe;color:#1a73e8">${data.length} точек</span></h3>
+    </div>
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead><tr><th>#</th><th>Город</th><th>Адрес / Локация</th><th>Рейтинг</th><th>Отзывов</th><th>Тренд</th><th>Статус</th><th>Проверено</th><th>Актуальность</th></tr></thead>
+        <tbody>${tblRows(allRows,'')}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="report-card">
+    <div class="report-card-header">
+      <h3>💡 Рекомендации на сегодня</h3>
+    </div>
+    <div class="report-reco-list">${recos}</div>
+    <div class="report-actions">
+      <button class="btn btn-outline" onclick="window.print()">🖨️ Распечатать</button>
+      <button class="btn btn-success" onclick="exportCSV()">⬇️ Экспорт в CSV</button>
+      <button class="btn btn-primary" onclick="document.getElementById('reportArea').style.display='none'">✕ Закрыть отчёт</button>
+    </div>
+    <div class="report-date-row">
+      <span>Freedom Monitor v1.0</span><span>${nowStr}</span>
+    </div>
+  </div>`;
+
+  const el = document.getElementById('reportArea');
+  el.style.display = 'block';
+  el.innerHTML = html;
+  el.scrollIntoView({ behavior: 'smooth' });
+  addLog('blue', '📋 Сформирован дневной отчёт', `${data.length} точек · Критичных: ${critical.length}`);
+  renderLog();
+}
+
+function exportCSV() {
+  const data = load();
+  const now  = new Date().toLocaleDateString('ru-RU');
+
+  // Заголовок файла
+  const title   = [['ОТЧЁТ ПО ФАНДОМАТАМ FREEDOM', '', '', '', '', '', '', '', '']];
+  const dateLine = [[`Дата: ${now}`, '', '', '', '', '', '', '', '']];
+  const empty   = [['']];
+
+  // KPI сводка
+  const rated    = data.filter(p=>p.rating!==null);
+  const avg      = rated.length ? (rated.reduce((s,p)=>s+p.rating,0)/rated.length).toFixed(2) : '—';
+  const total    = data.reduce((s,p)=>s+(p.reviews||0),0);
+  const critical = data.filter(p=>getStatus(p.rating)==='critical').length;
+  const warning  = data.filter(p=>getStatus(p.rating)==='warning').length;
+  const good     = data.filter(p=>getStatus(p.rating)==='good').length;
+  const noData   = data.filter(p=>p.rating===null).length;
+
+  const kpiHeader = [['СВОДКА','','','','','','','','']];
+  const kpiRows   = [
+    ['Всего точек', data.length, '', 'Хорошие (≥3.5)', good, '', 'Средний рейтинг', avg+'★', ''],
+    ['Всего отзывов', total, '', 'Слабые (2.5-3.5)', warning, '', 'Критичных точек', critical, ''],
+    ['', '', '', 'Без данных', noData, '', '', '', ''],
+  ];
+
+  // Основная таблица
+  const mainHeader = [['#','Город','Адрес / Локация','Рейтинг','Звёзды','Отзывов','Тренд','Статус','Последняя проверка','Актуальность','Заметки']];
+  const mainRows   = data.map((p,i) => {
+    const trend = p.prevRating===null ? '—'
+      : p.rating>p.prevRating ? `▲ +${(p.rating-p.prevRating).toFixed(1)}`
+      : p.rating<p.prevRating ? `▼ ${(p.rating-p.prevRating).toFixed(1)}`
+      : '→ 0';
+    const overdue = !p.checked || (Date.now()-new Date(p.checked).getTime())/36e5>24;
+    return [
+      i+1, p.city, p.address,
+      p.rating!==null ? p.rating : '—',
+      stars(p.rating).replace(/[★☆]/g, s => s==='★'?'★':'☆'),
+      p.reviews||0,
+      trend,
+      statusLabel(getStatus(p.rating)).replace(/[🔴🟡🟢🔵]/g,'').trim(),
+      p.checked ? fmtDate(p.checked) : 'Не проверено',
+      overdue ? 'Просрочено' : 'Актуально',
+      p.notes||''
+    ];
+  });
+
+  // Критичные точки отдельным листом
+  const critHeader = [['КРИТИЧНЫЕ ТОЧКИ — ТРЕБУЮТ РЕАКЦИИ СЕГОДНЯ','','','','','','','','','','']];
+  const critRows   = data
+    .filter(p=>getStatus(p.rating)==='critical')
+    .map((p,i)=>[i+1, p.city, p.address, p.rating, p.reviews||0, 'Ответить на отзывы · Выехать на точку · Проверить аппарат','','','','','']);
+
+  // Собираем CSV
+  const allSections = [
+    ...title, ...dateLine, ...empty,
+    ...kpiHeader, ...kpiRows, ...empty,
+    ...critHeader, ...mainHeader.map(r=>r), ...critRows, ...empty,
+    [['ВСЕ ТОЧКИ','','','','','','','','','','']],
+    ...mainHeader, ...mainRows,
+  ];
+
+  const csvLines = allSections.map(row => {
+    if (Array.isArray(row[0])) return row[0].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',');
+    return row.map(v => {
+      const s = String(v===null||v===undefined?'':v);
+      return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g,'""')}"` : s;
+    }).join(',');
+  });
+
+  const csv  = csvLines.join('\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = `Freedom_Фандоматы_Отчёт_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  addLog('blue', '⬇️ Экспорт CSV', `${data.length} записей · ${new Date().toLocaleDateString('ru-RU')}`);
+  renderLog();
+}
+
+function clearAll() {
+  if (!confirm('Сбросить ВСЕ данные и журнал? Это действие необратимо!')) return;
+  localStorage.removeItem(STORE_KEY);
+  localStorage.removeItem(LOG_KEY);
+  initData();
+  document.getElementById('reportArea').style.display = 'none';
+  renderAll();
+}
+
+// Close modals on overlay click
+document.getElementById('modalOverlay').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+document.getElementById('updateOverlay').addEventListener('click', function(e){ if(e.target===this) closeUpdate(); });
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+initData();
+renderAll();
+
+// Auto-refresh KPI every 60s (for long tab sessions)
+setInterval(renderAll, 60000);
+
+// ══════════════════════════════════════════════
+//  ANALYSIS TABS
+// ══════════════════════════════════════════════
+function switchTab(tab) {
+  // panels
+  document.querySelectorAll('.analysis-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  // tabs
+  document.querySelectorAll('.atab').forEach(t => t.classList.remove('active'));
+  const map = { critical: 0, warning: 1, good: 2 };
+  document.querySelectorAll('.atab')[map[tab]].classList.add('active');
+}
+
+function scrollToAnalysis() {
+  document.getElementById('analysisSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ══════════════════════════════════════════════
+//  WORKPLAN TABS
+// ══════════════════════════════════════════════
+function switchWP(tab) {
+  document.querySelectorAll('.wp-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('wp-' + tab).classList.add('active');
+  document.querySelectorAll('.wp-tab').forEach(t => t.classList.remove('active'));
+  const idx = { timeline:0, roles:1, templates:2, kpi:3 };
+  document.querySelectorAll('.wp-tab')[idx[tab]].classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+//  TASK CHECKBOXES (localStorage)
+// ══════════════════════════════════════════════
+const TASKS_KEY = 'freedom_tasks';
+function loadTasks() { try { return JSON.parse(localStorage.getItem(TASKS_KEY)) || {}; } catch { return {}; } }
+function saveTasks(t) { localStorage.setItem(TASKS_KEY, JSON.stringify(t)); }
+
+function toggleTask(el) {
+  const isDone = el.classList.toggle('done');
+  el.textContent = isDone ? '✓' : '';
+  const span = el.nextElementSibling;
+  if (span) span.classList.toggle('done-text', isDone);
+  // persist by index
+  const allChk = document.querySelectorAll('.chk');
+  const tasks = loadTasks();
+  allChk.forEach((c, i) => { tasks[i] = c.classList.contains('done'); });
+  saveTasks(tasks);
+}
+
+function restoreTasks() {
+  const tasks = loadTasks();
+  const allChk = document.querySelectorAll('.chk');
+  allChk.forEach((c, i) => {
+    if (tasks[i]) {
+      c.classList.add('done');
+      c.textContent = '✓';
+      const span = c.nextElementSibling;
+      if (span) span.classList.add('done-text');
+    }
   });
 }
-function renderNode(key) {
-  const node = SCRIPT[key];
-  if (!node) { appendMsg('bot', 'Не совсем понял 🙂 Выберите тему ниже.'); renderQuick(SCRIPT.start.quick); return; }
-  if (node.redirect) { renderNode(node.redirect); return; }
-  appendMsg('bot', node.text);
-  renderQuick(node.quick || [], node.actions || {});
-}
-function sendMsg() {
-  const inp = document.getElementById('chatInput');
-  const text = inp.value.trim(); if (!text) return;
-  inp.value = ''; appendMsg('user', text);
-  document.getElementById('chatQuick').innerHTML = '';
-  const match = KEYWORDS.find(([re]) => re.test(text));
-  showTyping(() => renderNode(match ? match[1] : 'start'));
-}
-</script>
 
+// ══════════════════════════════════════════════
+//  COPY TEMPLATE
+// ══════════════════════════════════════════════
+function copyTpl(id, btn) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✅ Скопировано!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 Копировать'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✅ Скопировано!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 Копировать'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// restore checkboxes after DOM ready
+setTimeout(restoreTasks, 100);
+</script>
 </body>
 </html>
