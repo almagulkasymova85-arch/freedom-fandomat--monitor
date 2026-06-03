@@ -2691,7 +2691,7 @@ function renderTable() {
       <td>
         <div class="action-btns">
           ${p.link ? `<a class="mini-btn mb-2gis" href="${p.link}" target="_blank">🗺️ 2ГИС</a>` : ''}
-          <button class="mini-btn mb-add" onclick="openUpdate('${p.id}')">🔄 Обновить</button>
+          <button class="mini-btn mb-add" onclick="openUpdate('${p.id}')">🔄 Из 2ГИС</button>
           <button class="mini-btn mb-edit" onclick="openEdit('${p.id}')">✏️</button>
           <button class="mini-btn mb-del"  onclick="deletePoint('${p.id}')">✕</button>
         </div>
@@ -2787,9 +2787,10 @@ function savePoint() {
 // ══════════════════════════════════════════════
 //  MODAL: UPDATE RATING
 // ══════════════════════════════════════════════
-function openUpdate(id) {
+function openUpdate(id, openGis) {
   const data = load();
   const p = data.find(x => x.id === id);
+  if (openGis && p && p.link) window.open(p.link, '_blank');
   if (!p) return;
   document.getElementById('updateId').value = id;
   document.getElementById('updateAddr').textContent = `${p.city} — ${p.address}`;
