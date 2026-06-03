@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -228,7 +228,7 @@
     <option value="">🌍 Все города</option>
     <option value="Алматы">Алматы</option>
     <option value="Астана">Астана</option>
-    <option value="Каскелен">Каскелен</option>
+    <option value="Алматы">Алматы</option>
   </select>
   <input type="text" id="searchInput" placeholder="🔍 Поиск..." oninput="render()">
   <select id="sizeFilter" onchange="render()">
@@ -253,13 +253,13 @@ const BASE = 'https://almagulkasymova85-arch.github.io/freedom-fandomat--monitor
 
 const POINTS = [
   {rvm:201,city:"Алматы",loc:"БЦ Нурикон",addr:"Ауэзова 175/1",total:24568},
-  {rvm:202,city:"Каскелен",loc:"ТЦ Замза",addr:"Абылай хана, 177а",total:9854},
+  {rvm:202,city:"Алматы",loc:"ТЦ Замза",addr:"Абылай хана, 177а",total:9854},
   {rvm:203,city:"Алматы",loc:"Спорт комплекс Балуана Шолака",addr:"Абая 44",total:2856},
   {rvm:204,city:"Астана",loc:"Республиканский диагностический центр",addr:"Сыганак, 46",total:4017},
   {rvm:205,city:"Алматы",loc:"Алмалинский комьюнити центр",addr:"Байтурсынова, 22 к1",total:8694},
   {rvm:206,city:"Астана",loc:"Astana Hub",addr:"Мангилик Ел, 55/7",total:7400},
   {rvm:207,city:"Астана",loc:"iKomek",addr:"Бейбитшилик, 9",total:3422},
-  {rvm:208,city:"Каскелен",loc:"ТЦ Алатау",addr:"Абылай Хана 90",total:7914},
+  {rvm:208,city:"Алматы",loc:"ТЦ Алатау",addr:"Абылай Хана 90",total:7914},
   {rvm:209,city:"Алматы",loc:"Зал Джуи Джитсу",addr:"Досмухамедова 68б",total:3052},
   {rvm:210,city:"Алматы",loc:"Наурызбайский комьюнити центр",addr:"Шугыла, 343/7",total:1076},
   {rvm:211,city:"Алматы",loc:"Панфилова",addr:"Панфилова",total:10648},
@@ -283,7 +283,7 @@ const POINTS = [
   {rvm:229,city:"Алматы",loc:"Арбат",addr:"Арбат",total:4691},
   {rvm:230,city:"Алматы",loc:"Алатауский комьюнити центр",addr:"Мкрн. Саялы, 73",total:1088},
   {rvm:231,city:"Алматы",loc:"Аэропорт",addr:"Майлина 2",total:3879},
-  {rvm:232,city:"Каскелен",loc:"SDU",addr:"Абылай хана, 1/1",total:1051},
+  {rvm:232,city:"Алматы",loc:"SDU",addr:"Абылай хана, 1/1",total:1051},
   {rvm:233,city:"Алматы",loc:"Теннисный центр Zhan Dosym",addr:"Аль-Фараби 71/20а",total:1251},
   {rvm:234,city:"Алматы",loc:"Satbayev University",addr:"Каныша Сатпаева, 22",total:2379},
   {rvm:235,city:"Алматы",loc:"Invictus Go",addr:"Каракулова, 39",total:3360},
@@ -358,7 +358,7 @@ const POINTS = [
 let currentTab = 'review';
 
 function cityClass(c) {
-  return c==='Астана'?'astana':c==='Каскелен'?'kaskel':'almaty';
+  return c==='Астана'?'astana':c==='Алматы'?'kaskel':'almaty';
 }
 function gisUrl(p) {
   const c = p.city==='Астана'?'astana':'almaty';
