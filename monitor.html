@@ -2575,6 +2575,38 @@ function barColor(r) {
 // ══════════════════════════════════════════════
 //  RENDER
 // ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+//  LIVE-СТАТУС АППАРАТОВ (API Tastamat)
+// ══════════════════════════════════════════════
+const LIVE_API_URL = 'https://rvm.tastamat.com/red/locations';
+let liveStatus = {};   // uuid ("201") -> код статуса
+const LIVE_META = {
+  ON:                      { t:'✅ принимает',     c:'#1a9e71' },
+  OFF:                     { t:'⛔ выключен',      c:'#e63946' },
+  UNAVAILABLE_TANK:        { t:'🟠 бак полон',     c:'#e8830c' },
+  UNAVAILABLE_MAINTENANCE: { t:'🔧 обслуживание',  c:'#8a6d3b' },
+  UNAVAILABLE_CAMERA:      { t:'📷 нет камеры',    c:'#b5179e' },
+};
+function liveBadge(id) {
+  const st = liveStatus[id.replace('rvm', '')];
+  if (!st) return '';
+  const m = LIVE_META[st] || { t: st, c: '#6b7280' };
+  return `<span title="Статус аппарата по данным Tastamat" style="display:inline-block;margin-top:3px;font-size:.72rem;font-weight:700;color:#fff;background:${m.c};padding:1px 7px;border-radius:6px">${m.t}</span>`;
+}
+async function fetchLiveStatus() {
+  try {
+    const r = await fetch(LIVE_API_URL, { cache: 'no-store' });
+    const j = await r.json();
+    const map = {};
+    (j.list || []).forEach(x => { map[x.uuid] = x.status; });
+    liveStatus = map;
+    renderTable();
+    renderAlerts();
+  } catch (e) {
+    console.warn('Live-статус Tastamat недоступен:', e);
+  }
+}
+
 function renderAll() {
   renderAlerts();
   renderKPI();
@@ -2599,6 +2631,9 @@ function renderAlerts() {
     html += `<div class="alert-box alert-danger">🚨 <b>${critical.length} точки</b> с критическим рейтингом (&lt;2.5) требуют срочного внимания!</div>`;
   if (unchecked.length)
     html += `<div class="alert-box alert-warning">⏰ <b>${unchecked.length} точек</b> не проверялись более 24 часов.</div>`;
+  const offline = data.filter(p => { const s = liveStatus[p.id.replace('rvm','')]; return s && s !== 'ON'; });
+  if (offline.length)
+    html += `<div class="alert-box alert-warning">🔌 <b>${offline.length} аппаратов</b> сейчас не принимают тару (выключены / бак полон / обслуживание). <span style="opacity:.7;font-size:.85em">по данным Tastamat</span></div>`;
   if (!critical.length && !unchecked.length)
     html += `<div class="alert-box alert-success">✅ Все точки проверены сегодня. Критических проблем нет.</div>`;
   box.innerHTML = html;
@@ -2676,6 +2711,7 @@ function renderTable() {
       <td><span class="city-tag city-${p.city==='Алматы'?'almaty':'astana'}">${p.city}</span></td>
       <td>
         <div style="font-weight:600">${p.address}</div>
+        ${liveBadge(p.id)}
         ${p.notes ? `<div style="font-size:.75rem;color:var(--muted);margin-top:3px">${p.notes}</div>` : ''}
         ${overdue ? '<div style="font-size:.72rem;color:#e63946;margin-top:2px">⚠️ Не проверялась 24+ ч.</div>' : ''}
       </td>
@@ -3146,9 +3182,12 @@ document.getElementById('updateOverlay').addEventListener('click', function(e){ 
 // ══════════════════════════════════════════════
 initData();
 renderAll();
+fetchLiveStatus();                       // подтянуть live-статус аппаратов из API Tastamat
 
 // Auto-refresh KPI every 60s (for long tab sessions)
 setInterval(renderAll, 60000);
+// Live-статус аппаратов обновляем каждые 5 минут
+setInterval(fetchLiveStatus, 300000);
 
 // ══════════════════════════════════════════════
 //  ANALYSIS TABS

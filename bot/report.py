@@ -17,6 +17,15 @@ BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 CHAT_ID   = os.environ.get("TELEGRAM_CHAT_ID", "")
 DATA_FILE = os.path.join(os.path.dirname(__file__), "data.json")
 
+# API Tastamat — live-статус аппаратов (принимает / выключен / бак полон)
+LIVE_API_URL = "https://rvm.tastamat.com/red/locations"
+STATUS_RU = {
+    "OFF":                     "⛔ выключен",
+    "UNAVAILABLE_TANK":        "🟠 бак полон",
+    "UNAVAILABLE_MAINTENANCE": "🔧 обслуживание",
+    "UNAVAILABLE_CAMERA":      "📷 нет камеры",
+}
+
 # ── HELPERS ───────────────────────────────────────────────
 def get_status(rating):
     if rating is None:
@@ -80,11 +89,23 @@ def load_data():
         print(f"⚠️  Файл данных не найден: {DATA_FILE}")
         print("   Экспортируйте данные из монитора (кнопка ⬇️ Экспорт JSON)")
         sys.exit(1)
-    with open(DATA_FILE, "r", encoding="utf-8") as f:
+    with open(DATA_FILE, "r", encoding="utf-8-sig") as f:
         return json.load(f)
 
+def fetch_live_status():
+    """Загрузить live-статусы аппаратов из API Tastamat. uuid → код статуса."""
+    try:
+        req = urllib.request.Request(LIVE_API_URL, headers={"User-Agent": "fandomat-report/1.0"})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            items = json.loads(r.read().decode("utf-8")).get("list", [])
+        return {x["uuid"]: x.get("status") for x in items}
+    except Exception as e:
+        print(f"⚠️  Не удалось получить live-статусы Tastamat: {e}")
+        return {}
+
 # ── ФОРМИРОВАНИЕ ОТЧЁТА ───────────────────────────────────
-def build_report(points):
+def build_report(points, live=None):
+    live     = live or {}
     now      = datetime.now()
     date_str = now.strftime("%d.%m.%Y")
     time_str = now.strftime("%H:%M")
@@ -115,6 +136,32 @@ def build_report(points):
     lines.append(f"  🔴 Критичные: {len(critical)}")
     lines.append(f"  🔵 Без данных: {len(no_data)}")
     lines.append("")
+
+    # ── LIVE-СТАТУС АППАРАТОВ (API Tastamat)
+    if live:
+        from collections import Counter
+        offline = []
+        for p in points:
+            uuid = str(p.get("id", "")).replace("rvm", "")
+            st = live.get(uuid)
+            if st and st != "ON":
+                offline.append((p, st))
+        working = sum(1 for v in live.values() if v == "ON")
+        by_status = Counter(st for _, st in offline)
+
+        lines.append("🔌 <b>Состояние аппаратов (Tastamat):</b>")
+        lines.append(f"  ✅ Принимают: <b>{working}</b> из {len(live)}")
+        if offline:
+            lines.append(f"  ⚠️ Не принимают: <b>{len(offline)}</b> — " +
+                         ", ".join(f"{STATUS_RU.get(s, s)} {n}" for s, n in by_status.most_common()))
+            # Детально только реально сломанные (не рутинный «бак полон»)
+            broken = [(p, st) for p, st in offline if st != "UNAVAILABLE_TANK"]
+            LIMIT = 15
+            for p, st in broken[:LIMIT]:
+                lines.append(f"     {STATUS_RU.get(st, st)} — {p.get('city')}, {p.get('address')}")
+            if len(broken) > LIMIT:
+                lines.append(f"     …и ещё {len(broken) - LIMIT}")
+        lines.append("")
 
     # ── КРИТИЧНЫЕ (главный блок)
     if critical:
@@ -178,7 +225,10 @@ def main():
     points = load_data()
     print(f"📊 Загружено точек: {len(points)}")
 
-    report = build_report(points)
+    live = fetch_live_status()
+    print(f"🔌 Live-статусов из API: {len(live)}")
+
+    report = build_report(points, live)
     print("\n" + "="*50)
     print(report)
     print("="*50 + "\n")
