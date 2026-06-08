@@ -1,0 +1,42 @@
+name: 🔄 Обновление рейтингов из 2ГИС
+
+on:
+  schedule:
+    # 04:30 UTC = 09:30 Алматы (UTC+5) — перед ежедневным отчётом в 10:00
+    - cron: '30 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    name: Спарсить рейтинги 2ГИС и обновить data.json
+
+    steps:
+      - name: 📥 Получить код репозитория
+        uses: actions/checkout@v4
+
+      - name: 🐍 Установить Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 🔄 Обновить рейтинги из 2ГИС
+        env:
+          GIS_API_KEY: ${{ secrets.GIS_API_KEY }}
+        run: python bot/sync_2gis.py --write
+
+      - name: 💾 Закоммитить изменения (если есть)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add bot/data.json
+          if git diff --staged --quiet; then
+            echo "Изменений нет — рейтинги не поменялись."
+          else
+            git commit -m "🔄 Авто-обновление рейтингов 2ГИС ($(date +%F))"
+            git push
+            echo "✅ data.json обновлён и запушен."
+          fi
