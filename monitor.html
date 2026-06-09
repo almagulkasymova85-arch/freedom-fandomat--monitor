@@ -1009,6 +1009,71 @@
     .toolbar, header .btn, .action-btns, .btn { display: none !important; }
     body { background: #fff; }
   }
+
+  /* ── SMART SEARCH ── */
+  .search-wrap { position: relative; flex: 1; min-width: 200px; }
+  .search-wrap .search-box { width: 100%; padding-right: 34px; }
+  .search-clear {
+    position: absolute; right: 10px; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 1rem; display: none; line-height: 1;
+    padding: 2px 4px; border-radius: 4px; transition: color .15s;
+  }
+  .search-clear:hover { color: var(--red); }
+  .search-clear.visible { display: block; }
+  mark.hl { background: #fff176; border-radius: 2px; padding: 0 1px; color: inherit; }
+
+  /* ── QUICK FILTERS ── */
+  .quick-filters {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    padding: 10px 28px; border-bottom: 1px solid var(--border);
+    background: #fafafa; align-items: center;
+  }
+  .qf-label { font-size: .75rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+  .qf-btn {
+    padding: 5px 12px; border-radius: 20px;
+    border: 2px solid var(--border); background: #fff;
+    cursor: pointer; font-size: .78rem; font-weight: 700;
+    color: var(--muted); transition: all .18s;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .qf-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .qf-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .qf-btn.qf-red.active    { background: var(--red);    border-color: var(--red); }
+  .qf-btn.qf-yellow.active { background: #e08c40; border-color: #e08c40; }
+  .qf-btn.qf-green.active  { background: var(--green);  border-color: var(--green); }
+  .qf-count {
+    display: inline-block; background: rgba(0,0,0,.1);
+    border-radius: 20px; padding: 0 6px; font-size: .68rem;
+    min-width: 18px; text-align: center; line-height: 1.5;
+  }
+  .qf-btn:not(.active) .qf-count { background: #eee; color: var(--muted); }
+
+  /* ── SORTABLE HEADERS ── */
+  thead th.sortable { cursor: pointer; user-select: none; transition: background .15s; white-space: nowrap; }
+  thead th.sortable:hover { background: #eaecef; }
+  thead th.sort-active { background: #e8eeff !important; color: var(--blue); }
+  .sort-icon { margin-left: 4px; font-size: .65rem; opacity: .35; display: inline-block; }
+  thead th.sort-active .sort-icon { opacity: 1; color: var(--blue); }
+
+  /* ── IMPROVED CARDS ── */
+  .point-card { transition: transform .15s, box-shadow .15s; }
+  .point-card:hover { transform: translateY(-2px); box-shadow: 0 4px 18px rgba(0,0,0,.13); }
+  .pc-rating-big { font-size: 1.9rem; font-weight: 800; line-height: 1; }
+  .pc-rvm-tag {
+    font-size: .68rem; font-weight: 700; color: var(--muted);
+    background: #f0f2f5; border-radius: 4px; padding: 1px 6px; display: inline-block;
+  }
+  .pc-offline-dot {
+    display: inline-block; width: 8px; height: 8px;
+    border-radius: 50%; background: #e63946;
+    animation: pulse-red 1.4s ease-in-out infinite; flex-shrink: 0;
+  }
+  @keyframes pulse-red {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: .35; transform: scale(1.5); }
+  }
 </style>
 </head>
 <body>
@@ -1031,7 +1096,10 @@
   <button class="btn btn-outline" onclick="document.getElementById('strategySection').scrollIntoView({behavior:'smooth'})">🎯 Стратегия 4.8★</button>
   <button class="btn btn-outline" onclick="document.getElementById('workplanSection').scrollIntoView({behavior:'smooth'})">📅 План работы</button>
   <button class="btn btn-danger"  onclick="clearAll()" style="margin-left:auto">🗑️ Сбросить всё</button>
-  <input class="search-box" id="searchInput" placeholder="🔍 Поиск по адресу..." oninput="renderTable()">
+  <div class="search-wrap">
+    <input class="search-box" id="searchInput" placeholder="🔍 Поиск: адрес, RVM, заметки, город..." oninput="onSearch()">
+    <button class="search-clear" id="searchClear" onclick="clearSearch()" title="Очистить">✕</button>
+  </div>
   <select class="filter" id="cityFilter" onchange="renderTable()">
     <option value="">🌍 Все города</option>
     <option value="Алматы">Алматы</option>
@@ -1052,6 +1120,16 @@
     <button id="viewTableBtn" class="vt-btn active" onclick="setViewMode('table')">📋 Таблица</button>
     <button id="viewCardsBtn" class="vt-btn" onclick="setViewMode('cards')">▦ Карточки</button>
   </div>
+</div>
+
+<!-- QUICK FILTERS -->
+<div class="quick-filters">
+  <span class="qf-label">Быстро:</span>
+  <button class="qf-btn active"     id="qf-all"      onclick="setQuickFilter('all')">🌐 Все <span class="qf-count" id="qfc-all">—</span></button>
+  <button class="qf-btn qf-red"     id="qf-critical" onclick="setQuickFilter('critical')">🚨 Критичные <span class="qf-count" id="qfc-critical">0</span></button>
+  <button class="qf-btn qf-yellow"  id="qf-warning"  onclick="setQuickFilter('warning')">⚠️ Слабые <span class="qf-count" id="qfc-warning">0</span></button>
+  <button class="qf-btn qf-green"   id="qf-good"     onclick="setQuickFilter('good')">✅ Хорошие <span class="qf-count" id="qfc-good">0</span></button>
+  <button class="qf-btn"            id="qf-offline"  onclick="setQuickFilter('offline')">🔌 Офлайн <span class="qf-count" id="qfc-offline">0</span></button>
 </div>
 
 <!-- ALERTS -->
@@ -1079,10 +1157,10 @@
     <thead>
       <tr>
         <th>#</th>
-        <th>Город</th>
-        <th>Адрес / Локация</th>
-        <th>Рейтинг</th>
-        <th>Отзывов</th>
+        <th class="sortable" id="th-city"    onclick="setSort('city')">Город <span class="sort-icon" id="si-city">⇅</span></th>
+        <th class="sortable" id="th-address" onclick="setSort('address')">Адрес / Локация <span class="sort-icon" id="si-address">⇅</span></th>
+        <th class="sortable sort-active" id="th-rating"  onclick="setSort('rating')">Рейтинг <span class="sort-icon" id="si-rating">▲</span></th>
+        <th class="sortable" id="th-reviews" onclick="setSort('reviews')">Отзывов <span class="sort-icon" id="si-reviews">⇅</span></th>
         <th>Статус</th>
         <th>Аппарат</th>
         <th>Тренд</th>
@@ -2700,6 +2778,7 @@ function renderAll() {
   renderAlerts();
   renderKPI();
   renderCharts();
+  updateQuickCounts();
   renderTable();
   renderLog();
   document.getElementById('lastUpdate').textContent =
@@ -2783,7 +2862,11 @@ function renderCharts() {
   `).join('');
 }
 
-let viewMode = 'table';
+let viewMode    = 'table';
+let sortCol     = 'rating';
+let sortDir     = 'asc';
+let quickFilter = 'all';
+
 function setViewMode(mode) {
   viewMode = mode;
   document.getElementById('viewTableBtn').classList.toggle('active', mode === 'table');
@@ -2793,17 +2876,38 @@ function setViewMode(mode) {
 
 function filteredPoints() {
   const data   = load();
-  const search = document.getElementById('searchInput').value.toLowerCase();
+  const search = document.getElementById('searchInput').value.toLowerCase().trim();
   const city   = document.getElementById('cityFilter').value;
   const status = document.getElementById('statusFilter').value;
   const appr   = document.getElementById('apparatusFilter').value;
   return data.filter(p => {
-    if (city   && p.city !== city) return false;
-    if (status && getStatus(p.rating) !== status) return false;
-    if (search && !p.address.toLowerCase().includes(search)) return false;
+    if (city && p.city !== city) return false;
+    // Quick-filter имеет приоритет над дропдауном статуса
+    if (quickFilter !== 'all') {
+      if (quickFilter === 'offline') {
+        const a = apprInfo(p.id);
+        if (!a || a.code === 'ON') return false;
+      } else {
+        if (getStatus(p.rating) !== quickFilter) return false;
+      }
+    } else if (status) {
+      if (getStatus(p.rating) !== status) return false;
+    }
+    // Smart search: адрес, город, заметки, id (rvm201), только номер (201)
+    if (search) {
+      const rvmNum = (p.id || '').replace('rvm', '');
+      const haystack = [
+        p.address || '',
+        p.city    || '',
+        p.notes   || '',
+        p.id      || '',
+        rvmNum,
+      ].join(' ').toLowerCase();
+      if (!haystack.includes(search)) return false;
+    }
     if (appr) {
       const a = apprInfo(p.id);
-      if (!a) return false;                       // нет live-данных — скрыть при фильтре
+      if (!a) return false;
       if (appr === 'on'  && a.code !== 'ON') return false;
       if (appr === 'off' && a.code === 'ON') return false;
     }
@@ -2811,10 +2915,100 @@ function filteredPoints() {
   });
 }
 
+function highlight(text, q) {
+  if (!q || !text) return text || '';
+  const esc = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return String(text).replace(new RegExp(`(${esc})`, 'gi'), '<mark class="hl">$1</mark>');
+}
+
+function sortPoints(arr) {
+  return [...arr].sort((a, b) => {
+    let va, vb;
+    switch (sortCol) {
+      case 'rating':
+        va = a.rating !== null ? a.rating : (sortDir === 'asc' ? 99 : -1);
+        vb = b.rating !== null ? b.rating : (sortDir === 'asc' ? 99 : -1);
+        return sortDir === 'asc' ? va - vb : vb - va;
+      case 'reviews':
+        va = a.reviews || 0; vb = b.reviews || 0;
+        return sortDir === 'asc' ? va - vb : vb - va;
+      case 'address':
+        return sortDir === 'asc'
+          ? (a.address||'').localeCompare(b.address||'', 'ru')
+          : (b.address||'').localeCompare(a.address||'', 'ru');
+      case 'city':
+        return sortDir === 'asc'
+          ? (a.city||'').localeCompare(b.city||'', 'ru')
+          : (b.city||'').localeCompare(a.city||'', 'ru');
+      default: return 0;
+    }
+  });
+}
+
+function setSort(col) {
+  if (sortCol === col) {
+    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortCol = col;
+    sortDir = 'asc';
+  }
+  ['city','address','rating','reviews'].forEach(c => {
+    const th = document.getElementById('th-' + c);
+    const si = document.getElementById('si-' + c);
+    if (!th) return;
+    if (c === sortCol) {
+      th.classList.add('sort-active');
+      si.textContent = sortDir === 'asc' ? '▲' : '▼';
+    } else {
+      th.classList.remove('sort-active');
+      si.textContent = '⇅';
+    }
+  });
+  renderTable();
+}
+
+function onSearch() {
+  const q = document.getElementById('searchInput').value;
+  document.getElementById('searchClear').classList.toggle('visible', q.length > 0);
+  renderTable();
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').classList.remove('visible');
+  renderTable();
+}
+
+function setQuickFilter(f) {
+  quickFilter = f;
+  ['all','critical','warning','good','offline'].forEach(id => {
+    const btn = document.getElementById('qf-' + id);
+    if (btn) btn.classList.toggle('active', id === f);
+  });
+  renderTable();
+}
+
+function updateQuickCounts() {
+  const data = load();
+  const qfAll = data.length;
+  const qfCritical = data.filter(p => getStatus(p.rating) === 'critical').length;
+  const qfWarning  = data.filter(p => getStatus(p.rating) === 'warning').length;
+  const qfGood     = data.filter(p => getStatus(p.rating) === 'good').length;
+  const qfOffline  = data.filter(p => { const a = apprInfo(p.id); return a && a.code !== 'ON'; }).length;
+  const set = (id, n) => { const el = document.getElementById(id); if (el) el.textContent = n; };
+  set('qfc-all',      qfAll);
+  set('qfc-critical', qfCritical);
+  set('qfc-warning',  qfWarning);
+  set('qfc-good',     qfGood);
+  set('qfc-offline',  qfOffline);
+}
+
 function renderTable() {
   const data     = load();
   const filtered = filteredPoints();
-  document.getElementById('countLabel').textContent = `(${filtered.length} из ${data.length})`;
+  const sorted   = sortPoints(filtered);
+  const q        = document.getElementById('searchInput').value.trim();
+  document.getElementById('countLabel').textContent = `(${sorted.length} из ${data.length})`;
 
   const table     = document.querySelector('.table-wrap table');
   const cardsView = document.getElementById('cardsView');
@@ -2823,27 +3017,28 @@ function renderTable() {
   if (viewMode === 'cards') {
     table.style.display = 'none';
     cardsView.style.display = 'grid';
-    renderCards(filtered);
+    renderCards(sorted, q);
     return;
   }
   table.style.display = '';
   cardsView.style.display = 'none';
 
-  if (!filtered.length) {
+  if (!sorted.length) {
     tbody.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="empty-icon">🔍</div><p>Ничего не найдено</p></div></td></tr>`;
     return;
   }
 
-  tbody.innerHTML = filtered.map((p, i) => {
+  tbody.innerHTML = sorted.map((p, i) => {
     const s = getStatus(p.rating);
     const overdue = p.checked && (Date.now() - new Date(p.checked).getTime()) / 36e5 > 24;
     return `
     <tr>
       <td>${i+1}</td>
-      <td><span class="city-tag city-${p.city==='Алматы'?'almaty':'astana'}">${p.city}</span></td>
+      <td><span class="city-tag city-${p.city==='Алматы'?'almaty':'astana'}">${highlight(p.city, q)}</span></td>
       <td>
-        <div style="font-weight:600">${p.address}</div>
-        ${p.notes ? `<div style="font-size:.75rem;color:var(--muted);margin-top:3px">${p.notes}</div>` : ''}
+        <div style="font-weight:600">${highlight(p.address, q)}</div>
+        ${p.notes ? `<div style="font-size:.75rem;color:var(--muted);margin-top:3px">${highlight(p.notes, q)}</div>` : ''}
+        ${p.id ? `<span class="pc-rvm-tag">${highlight(p.id, q)}</span>` : ''}
         ${overdue ? '<div style="font-size:.72rem;color:#e63946;margin-top:2px">⚠️ Не проверялась 24+ ч.</div>' : ''}
       </td>
       <td>
@@ -2868,7 +3063,7 @@ function renderTable() {
   }).join('');
 }
 
-function renderCards(filtered) {
+function renderCards(filtered, q = '') {
   const cardsView = document.getElementById('cardsView');
   if (!filtered.length) {
     cardsView.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🔍</div><p>Ничего не найдено</p></div>`;
@@ -2877,23 +3072,31 @@ function renderCards(filtered) {
   cardsView.innerHTML = filtered.map(p => {
     const s = getStatus(p.rating);
     const overdue = p.checked && (Date.now() - new Date(p.checked).getTime()) / 36e5 > 24;
+    const appr = apprInfo(p.id);
+    const isOffline = appr && appr.code !== 'ON';
+    const pill = apprPill(p.id);
     return `
     <div class="point-card pc-${s}">
-      <div class="pc-head">
-        <div>
-          <span class="city-tag city-${p.city==='Алматы'?'almaty':'astana'}">${p.city}</span>
-          <div class="pc-addr">${p.address}</div>
+      <div class="pc-head" style="align-items:flex-start">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px">
+            <span class="city-tag city-${p.city==='Алматы'?'almaty':'astana'}">${p.city}</span>
+            ${p.id ? `<span class="pc-rvm-tag">${highlight(p.id, q)}</span>` : ''}
+          </div>
+          <div class="pc-addr">${highlight(p.address, q)}</div>
         </div>
-        ${apprPill(p.id)}
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;margin-left:8px">
+          <span class="pc-rating-big rating-badge ${ratingClass(p.rating)}" style="padding:5px 12px;border-radius:10px">${fmt(p.rating)}</span>
+          <div class="stars" style="font-size:.82rem">${stars(p.rating)}</div>
+        </div>
       </div>
       <div class="pc-metrics">
-        <div class="pc-metric"><span class="v"><span class="rating-badge ${ratingClass(p.rating)}">${fmt(p.rating)}</span></span><span class="l">рейтинг</span></div>
         <div class="pc-metric"><span class="v">${p.reviews||0}</span><span class="l">отзывов</span></div>
         <div class="pc-metric"><span class="v">${(p.totalAccepted||0).toLocaleString('ru-RU')}</span><span class="l">бутылок</span></div>
         <div class="pc-metric"><span class="v" style="font-size:.9rem">${trendIcon(p.rating, p.prevRating)}</span><span class="l">тренд</span></div>
       </div>
-      <div class="stars">${stars(p.rating)}</div>
-      ${p.notes ? `<div style="font-size:.78rem;color:var(--muted)">${p.notes}</div>` : ''}
+      ${pill ? `<div style="display:flex;align-items:center;gap:5px">${isOffline ? '<span class="pc-offline-dot"></span>' : ''}${pill}</div>` : ''}
+      ${p.notes ? `<div style="font-size:.78rem;color:var(--muted)">${highlight(p.notes, q)}</div>` : ''}
       ${overdue ? '<div style="font-size:.72rem;color:#e63946">⚠️ Не проверялась 24+ ч.</div>' : ''}
       <div class="pc-foot">
         ${p.link ? `<a class="mini-btn mb-2gis" href="${p.link}" target="_blank">🗺️ 2ГИС</a>` : ''}
@@ -3349,6 +3552,11 @@ document.getElementById('updateOverlay').addEventListener('click', function(e){ 
 // ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
+// Сбрасываем фильтры при загрузке (браузер может восстанавливать select-значения)
+document.getElementById('statusFilter').value    = '';
+document.getElementById('cityFilter').value      = '';
+document.getElementById('apparatusFilter').value = '';
+
 initData().then(() => {                  // подтянуть data.json (рейтинги из 2ГИС), затем отрисовать
   renderAll();
   fetchLiveStatus();                     // подтянуть live-статус аппаратов из API Tastamat
