@@ -124,12 +124,13 @@ def main():
     print(f"🔑 Ключ 2ГИС: …{API_KEY[-6:]}")
     print(f"📥 Режим: {'ЗАПИСЬ в data.json' if write else 'dry-run (только показать)'}\n")
 
-    # координаты аппаратов из Tastamat: uuid -> (lat, lon)
+    # координаты и полные данные аппаратов из Tastamat
     try:
-        coords = {x["uuid"]: (x["latitude"], x["longitude"])
-                  for x in get_json(TASTAMAT_URL)["list"]}
+        tastamat_raw = get_json(TASTAMAT_URL)["list"]
+        coords   = {str(x["uuid"]): (x["latitude"], x["longitude"]) for x in tastamat_raw}
+        tastamat = {str(x["uuid"]): x for x in tastamat_raw}
     except Exception as e:
-        print(f"❌ Не удалось получить координаты из Tastamat: {e}")
+        print(f"❌ Не удалось получить данные из Tastamat: {e}")
         sys.exit(1)
 
     data = load_data()
@@ -193,12 +194,44 @@ def main():
                 p["reviews"]    = reviews
                 dirty = True
 
+    # 4) Новые аппараты из Tastamat, которых ещё нет в data.json
+    added = 0
+    existing_uuids = {p["id"].replace("rvm", "") for p in data}
+    for uuid, m in sorted(tastamat.items(), key=lambda kv: kv[0]):
+        if uuid in existing_uuids:
+            continue
+        lat  = float(m.get("latitude") or 0)
+        city = "Астана" if lat > 49 else "Алматы"
+        addr = (m.get("address") or "").strip() or f"RVM {uuid}"
+        city_slug = "astana" if city == "Астана" else "almaty"
+        link = f"https://2gis.kz/{city_slug}/search/{urllib.parse.quote(addr)}"
+        rvm_num = int(uuid) if uuid.isdigit() else uuid
+        data.append({
+            "id":           f"rvm{uuid}",
+            "city":         city,
+            "address":      addr,
+            "rating":       None,
+            "reviews":      0,
+            "prevRating":   None,
+            "notes":        f"RVM {uuid}",
+            "checked":      None,
+            "link":         link,
+            "rvm":          rvm_num,
+            "totalAccepted": int(m.get("totalAccepted") or 0),
+        })
+        existing_uuids.add(uuid)
+        added += 1
+        if write:
+            dirty = True
+        print(f"  ➕ Новая точка: RVM {uuid} {city} — {addr}")
+
     no_coords = sum(1 for p in data if not coords.get(p["id"].replace("rvm", "")))
     no_card   = sum(1 for p in data if not p.get("gisId"))
 
     print(f"\n─ ИТОГО ──────────────────────────────────")
     print(f"  Получено рейтингов: {found}")
     print(f"  Из них изменилось:  {changed}")
+    print(f"  Добавлено новых:    {added}")
     print(f"  Без карточки 2ГИС:  {no_card}")
     print(f"  Нет координат:      {no_coords} (нет в API Tastamat)")
     print(f"  💸 Запросов к 2ГИС: {req_byid + req_search} "
