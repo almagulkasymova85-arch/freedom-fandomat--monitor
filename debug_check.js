@@ -1,0 +1,22 @@
+﻿const { chromium } = require('playwright');
+(async () => {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+  const errors = [];
+  page.on('pageerror', err => errors.push('JS ERROR: ' + err.message));
+  await page.goto('http://localhost:7823/monitor.html', { waitUntil: 'networkidle', timeout: 15000 });
+  await page.waitForTimeout(3000);
+  const countLabel = await page.$eval('#countLabel', el => el.textContent).catch(() => 'NOT FOUND');
+  const rowCount = await page.$$eval('#tableBody tr', rows => rows.length);
+  const statusFilter = await page.$eval('#statusFilter', el => el.value).catch(() => 'N/A');
+  const cityFilter = await page.$eval('#cityFilter', el => el.value).catch(() => 'N/A');
+  const apprFilter = await page.$eval('#apparatusFilter', el => el.value).catch(() => 'N/A');
+  console.log('countLabel:', countLabel);
+  console.log('rowCount:', rowCount);
+  console.log('statusFilter:', JSON.stringify(statusFilter));
+  console.log('cityFilter:', JSON.stringify(cityFilter));
+  console.log('apprFilter:', JSON.stringify(apprFilter));
+  console.log('errors:', JSON.stringify(errors));
+  await page.screenshot({ path: 'c:/Users/Flekshoter/Documents/GitHub/freedom-fandomat--monitor/debug_screenshot.png', fullPage: false });
+  await browser.close();
+})();
