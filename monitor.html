@@ -1100,18 +1100,18 @@
     <input class="search-box" id="searchInput" placeholder="🔍 Поиск: адрес, RVM, заметки, город..." oninput="onSearch()">
     <button class="search-clear" id="searchClear" onclick="clearSearch()" title="Очистить">✕</button>
   </div>
-  <select class="filter" id="cityFilter" onchange="renderTable()">
+  <select class="filter" id="cityFilter" autocomplete="off">
     <option value="">🌍 Все города</option>
     <option value="Алматы">Алматы</option>
     <option value="Астана">Астана</option>
   </select>
-  <select class="filter" id="statusFilter" onchange="renderTable()">
+  <select class="filter" id="statusFilter" autocomplete="off">
     <option value="">📊 Все статусы</option>
     <option value="critical">🔴 Критично</option>
     <option value="warning">🟡 Слабо</option>
     <option value="good">🟢 Хорошо</option>
   </select>
-  <select class="filter" id="apparatusFilter" onchange="renderTable()">
+  <select class="filter" id="apparatusFilter" autocomplete="off">
     <option value="">🔌 Все аппараты</option>
     <option value="on">✅ Принимают</option>
     <option value="off">⚠️ Не принимают</option>
@@ -2525,20 +2525,7 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 
 // Default dataset
 const DEFAULTS = [
-  // АЛМАТЫ
-  { id:'a1', city:'Алматы', address:'ул. Панфилова, выше Толе би',        rating:1.7, reviews:13, prevRating:null, link:'https://2gis.kz/almaty/firm/70000001090502323', notes:'Частые жалобы: аппарат не работает, пустой экран', checked:null },
-  { id:'a2', city:'Алматы', address:'ул. Маркова, 44',                    rating:5.0, reviews:2,  prevRating:null, link:'https://2gis.kz/almaty/search/Фандомат',          notes:'', checked:null },
-  { id:'a3', city:'Алматы', address:'пр. Абая, 90',                       rating:2.3, reviews:3,  prevRating:null, link:'https://2gis.kz/almaty/search/Фандомат',          notes:'', checked:null },
-  { id:'a4', city:'Алматы', address:'ЖК Megapolis',                       rating:5.0, reviews:1,  prevRating:null, link:'https://2gis.kz/almaty/search/Фандомат',          notes:'Мало отзывов — нужна активация', checked:null },
-  { id:'a5', city:'Алматы', address:'Esentai Tower, пр. Аль-Фараби, 77/7',rating:3.6, reviews:3,  prevRating:null, link:'https://2gis.kz/almaty/search/Фандомат',          notes:'Работает с 08:00', checked:null },
-  // АСТАНА
-  { id:'s1', city:'Астана', address:'ул. Бейбитшилик, 9',                 rating:4.1, reviews:7,  prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'Лучшая точка', checked:null },
-  { id:'s2', city:'Астана', address:'ул. Кажымукан, 13 (ЕНУ)',            rating:3.7, reviews:4,  prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'', checked:null },
-  { id:'s3', city:'Астана', address:'ТРЦ Asia Park, пр. Кабанбай батыра, 21', rating:1.0, reviews:5,  prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'Оценка 1.0 — срочно требует внимания', checked:null },
-  { id:'s4', city:'Астана', address:'ул. Сыганак, 1Б',                    rating:1.3, reviews:16, prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'Наибольшее кол-во отзывов, самый низкий рейтинг', checked:null },
-  { id:'s5', city:'Астана', address:'пр. Республики, 8',                  rating:null,reviews:0,  prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'Рейтинг не подтверждён — требует проверки', checked:null },
-  { id:'s6', city:'Астана', address:'Шоссе Коргалжын, 13д',               rating:null,reviews:0,  prevRating:null, link:'https://2gis.kz/astana/search/Прием%20пластиковых%20бутылок', notes:'Рейтинг не подтверждён — требует проверки', checked:null },
-  // ── ИЗ EXCEL: 100 ФАНДОМАТОВ (RVM 201-300) ──
+  // ── RVM 201-300 (100 фандоматов из Excel) ──
   { id:'rvm201', city:'Алматы', address:'БЦ Нурикон — Ауэзова 175/1', rating:null, reviews:0, prevRating:null, link:'https://2gis.kz/almaty/search/%D0%90%D1%83%D1%8D%D0%B7%D0%BE%D0%B2%D0%B0%20175%2F1', notes:'RVM 201 | Принято: 24 568 бут.', checked:null },
   { id:'rvm202', city:'Алматы', address:'ТЦ Замза — Проспект Абылай хана, 177а', rating:null, reviews:0, prevRating:null, link:'https://2gis.kz/almaty/search/%D0%9F%D1%80%D0%BE%D1%81%D0%BF%D0%B5%D0%BA%D1%82%20%D0%90%D0%B1%D1%8B%D0%BB%D0%B0%D0%B9%20%D1%85%D0%B0%D0%BD%D0%B0%2C%20177%D0%B0', notes:'RVM 202 | Принято: 9 854 бут.', checked:null },
   { id:'rvm203', city:'Алматы', address:'Спорт комплекс Балуана Шолака — Абая 44', rating:null, reviews:0, prevRating:null, link:'https://2gis.kz/almaty/search/%D0%90%D0%B1%D0%B0%D1%8F%2044', notes:'RVM 203 | Принято: 2 856 бут.', checked:null },
@@ -3552,14 +3539,23 @@ document.getElementById('updateOverlay').addEventListener('click', function(e){ 
 // ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
-// Сбрасываем фильтры при загрузке (браузер может восстанавливать select-значения)
+// Сбрасываем фильтры ДО загрузки данных
 document.getElementById('statusFilter').value    = '';
 document.getElementById('cityFilter').value      = '';
 document.getElementById('apparatusFilter').value = '';
 
-initData().then(() => {                  // подтянуть data.json (рейтинги из 2ГИС), затем отрисовать
+initData().then(() => {
+  // Сбрасываем ещё раз: браузер может восстанавливать select-значения уже после первого сброса
+  document.getElementById('statusFilter').value    = '';
+  document.getElementById('cityFilter').value      = '';
+  document.getElementById('apparatusFilter').value = '';
   renderAll();
-  fetchLiveStatus();                     // подтянуть live-статус аппаратов из API Tastamat
+  fetchLiveStatus();
+  // Вешаем change-обработчики только ПОСЛЕ инициализации —
+  // иначе браузерное восстановление формы вызывало renderTable() с "старым" фильтром
+  document.getElementById('cityFilter').addEventListener('change', renderTable);
+  document.getElementById('statusFilter').addEventListener('change', renderTable);
+  document.getElementById('apparatusFilter').addEventListener('change', renderTable);
 });
 
 // Auto-refresh KPI every 60s (for long tab sessions)
