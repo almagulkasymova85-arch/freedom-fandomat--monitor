@@ -2640,6 +2640,7 @@ async function initData() {
   } catch (e) { console.warn('bot/data.json недоступен, работаем на localStorage:', e); }
 
   if (Array.isArray(remote) && remote.length) {
+    const remoteIds = new Set(remote.map(rp => rp.id));
     const byId = new Map(data.map(p => [p.id, p]));
     remote.forEach(rp => {
       const lp = byId.get(rp.id);
@@ -2657,6 +2658,9 @@ async function initData() {
         byId.set(rp.id, rp);
       }
     });
+    // Удаляем из localStorage точки, которых больше нет в data.json.
+    // Сохраняем вручную добавленные точки (uid-стиль id, не rvm/a/s + цифра).
+    data = data.filter(p => remoteIds.has(p.id) || !/^(rvm\d+|[as]\d+)$/.test(p.id));
   } else {
     // нет data.json — добавим хотя бы новые точки из встроенного DEFAULTS
     const ids = new Set(data.map(p => p.id));
