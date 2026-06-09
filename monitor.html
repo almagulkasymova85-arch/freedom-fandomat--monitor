@@ -150,6 +150,7 @@
   .r-red    { background: #fde8e8; color: #c0392b; }
   .r-yellow { background: #fff3e0; color: #d35400; }
   .r-green  { background: #e8f8ee; color: #1e8449; }
+  .r-new    { background: #e8f0fe; color: #1a73e8; }
 
   .status-pill {
     display: inline-block;
@@ -1161,7 +1162,6 @@
         <th class="sortable" id="th-address" onclick="setSort('address')">Адрес / Локация <span class="sort-icon" id="si-address">⇅</span></th>
         <th class="sortable sort-active" id="th-rating"  onclick="setSort('rating')">Рейтинг <span class="sort-icon" id="si-rating">▲</span></th>
         <th class="sortable" id="th-reviews" onclick="setSort('reviews')">Отзывов <span class="sort-icon" id="si-reviews">⇅</span></th>
-        <th>Статус</th>
         <th>Аппарат</th>
         <th>Тренд</th>
         <th>Последняя проверка</th>
@@ -2686,13 +2686,16 @@ function statusClass(s) {
   return { critical:'s-critical', warning:'s-warning', good:'s-good', new:'s-new' }[s] || '';
 }
 function ratingClass(r) {
-  if (r === null) return '';
+  if (r === null || r === undefined) return 'r-new';
   if (r < 2.5) return 'r-red';
   if (r < 3.5) return 'r-yellow';
   return 'r-green';
 }
+function statusEmoji(s) {
+  return { critical:'🔴', warning:'🟡', good:'🟢', new:'🔵' }[s] || '⚪';
+}
 function stars(r) {
-  if (r === null) return '—';
+  if (r === null || r === undefined) return '';
   const full = Math.round(r);
   return '★'.repeat(full) + '☆'.repeat(5 - full);
 }
@@ -3013,7 +3016,7 @@ function renderTable() {
   cardsView.style.display = 'none';
 
   if (!sorted.length) {
-    tbody.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="empty-icon">🔍</div><p>Ничего не найдено</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-icon">🔍</div><p>Ничего не найдено</p></div></td></tr>`;
     return;
   }
 
@@ -3031,12 +3034,12 @@ function renderTable() {
         ${overdue ? '<div style="font-size:.72rem;color:#e63946;margin-top:2px">⚠️ Не проверялась 24+ ч.</div>' : ''}
       </td>
       <td>
-        <span class="rating-badge ${ratingClass(p.rating)}">
-          ${fmt(p.rating)} <span class="stars">${stars(p.rating)}</span>
+        <span class="rating-badge ${ratingClass(p.rating)}" title="${statusLabel(s)}">
+          ${statusEmoji(s)} ${fmt(p.rating)}
         </span>
+        <div class="stars" style="font-size:.78rem;margin-top:2px">${stars(p.rating)}</div>
       </td>
       <td style="text-align:center;font-weight:600">${p.reviews || 0}</td>
-      <td><span class="status-pill ${statusClass(s)}">${statusLabel(s)}</span></td>
       <td>${apprPill(p.id)}</td>
       <td>${trendIcon(p.rating, p.prevRating)}</td>
       <td style="font-size:.78rem;color:var(--muted)">${fmtDate(p.checked)}</td>
@@ -3075,7 +3078,7 @@ function renderCards(filtered, q = '') {
           <div class="pc-addr">${highlight(p.address, q)}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;margin-left:8px">
-          <span class="pc-rating-big rating-badge ${ratingClass(p.rating)}" style="padding:5px 12px;border-radius:10px">${fmt(p.rating)}</span>
+          <span class="pc-rating-big rating-badge ${ratingClass(p.rating)}" style="padding:5px 12px;border-radius:10px" title="${statusLabel(s)}">${statusEmoji(s)} ${fmt(p.rating)}</span>
           <div class="stars" style="font-size:.82rem">${stars(p.rating)}</div>
         </div>
       </div>
@@ -3281,15 +3284,14 @@ function generateReport() {
           <td class="num">${i+1}</td>
           <td><span class="city-tag city-${p.city==='Алматы'?'almaty':'astana'}">${p.city}</span></td>
           <td><b>${p.address}</b>${p.notes?`<br><span style="font-size:.72rem;color:var(--muted)">${p.notes}</span>`:''}</td>
-          <td><span class="rating-badge ${ratingClass(p.rating)}">${fmt(p.rating)} ${stars(p.rating)}</span></td>
+          <td><span class="rating-badge ${ratingClass(p.rating)}" title="${statusLabel(s)}">${statusEmoji(s)} ${fmt(p.rating)}</span><div class="stars" style="font-size:.75rem;margin-top:2px">${stars(p.rating)}</div></td>
           <td class="num">${p.reviews||0}</td>
           <td><span style="font-weight:700;color:${trendColor}">${trend}</span></td>
-          <td><span class="status-pill ${statusClass(s)}">${statusLabel(s)}</span></td>
           <td style="font-size:.75rem;color:var(--muted)">${p.checked?fmtDate(p.checked):'<span style="color:#e63946">Не проверено</span>'}</td>
           <td>${overdue?'<span style="color:#e63946;font-size:.75rem">⚠️ Просрочено</span>':'<span style="color:#1e8449;font-size:.75rem">✅ Актуально</span>'}</td>
         </tr>`;
       }).join('')
-    : `<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--muted)">Нет данных</td></tr>`;
+    : `<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--muted)">Нет данных</td></tr>`;
 
   const recos = [
     ...critical.map(p=>`<div class="report-reco-item red"><div class="report-reco-icon">🚨</div><div><b>${p.city} — ${p.address}</b><br>Ответить на отзывы в 2ГИС · Выехать на точку · Проверить аппарат</div></div>`),
